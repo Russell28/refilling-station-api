@@ -8,6 +8,9 @@ namespace RefillingStation.Api.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base (options) { }
 
         public DbSet<Trip> Trips => Set<Trip>();
+        public DbSet<CustomerDebtEntry> CustomerDebtEntries => Set<CustomerDebtEntry>();
+        public DbSet<Expense> Expenses => Set<Expense>();
+        public DbSet<PayrollEntry> PayrollEntries => Set<PayrollEntry>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -17,8 +20,8 @@ namespace RefillingStation.Api.Data
             {
                 entity.Property(x => x.Source).HasMaxLength(100);
                 entity.Property(x => x.TripType).HasMaxLength(100);
-                entity.Property(x => x.Employee).HasMaxLength(100);
-                entity.Property(x => x.CustomerType).HasMaxLength(100);
+                entity.Property(x => x.EmployeeName).HasMaxLength(100);
+                entity.Property(x => x.CustomerCategory).HasMaxLength(100);
                 entity.Property(x => x.Notes).HasMaxLength(500);
             });
         }
