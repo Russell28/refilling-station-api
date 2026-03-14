@@ -254,4 +254,61 @@ app.MapDelete("/payroll-entries/{id}", async (int id, AppDbContext db) =>
     return Results.NoContent();
 });
 
+// Dashboard API
+app.MapGet("/daily-summary/{date}", async (DateTime date, AppDbContext db) =>
+{
+    var targetDate = date.Date;
+
+    var trips = await db.Trips
+        .Where(x => x.Date.Date == targetDate)
+        .ToListAsync();
+
+    var expenses = await db.Expenses
+        .Where(x => x.Date.Date == targetDate)
+        .ToListAsync();
+
+    var payrolls = await db.PayrollEntries
+        .Where(x => x.Date.Date == targetDate)
+        .ToListAsync();
+
+    var debtToday = await db.CustomerDebtEntries
+        .Where(x => x.Date.Date == targetDate)
+        .ToListAsync();
+
+    var runningDebt = await db.CustomerDebtEntries
+        .Where(x => x.Date.Date <= targetDate)
+        .ToListAsync();
+
+    var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
+    var totalExpenses = expenses.Sum(x => x.Amount);
+    var totalPayrollPaid = payrolls.Sum(x => x.CashPaid);
+
+    var result = new
+    {
+        Date = targetDate,
+        TripCount = trips.Count,
+
+        TotalCollectedQty = trips.Sum(x => x.CollectedQty),
+        TotalLoadedQty = trips.Sum(x => x.LoadedQty),
+        TotalDeliveredQty = trips.Sum(x => x.DeliveredQty),
+        TotalFreeQty = trips.Sum(x => x.FreeQty),
+        TotalToBePaidQty = trips.Sum(x => x.ToBePaidQty),
+        TotalActualPaidQty = trips.Sum(x => x.ActualPaidQty),
+        TotalReturnedQty = trips.Sum(x => x.ReturnedQty),
+        TotalReplacementQty = trips.Sum(x => x.ReplacementQty),
+
+        TotalCashCollected = totalCashCollected,
+        TotalExpenses = totalExpenses,
+        TotalPayrollPaid = totalPayrollPaid,
+
+        TotalDebtCreatedToday = debtToday.Where(x => x.Amount > 0).Sum(x => x.Amount),
+        TotalDebtPaymentsToday = debtToday.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount)),
+        OutstandingDebt = runningDebt.Sum(x => x.Amount),
+
+        NetCashFlow = totalCashCollected - totalExpenses - totalPayrollPaid
+    };
+
+    return Results.Ok(result);
+});
+
 app.Run();
