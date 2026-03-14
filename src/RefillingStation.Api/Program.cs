@@ -142,6 +142,7 @@ app.MapPut("/debt-entries/{id}", async (int id, CustomerDebtEntry inputDebt, App
     debt.Amount = inputDebt.Amount;
     debt.CustomerName = inputDebt.CustomerName;
     debt.EntryType = inputDebt.EntryType;
+    debt.RelatedTripId = inputDebt.RelatedTripId;
     debt.Notes = inputDebt.Notes;
 
     await db.SaveChangesAsync();
@@ -154,6 +155,52 @@ app.MapDelete("/debt-entries/{id}", async (int id, AppDbContext db) =>
     if (debt is null) return Results.NotFound();
 
     db.CustomerDebtEntries.Remove(debt);
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+});
+
+// Expenses API
+app.MapGet("/expenses", async (AppDbContext db) => 
+    await db.Expenses
+        .OrderByDescending(x => x.Date)
+        .ToListAsync()
+);
+
+app.MapGet("/expenses/{id}", async (int id, AppDbContext db) => 
+    await db.Expenses.FindAsync(id) is Expense expense
+        ? Results.Ok(expense)
+        : Results.NotFound()
+);
+
+app.MapPost("/expenses", async (Expense expense, AppDbContext db) =>
+{
+    db.Expenses.Add(expense);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/debt-entries/{expense.Id}", expense);
+});
+
+app.MapPut("/expenses/{id}", async (int id, Expense inputExpense, AppDbContext db) =>
+{
+    var expense = await db.Expenses.FindAsync(id);
+    if (expense is null) return Results.NotFound();
+
+    expense.Date = inputExpense.Date;
+    expense.ExpenseCategory = inputExpense.ExpenseCategory;
+    expense.Amount = inputExpense.Amount;
+    expense.Notes = inputExpense.Notes;
+
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+app.MapDelete("/expenses/{id}", async (int id, AppDbContext db) =>
+{
+    var expense = await db.Expenses.FindAsync(id);
+    if (expense is null) return Results.NotFound();
+
+    db.Expenses.Remove(expense);
     await db.SaveChangesAsync();
 
     return Results.NoContent();
