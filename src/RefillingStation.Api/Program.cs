@@ -113,4 +113,50 @@ app.MapDelete("/trips/{id}", async (int id, AppDbContext db) =>
     return Results.NoContent();
 });
 
+// Customer Debt Entries API
+app.MapGet("/debt-entries", async (AppDbContext db) =>
+    await db.CustomerDebtEntries
+        .OrderByDescending(x => x.Date)
+        .ToListAsync()
+);
+
+app.MapGet("/debt-entries/{id}", async (int id, AppDbContext db) =>
+    await db.CustomerDebtEntries.FindAsync(id) is CustomerDebtEntry debt 
+        ? Results.Ok(debt)
+        : Results.NotFound()
+);
+
+app.MapPost("/debt-entries", async (CustomerDebtEntry debt, AppDbContext db) =>
+{
+    db.CustomerDebtEntries.Add(debt);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/debt-entries/{debt.Id}", debt);
+});
+
+app.MapPut("/debt-entries/{id}", async (int id, CustomerDebtEntry inputDebt, AppDbContext db) => {
+    var debt = await db.CustomerDebtEntries.FindAsync(id);
+    if (debt is null) return Results.NotFound();
+
+    debt.Date = inputDebt.Date;
+    debt.Amount = inputDebt.Amount;
+    debt.CustomerName = inputDebt.CustomerName;
+    debt.EntryType = inputDebt.EntryType;
+    debt.Notes = inputDebt.Notes;
+
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+app.MapDelete("/debt-entries/{id}", async (int id, AppDbContext db) =>
+{
+    var debt = await db.CustomerDebtEntries.FindAsync(id);
+    if (debt is null) return Results.NotFound();
+
+    db.CustomerDebtEntries.Remove(debt);
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+});
+
 app.Run();
