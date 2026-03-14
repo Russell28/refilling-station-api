@@ -206,4 +206,52 @@ app.MapDelete("/expenses/{id}", async (int id, AppDbContext db) =>
     return Results.NoContent();
 });
 
+app.MapGet("/payroll-entries", async (AppDbContext db) =>
+    await db.PayrollEntries
+        .OrderByDescending(x => x.Date)
+        .ToListAsync()
+);
+
+app.MapGet("/payroll-entries/{id}", async (int id, AppDbContext db) =>
+    await db.PayrollEntries.FindAsync(id) is PayrollEntry payrollEntry
+        ? Results.Ok(payrollEntry)
+        : Results.NotFound()
+);
+
+app.MapPost("/payroll-entries", async(PayrollEntry payrollEntry, AppDbContext db) => 
+{
+    db.PayrollEntries.Add(payrollEntry);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/payroll-entries/{payrollEntry.Id}", payrollEntry);
+});
+
+app.MapPut("/payroll-entries/{id}", async(int id, PayrollEntry inputPayrollEntry, AppDbContext db) =>
+{
+    var payrollEntry = await db.PayrollEntries.FindAsync(id);
+    if (payrollEntry is null) return Results.NotFound();
+
+    payrollEntry.Date = inputPayrollEntry.Date;
+    payrollEntry.EmployeeName = inputPayrollEntry.EmployeeName;
+    payrollEntry.SalaryAmount = inputPayrollEntry.SalaryAmount;
+    payrollEntry.AdvanceGiven = inputPayrollEntry.AdvanceGiven;
+    payrollEntry.AdvanceDeduction = inputPayrollEntry.AdvanceDeduction;
+    payrollEntry.CashPaid = inputPayrollEntry.CashPaid;
+    payrollEntry.Notes = inputPayrollEntry.Notes;
+
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+app.MapDelete("/payroll-entries/{id}", async (int id, AppDbContext db) =>
+{
+    var payrollEntry = await db.PayrollEntries.FindAsync(id);
+    if (payrollEntry is null) return Results.NotFound();
+
+    db.PayrollEntries.Remove(payrollEntry);
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+});
+
 app.Run();
