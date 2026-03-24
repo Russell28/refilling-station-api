@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using RefillingStation.Api.Data;
 using RefillingStation.Api.Entities;
+using RefillingStation.Api.Features.Trips;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,9 @@ builder.Services.AddOpenApi();
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Services
+builder.Services.AddScoped<TripImportService>();
 
 // Enable Swagger
 builder.Services.AddSwaggerGen(options =>
@@ -111,7 +115,6 @@ app.MapPut("/trips/{id}", async (int id, Trip inputTrip, AppDbContext db) =>
     await db.SaveChangesAsync();
     return Results.NoContent();
 });
-
 app.MapDelete("/trips/{id}", async (int id, AppDbContext db) =>
 {
     var trip = await db.Trips.FindAsync(id);
@@ -122,6 +125,14 @@ app.MapDelete("/trips/{id}", async (int id, AppDbContext db) =>
 
     return Results.NoContent();
 });
+app.MapPost("/trips/import", async (
+        IFormFile file,
+        TripImportService service) =>
+{
+    var result = await service.ImportAsync(file);
+    return Results.Ok(result);
+})
+.DisableAntiforgery();
 
 // Customer Debt Entries API
 app.MapGet("/debt-entries", async (AppDbContext db) =>
