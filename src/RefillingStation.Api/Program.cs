@@ -276,9 +276,13 @@ app.MapDelete("/payroll-entries/{id}", async (int id, AppDbContext db) =>
 });
 
 // Dashboard API
-app.MapGet("/daily-summary/{date}", async (DateTime date, AppDbContext db) =>
+app.MapGet("/daily-summary/{date}", async (
+    DateTime date, 
+    AppDbContext db,
+    IConfiguration config) =>
 {
     var targetDate = date.Date;
+    var openingBacklogQty = config.GetValue<Decimal>("BacklogSettings:OpeningBacklogQty");
 
     var trips = await db.Trips
         .Where(x => x.Date.Date == targetDate)
@@ -300,23 +304,50 @@ app.MapGet("/daily-summary/{date}", async (DateTime date, AppDbContext db) =>
         .Where(x => x.Date.Date <= targetDate)
         .ToListAsync();
 
+    // Previous
+    var previousTrips = await db.Trips
+        .Where(x => x.Date.Date < targetDate)
+        .Select(x => new
+        {
+            x.CollectedQty,
+            x.DeliveredQty
+        })
+        .ToListAsync();
+    var previousTotalCollectedQty = previousTrips.Sum(x => x.CollectedQty);
+    var previousTotalDeliveredQty = previousTrips.Sum(x => x.DeliveredQty);
+
+    var backlogStartQty = openingBacklogQty + previousTotalCollectedQty - previousTotalDeliveredQty;
+
+    var totalCollectedQty = trips.Sum(x => x.CollectedQty);
+    var totalLoadedQty = trips.Sum(x => x.LoadedQty);
+    var totalDeliveredQty = trips.Sum(x => x.DeliveredQty);
+    var totalFreeQty = trips.Sum(x => x.FreeQty);
+    var totalActualPaidQty = trips.Sum(x => x.ActualPaidQty);
+    var totalReturnedQty = trips.Sum(x => x.ReturnedQty);
+    var totalReplacementQty = trips.Sum(x => x.ReplacementQty);
+
+    var backlogEndQty = backlogStartQty + totalCollectedQty - totalDeliveredQty;
+
     var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
     var totalExpenses = expenses.Sum(x => x.Amount);
     var totalPayrollPaid = payrolls.Sum(x => x.CashPaid);
+
 
     var result = new
     {
         Date = targetDate,
         TripCount = trips.Count,
 
-        TotalCollectedQty = trips.Sum(x => x.CollectedQty),
-        TotalLoadedQty = trips.Sum(x => x.LoadedQty),
-        TotalDeliveredQty = trips.Sum(x => x.DeliveredQty),
-        TotalFreeQty = trips.Sum(x => x.FreeQty),
-        //TotalToBePaidQty = trips.Sum(x => x.ToBePaidQty),
-        TotalActualPaidQty = trips.Sum(x => x.ActualPaidQty),
-        TotalReturnedQty = trips.Sum(x => x.ReturnedQty),
-        TotalReplacementQty = trips.Sum(x => x.ReplacementQty),
+        BacklogStartQty = backlogStartQty,
+        TotalCollectedQty = totalCollectedQty,
+        TotalLoadedQty = totalLoadedQty,
+        TotalDeliveredQty = totalDeliveredQty,
+        BacklogEndQty = backlogEndQty,
+
+        TotalFreeQty = totalFreeQty,
+        TotalActualPaidQty = totalActualPaidQty,
+        TotalReturnedQty = totalReturnedQty,
+        TotalReplacementQty = totalReplacementQty,
 
         TotalCashCollected = totalCashCollected,
         TotalExpenses = totalExpenses,
