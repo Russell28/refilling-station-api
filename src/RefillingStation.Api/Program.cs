@@ -97,6 +97,19 @@ app.MapPost("/trips", async (CreateTripRequest request,
         );
     }
 
+    // Check for duplicate
+    var exists = await db.Trips.AnyAsync(x =>
+        x.Date.Date == request.Date.Date
+        && x.TripNumber == request.TripNumber);
+
+    if (exists)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["TripNumber"] = new[] { "Trip number already exists for this date." }
+        });
+    }
+
     var trip = new Trip
     {
         Date = request.Date,
@@ -116,6 +129,8 @@ app.MapPost("/trips", async (CreateTripRequest request,
         ActualCashCollected = request.ActualCashCollected,
         Notes = request.Notes
     };
+
+    
 
 
     db.Trips.Add(trip);
@@ -141,6 +156,20 @@ app.MapPut("/trips/{id}", async (
                     g => g.Select(e => e.ErrorMessage).ToArray()
                 )
         );
+    }
+
+    // Check for duplicate
+    var exists = await db.Trips.AnyAsync(x =>
+        x.Id != id // exclude self
+        && x.Date.Date == request.Date.Date
+        && x.TripNumber == request.TripNumber);
+
+    if (exists)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["TripNumber"] = new[] { "Trip number already exists for this date." }
+        });
     }
 
     var trip = await db.Trips.FindAsync(id);

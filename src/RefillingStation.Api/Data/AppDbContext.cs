@@ -18,10 +18,14 @@ namespace RefillingStation.Api.Data
 
             modelBuilder.Entity<Trip>(entity =>
             {
+                entity.HasIndex(x => new { x.Date, x.TripNumber }).IsUnique();
+
+                entity.Property(x => x.EmployeeName)
+                    .HasMaxLength(100)
+                    .IsRequired();
                 entity.Property(x => x.Source).HasMaxLength(100);
-                entity.Property(x => x.TripType).HasMaxLength(100);
-                entity.Property(x => x.EmployeeName).HasMaxLength(100);
-                entity.Property(x => x.CustomerCategory).HasMaxLength(100);
+                entity.Property(x => x.TripType).HasMaxLength(50);
+                entity.Property(x => x.CustomerCategory).HasMaxLength(50);
                 entity.Property(x => x.Notes).HasMaxLength(500);
             });
         }
