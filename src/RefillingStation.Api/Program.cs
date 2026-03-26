@@ -86,7 +86,6 @@ app.MapPut("/trips/{id}", async (int id, Trip inputTrip, AppDbContext db) =>
     // Update all properties
     trip.Date = inputTrip.Date;
     trip.TripNumber = inputTrip.TripNumber;
-    trip.Segment = inputTrip.Segment;
 
     trip.TimeStarted = inputTrip.TimeStarted;
     trip.TimeEnded = inputTrip.TimeEnded;

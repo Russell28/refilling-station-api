@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using RefillingStation.Api.Data;
 using RefillingStation.Api.Entities;
+using RefillingStation.Api.Features.Trips.dtos;
 using System.Globalization;
 
 namespace RefillingStation.Api.Features.Trips
@@ -86,7 +87,6 @@ namespace RefillingStation.Api.Features.Trips
             {
                 Date = date,
                 TripNumber = tripNumber,
-                Segment = row.Segment?.Trim() ?? string.Empty,
 
                 TimeStarted = ParseNullableDateTime(date, row.TimeStarted),
                 TimeEnded = ParseNullableDateTime(date, row.TimeEnded),

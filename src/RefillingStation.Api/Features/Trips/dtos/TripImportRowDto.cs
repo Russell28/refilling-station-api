@@ -1,6 +1,6 @@
 ﻿using CsvHelper.Configuration.Attributes;
 
-namespace RefillingStation.Api.Features.Trips
+namespace RefillingStation.Api.Features.Trips.dtos
 {
     public class TripImportRowDto
     {
@@ -8,8 +8,6 @@ namespace RefillingStation.Api.Features.Trips
 
         [Name("Trip No")]
         public string TripNo { get; set; } = string.Empty;
-
-        public string Segment { get; set; } = string.Empty;
 
         [Name("Time Started")]
         public string TimeStarted { get; set; } = string.Empty;

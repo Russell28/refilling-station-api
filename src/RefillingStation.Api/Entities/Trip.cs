@@ -6,8 +6,6 @@ namespace RefillingStation.Api.Entities
     {
         public DateTime Date { get; set; }
         public int TripNumber { get; set; }
-        public string Segment { get; set; } = string.Empty;
-
         public DateTime? TimeStarted { get; set; }
         public DateTime? TimeEnded { get; set; }
 
