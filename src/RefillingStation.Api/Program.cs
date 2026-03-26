@@ -1,9 +1,12 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using RefillingStation.Api.Data;
 using RefillingStation.Api.Entities;
 using RefillingStation.Api.Features.Trips;
+using RefillingStation.Api.Features.Trips.dtos;
+using RefillingStation.Api.Features.Trips.validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,10 @@ builder.Services.AddOpenApi();
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Fluent Validation
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateTripRequestValidator>();
 
 // Services
 builder.Services.AddScoped<TripImportService>();
@@ -72,42 +79,96 @@ app.MapGet("/trips/{id}", async (int id, AppDbContext db) =>
         ? Results.Ok(trip)
         : Results.NotFound()
 );
-app.MapPost("/trips", async (Trip trip, AppDbContext db) =>
+app.MapPost("/trips", async (CreateTripRequest request, 
+    IValidator<CreateTripRequest> validator,
+    AppDbContext db) =>
 {
+    var validationResult = await validator.ValidateAsync(request);
+
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(
+            validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                )
+        );
+    }
+
+    var trip = new Trip
+    {
+        Date = request.Date,
+        TripNumber = request.TripNumber,
+        TimeStarted = request.TimeStarted,
+        TimeEnded = request.TimeEnded,
+        EmployeeName = request.EmployeeName,
+        Source = request.Source,
+        TripType = request.TripType,
+        CustomerCategory = request.CustomerCategory,
+        CollectedQty = request.CollectedQty,
+        LoadedQty = request.LoadedQty,
+        DeliveredQty = request.DeliveredQty,
+        FreeQty = request.FreeQty,
+        ReturnedQty = request.ReturnedQty,
+        ReplacementQty = request.ReplacementQty,
+        ActualCashCollected = request.ActualCashCollected,
+        Notes = request.Notes
+    };
+
+
     db.Trips.Add(trip);
     await db.SaveChangesAsync();
+
     return Results.Created($"/trips/{trip.Id}", trip);
 });
-app.MapPut("/trips/{id}", async (int id, Trip inputTrip, AppDbContext db) =>
+app.MapPut("/trips/{id}", async (
+    int id, 
+    UpdateTripRequest request, 
+    IValidator<UpdateTripRequest> validator,
+    AppDbContext db) =>
 {
+    var validationResult = await validator.ValidateAsync(request);
+
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(
+            validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                )
+        );
+    }
+
     var trip = await db.Trips.FindAsync(id);
-    if (trip is null) return Results.NotFound();
+
+    if (trip is null) 
+        return Results.NotFound();
 
     // Update all properties
-    trip.Date = inputTrip.Date;
-    trip.TripNumber = inputTrip.TripNumber;
-
-    trip.TimeStarted = inputTrip.TimeStarted;
-    trip.TimeEnded = inputTrip.TimeEnded;
-
-    trip.Source = inputTrip.Source;
-    trip.TripType = inputTrip.TripType;
-    trip.EmployeeName = inputTrip.EmployeeName;
-    trip.CustomerCategory = inputTrip.CustomerCategory;
-
-    trip.CollectedQty = inputTrip.CollectedQty;
-    trip.LoadedQty = inputTrip.LoadedQty;
-    trip.DeliveredQty = inputTrip.DeliveredQty;
-
-    trip.FreeQty = inputTrip.FreeQty;
-    trip.ReturnedQty = inputTrip.ReturnedQty;
-    trip.ReplacementQty = inputTrip.ReplacementQty;
-
-    trip.ActualCashCollected = inputTrip.ActualCashCollected;
-    trip.IsRemitted = inputTrip.IsRemitted;
-    trip.Notes = inputTrip.Notes;
+    trip.Date = request.Date;
+    trip.TripNumber = request.TripNumber;
+    trip.TimeStarted = request.TimeStarted;
+    trip.TimeEnded = request.TimeEnded;
+    trip.EmployeeName = request.EmployeeName;
+    trip.Source = request.Source;
+    trip.TripType = request.TripType;
+    trip.CustomerCategory = request.CustomerCategory;
+    trip.CollectedQty = request.CollectedQty;
+    trip.LoadedQty = request.LoadedQty;
+    trip.DeliveredQty = request.DeliveredQty;
+    trip.FreeQty = request.FreeQty;
+    trip.ReturnedQty = request.ReturnedQty;
+    trip.ReplacementQty = request.ReplacementQty;
+    trip.ActualCashCollected = request.ActualCashCollected;
+    trip.IsRemitted = request.IsRemitted;
+    trip.Notes = request.Notes;
 
     await db.SaveChangesAsync();
+
     return Results.NoContent();
 });
 app.MapDelete("/trips/{id}", async (int id, AppDbContext db) =>
