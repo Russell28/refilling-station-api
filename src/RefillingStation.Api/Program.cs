@@ -100,15 +100,11 @@ app.MapPut("/trips/{id}", async (int id, Trip inputTrip, AppDbContext db) =>
     trip.DeliveredQty = inputTrip.DeliveredQty;
 
     trip.FreeQty = inputTrip.FreeQty;
-    //trip.ToBePaidQty = inputTrip.ToBePaidQty;
-    trip.ActualPaidQty = inputTrip.ActualPaidQty;
     trip.ReturnedQty = inputTrip.ReturnedQty;
     trip.ReplacementQty = inputTrip.ReplacementQty;
 
-    //trip.PricePerGallon = inputTrip.PricePerGallon;
     trip.ActualCashCollected = inputTrip.ActualCashCollected;
     trip.IsRemitted = inputTrip.IsRemitted;
-    trip.RelatedTripId = inputTrip.RelatedTripId;
     trip.Notes = inputTrip.Notes;
 
     await db.SaveChangesAsync();
@@ -321,7 +317,6 @@ app.MapGet("/daily-summary/{date}", async (
     var totalLoadedQty = trips.Sum(x => x.LoadedQty);
     var totalDeliveredQty = trips.Sum(x => x.DeliveredQty);
     var totalFreeQty = trips.Sum(x => x.FreeQty);
-    var totalActualPaidQty = trips.Sum(x => x.ActualPaidQty);
     var totalReturnedQty = trips.Sum(x => x.ReturnedQty);
     var totalReplacementQty = trips.Sum(x => x.ReplacementQty);
 
@@ -344,7 +339,6 @@ app.MapGet("/daily-summary/{date}", async (
         BacklogEndQty = backlogEndQty,
 
         TotalFreeQty = totalFreeQty,
-        TotalActualPaidQty = totalActualPaidQty,
         TotalReturnedQty = totalReturnedQty,
         TotalReplacementQty = totalReplacementQty,
 

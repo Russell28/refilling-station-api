@@ -34,9 +34,6 @@ namespace RefillingStation.Api.Features.Trips.dtos
         [Name("Delivered Qty")]
         public string DeliveredQty { get; set; } = string.Empty;
 
-        [Name("Actual Paid Qty")]
-        public string ActualPaidQty { get; set; } = string.Empty;
-
         [Name("Returned Qty")]
         public string ReturnedQty { get; set; } = string.Empty;
 
@@ -51,9 +48,6 @@ namespace RefillingStation.Api.Features.Trips.dtos
 
         [Name("Is Remitted")]
         public string IsRemitted { get; set; } = string.Empty;
-
-        [Name("Related Trip Id")]
-        public string RelatedTripId { get; set; } = string.Empty;
 
         public string Notes { get; set; } = string.Empty;
     }

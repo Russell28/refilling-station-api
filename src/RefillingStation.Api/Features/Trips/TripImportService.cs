@@ -99,14 +99,12 @@ namespace RefillingStation.Api.Features.Trips
                 CollectedQty = ParseDecimalOrZero(row.CollectedQty),
                 LoadedQty = ParseDecimalOrZero(row.LoadedQty),
                 DeliveredQty = ParseDecimalOrZero(row.DeliveredQty),
-                ActualPaidQty = ParseDecimalOrZero(row.ActualPaidQty),
                 ReturnedQty = ParseDecimalOrZero(row.ReturnedQty),
                 ReplacementQty = ParseDecimalOrZero(row.ReplacementQty),
                 FreeQty = ParseDecimalOrZero(row.FreeQty),
 
                 ActualCashCollected = ParseDecimalOrZero(row.ActualCashCollected),
                 IsRemitted = ParseBoolOrFalse(row.IsRemitted),
-                RelatedTripId = ParseNullableInt(row.RelatedTripId),
                 Notes = row.Notes?.Trim() ?? string.Empty
             };
         }
