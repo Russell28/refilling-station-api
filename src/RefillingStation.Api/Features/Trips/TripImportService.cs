@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.EntityFrameworkCore;
 using RefillingStation.Api.Data;
 using RefillingStation.Api.Entities;
 using RefillingStation.Api.Features.Trips.dtos;
@@ -14,6 +15,12 @@ namespace RefillingStation.Api.Features.Trips
         public TripImportService(AppDbContext db)
         {
             _db = db;
+        }
+
+        private sealed class ParsedTripRow
+        {
+            public int RowNumber { get; set; }
+            public Trip Trip { get; set; } = null!;
         }
 
         public async Task<TripImportResult> ImportAsync(IFormFile file)
@@ -31,6 +38,8 @@ namespace RefillingStation.Api.Features.Trips
                 return result;
             }
 
+            var parsedRows = new List<ParsedTripRow>();
+
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream);
             using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -44,8 +53,6 @@ namespace RefillingStation.Api.Features.Trips
             var rows = csv.GetRecords<TripImportRowDto>().ToList();
             result.TotalRows = rows.Count;
 
-            var tripsToInsert = new List<Trip>();
-
             for (int i =0; i < rows.Count; i++)
             {
                 var rowNumber = i + 2; // header is row 1
@@ -54,7 +61,12 @@ namespace RefillingStation.Api.Features.Trips
                 try
                 {
                     var trip = MapRowToTrip(row);
-                    tripsToInsert.Add(trip);
+                    // Save parsed rows to a list
+                    parsedRows.Add(new ParsedTripRow
+                    {
+                        RowNumber = rowNumber,
+                        Trip = trip,
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -65,6 +77,9 @@ namespace RefillingStation.Api.Features.Trips
                     });
                 }
             }
+
+            AddDuplicateFileErrors(parsedRows, result); // Check duplicates in csv file
+            await AddDuplicateDatabaseErrorsAsync(parsedRows, result); // Check duplicate records in DB
 
             if (result.Errors.Any())
             {
@@ -77,16 +92,66 @@ namespace RefillingStation.Api.Features.Trips
                 return result;
             }
 
-            if (tripsToInsert.Count > 0)
-            {
-                _db.Trips.AddRange(tripsToInsert);
-                await _db.SaveChangesAsync();
-            }
+            _db.Trips.AddRange(parsedRows.Select(x => x.Trip));
+            await _db.SaveChangesAsync();
 
-            result.InsertedRows = tripsToInsert.Count;
+            result.InsertedRows = parsedRows.Count;
             result.FailedRows = result.Errors.Count;
 
             return result;
+        }
+
+        private static string BuildTripImportKey(DateOnly date, int tripNumber)
+        {
+            return $"{date:yyy-MM-dd}|{tripNumber}";
+        }
+
+        private static void AddDuplicateFileErrors(
+            List<ParsedTripRow> parsedRows,
+            TripImportResult result)
+        {
+            var seen = new Dictionary<string, int>();
+
+            foreach (var row in parsedRows)
+            {
+                var key = BuildTripImportKey(row.Trip.Date, row.Trip.TripNumber);
+
+                if (seen.TryGetValue(key, out var firstRowNumber))
+                {
+                    result.Errors.Add(new TripImportError
+                    {
+                        RowNumber = row.RowNumber,
+                        Message = $"Duplicate Date + Trip Number found in file. First occurence is on row {firstRowNumber}."
+                    });
+                } 
+                else
+                {
+                    seen[key] = row.RowNumber;
+                }
+            }
+
+        }
+
+        private async Task AddDuplicateDatabaseErrorsAsync(
+            List<ParsedTripRow> parsedTripRows,
+            TripImportResult result)
+        {
+            foreach (var row in parsedTripRows)
+            {
+                var exists = await _db.Trips.AnyAsync(x =>
+                    x.Date == row.Trip.Date
+                    && x.TripNumber == row.Trip.TripNumber
+                );
+
+                if (exists)
+                {
+                    result.Errors.Add(new TripImportError
+                    {
+                        RowNumber= row.RowNumber,
+                        Message = $"Trip with the same Date ({row.Trip.Date}) and Trip Number ({row.Trip.TripNumber}) already exists in the database."
+                    });
+                }
+            }
         }
 
         private Trip MapRowToTrip(TripImportRowDto row)
@@ -244,4 +309,6 @@ namespace RefillingStation.Api.Features.Trips
             return date.ToDateTime(parsedTime);
         }
     }
+
+    
 }
