@@ -16,10 +16,9 @@ namespace RefillingStation.Api.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Trip
             modelBuilder.Entity<Trip>(entity =>
             {
-                entity.HasIndex(x => new { x.Date, x.TripNumber }).IsUnique();
-
                 entity.Property(x => x.EmployeeName)
                     .HasMaxLength(100)
                     .IsRequired();
@@ -27,8 +26,17 @@ namespace RefillingStation.Api.Data
                 entity.Property(x => x.TripType).HasMaxLength(50);
                 entity.Property(x => x.CustomerCategory).HasMaxLength(50);
                 entity.Property(x => x.Notes).HasMaxLength(500);
+
+                entity.Property(x => x.Date)
+                    .HasConversion(
+                        v => v.ToDateTime(TimeOnly.MinValue),
+                        v => DateOnly.FromDateTime(v)
+                    )
+                    .HasColumnType("date");
+
+                entity.HasIndex(x => new { x.Date, x.TripNumber }).IsUnique();
             });
         }
-        
+
     }
 }

@@ -99,7 +99,7 @@ app.MapPost("/trips", async (CreateTripRequest request,
 
     // Check for duplicate
     var exists = await db.Trips.AnyAsync(x =>
-        x.Date.Date == request.Date.Date
+        x.Date == DateOnly.FromDateTime(request.Date)
         && x.TripNumber == request.TripNumber);
 
     if (exists)
@@ -112,7 +112,7 @@ app.MapPost("/trips", async (CreateTripRequest request,
 
     var trip = new Trip
     {
-        Date = request.Date,
+        Date = DateOnly.FromDateTime(request.Date),
         TripNumber = request.TripNumber,
         TimeStarted = request.TimeStarted,
         TimeEnded = request.TimeEnded,
@@ -161,7 +161,7 @@ app.MapPut("/trips/{id}", async (
     // Check for duplicate
     var exists = await db.Trips.AnyAsync(x =>
         x.Id != id // exclude self
-        && x.Date.Date == request.Date.Date
+        && x.Date == DateOnly.FromDateTime(request.Date)
         && x.TripNumber == request.TripNumber);
 
     if (exists)
@@ -178,7 +178,7 @@ app.MapPut("/trips/{id}", async (
         return Results.NotFound();
 
     // Update all properties
-    trip.Date = request.Date;
+    trip.Date = DateOnly.FromDateTime(request.Date);
     trip.TripNumber = request.TripNumber;
     trip.TimeStarted = request.TimeStarted;
     trip.TimeEnded = request.TimeEnded;
@@ -366,32 +366,33 @@ app.MapGet("/daily-summary/{date}", async (
     AppDbContext db,
     IConfiguration config) =>
 {
-    var targetDate = date.Date;
+    var targetDate = DateOnly.FromDateTime(date);
+    var targetDateTime = targetDate.ToDateTime(TimeOnly.MinValue);
     var openingBacklogQty = config.GetValue<Decimal>("BacklogSettings:OpeningBacklogQty");
 
     var trips = await db.Trips
-        .Where(x => x.Date.Date == targetDate)
+        .Where(x => x.Date == targetDate)
         .ToListAsync();
 
     var expenses = await db.Expenses
-        .Where(x => x.Date.Date == targetDate)
+        .Where(x => x.Date.Date == targetDateTime.Date)
         .ToListAsync();
 
     var payrolls = await db.PayrollEntries
-        .Where(x => x.Date.Date == targetDate)
+        .Where(x => x.Date.Date == targetDateTime.Date)
         .ToListAsync();
 
     var debtToday = await db.CustomerDebtEntries
-        .Where(x => x.Date.Date == targetDate)
+        .Where(x => x.Date.Date == targetDateTime.Date)
         .ToListAsync();
 
     var runningDebt = await db.CustomerDebtEntries
-        .Where(x => x.Date.Date <= targetDate)
+        .Where(x => x.Date.Date <= targetDateTime.Date)
         .ToListAsync();
 
     // Previous
     var previousTrips = await db.Trips
-        .Where(x => x.Date.Date < targetDate)
+        .Where(x => x.Date < targetDate)
         .Select(x => new
         {
             x.CollectedQty,

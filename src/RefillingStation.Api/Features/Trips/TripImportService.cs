@@ -93,8 +93,8 @@ namespace RefillingStation.Api.Features.Trips
         {
             var date = ParseRequiredDate(row.Date, "Date");
             var tripNumber = ParseRequiredInt(row.TripNo, "Trip No");
-            var timeStarted = ParseNullableDateTime(date, row.TimeStarted);
-            var timeEnded = ParseNullableDateTime(date, row.TimeEnded);
+            var timeStarted = ParseOptionalTime(row.TimeStarted, "Time Started", date);
+            var timeEnded = ParseOptionalTime(row.TimeEnded, "Time Ended", date);
 
             if (timeStarted.HasValue && timeEnded.HasValue && timeEnded.Value < timeStarted.Value)
             {
@@ -139,15 +139,15 @@ namespace RefillingStation.Api.Features.Trips
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
         }
-        private static DateTime ParseRequiredDate(string value, string fieldName)
+        private static DateOnly ParseRequiredDate(string value, string fieldName)
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new Exception($"{fieldName} is required.");
 
-            if (DateTime.TryParse(value, out var parsed))
-                return parsed.Date;
+            if (!DateOnly.TryParse(value, out var parsed))
+                throw new Exception($"{fieldName} must be a valid date.");
 
-            throw new Exception($"{fieldName} is invalid.");
+            return parsed;
         }
 
         private static int ParseRequiredInt(string? value, string fieldName)
@@ -229,15 +229,19 @@ namespace RefillingStation.Api.Features.Trips
             throw new Exception($"Invalid integer value: '{value}'.");
         }
 
-        private static DateTime? ParseNullableDateTime(DateTime baseDate, string? timeValue)
+        private static DateTime? ParseOptionalTime(string? value, string fieldName, DateOnly date)
         {
-            if (string.IsNullOrWhiteSpace(timeValue))
+            if (string.IsNullOrWhiteSpace(value))
+            {
                 return null;
+            }
 
-            if (TimeSpan.TryParse(timeValue, out var time))
-                return baseDate.Date.Add(time);
+            if (!TimeOnly.TryParse(value, out var parsedTime))
+            {
+                throw new Exception($"{fieldName} must be a valid time.");
+            }
 
-            throw new Exception($"Invalid time value: '{timeValue}'.");
+            return date.ToDateTime(parsedTime);
         }
     }
 }
