@@ -66,6 +66,17 @@ namespace RefillingStation.Api.Features.Trips
                 }
             }
 
+            if (result.Errors.Any())
+            {
+                result.InsertedRows = 0;
+                result.FailedRows = result.Errors
+                    .Select(x => x.RowNumber)
+                    .Distinct()
+                    .Count();
+
+                return result;
+            }
+
             if (tripsToInsert.Count > 0)
             {
                 _db.Trips.AddRange(tripsToInsert);
@@ -82,33 +93,52 @@ namespace RefillingStation.Api.Features.Trips
         {
             var date = ParseRequiredDate(row.Date, "Date");
             var tripNumber = ParseRequiredInt(row.TripNo, "Trip No");
+            var timeStarted = ParseNullableDateTime(date, row.TimeStarted);
+            var timeEnded = ParseNullableDateTime(date, row.TimeEnded);
+
+            if (timeStarted.HasValue && timeEnded.HasValue && timeEnded.Value < timeStarted.Value)
+            {
+                throw new Exception("Time Ended must be greater than or equal to Time Started.");
+            }
 
             return new Trip
             {
                 Date = date,
                 TripNumber = tripNumber,
 
-                TimeStarted = ParseNullableDateTime(date, row.TimeStarted),
-                TimeEnded = ParseNullableDateTime(date, row.TimeEnded),
+                TimeStarted = timeStarted,
+                TimeEnded = timeEnded,
 
-                Source = row.Source?.Trim() ?? string.Empty,
-                TripType = row.TripType?.Trim() ?? string.Empty,
-                EmployeeName = row.Employee?.Trim() ?? string.Empty,
-                CustomerCategory = row.CustomerCategory?.Trim() ?? string.Empty,
+                EmployeeName = ParseRequiredString(row.EmployeeName, "Employee Name"),
+                Source = ParseOptionalString(row.Source),
+                TripType = ParseOptionalString(row.TripType),
+                CustomerCategory = ParseOptionalString(row.CustomerCategory),
 
-                CollectedQty = ParseDecimalOrZero(row.CollectedQty),
-                LoadedQty = ParseDecimalOrZero(row.LoadedQty),
-                DeliveredQty = ParseDecimalOrZero(row.DeliveredQty),
-                ReturnedQty = ParseDecimalOrZero(row.ReturnedQty),
-                ReplacementQty = ParseDecimalOrZero(row.ReplacementQty),
-                FreeQty = ParseDecimalOrZero(row.FreeQty),
+                CollectedQty = ParseNonNegativeDecimal(row.CollectedQty, "Collected Qty"),
+                LoadedQty = ParseNonNegativeDecimal(row.LoadedQty, "Loaded Qty"),
+                DeliveredQty = ParseNonNegativeDecimal(row.DeliveredQty, "Delivered Qty"),
+                ReturnedQty = ParseNonNegativeDecimal(row.ReturnedQty, "Returned Qty"),
+                ReplacementQty = ParseNonNegativeDecimal(row.ReplacementQty, "Replacement Qty"),
+                FreeQty = ParseNonNegativeDecimal(row.FreeQty, "Free Qty"),
 
-                ActualCashCollected = ParseDecimalOrZero(row.ActualCashCollected),
-                IsRemitted = ParseBoolOrFalse(row.IsRemitted),
-                Notes = row.Notes?.Trim() ?? string.Empty
+                ActualCashCollected = ParseNonNegativeDecimal(row.ActualCashCollected, "Actual Cash Collected"),
+                IsRemitted = ParseRequiredBool(row.IsRemitted, "Is Remitted"),
+                Notes = ParseOptionalString(row.Notes)
             };
         }
 
+        private static string ParseRequiredString(string? value, string fieldName)
+        {
+            if (string.IsNullOrEmpty(value))
+                throw new Exception($"{fieldName} is required.");
+
+            return value.Trim();
+        } 
+
+        private static string? ParseOptionalString(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
         private static DateTime ParseRequiredDate(string value, string fieldName)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -120,15 +150,44 @@ namespace RefillingStation.Api.Features.Trips
             throw new Exception($"{fieldName} is invalid.");
         }
 
-        private static int ParseRequiredInt(string value, string fieldName)
+        private static int ParseRequiredInt(string? value, string fieldName)
         {
             if (string.IsNullOrWhiteSpace(value))
+            {
                 throw new Exception($"{fieldName} is required.");
+            }
 
-            if (int.TryParse(value, out var parsed))
-                return parsed;
+            if (!int.TryParse(value, out var parsedValue))
+            {
+                throw new Exception($"{fieldName} must be a valid whole number.");
+            }
 
-            throw new Exception($"{fieldName} is invalid.");
+            if (parsedValue <= 0)
+            {
+                throw new Exception($"{fieldName} must be greater than 0.");
+            }
+
+            return parsedValue;
+        }
+
+        private static decimal ParseNonNegativeDecimal(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return 0;
+            }
+
+            if (!decimal.TryParse(value, out var parsedValue))
+            {
+                throw new Exception($"{fieldName} must be a valid number.");
+            }
+
+            if (parsedValue < 0)
+            {
+                throw new Exception($"{fieldName} cannot be negative.");
+            }
+
+            return parsedValue;
         }
 
         private static decimal ParseDecimalOrZero(string? value)
@@ -144,15 +203,19 @@ namespace RefillingStation.Api.Features.Trips
             throw new Exception($"Invalid decimal value: '{value}'.");
         }
 
-        private static bool ParseBoolOrFalse(string? value)
+        private static bool ParseRequiredBool(string? value, string fieldName)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return false;
+            {
+                throw new Exception($"{fieldName} is required.");
+            }
 
-            if (bool.TryParse(value, out var parsed))
-                return parsed;
+            if (!bool.TryParse(value, out var parsedValue))
+            {
+                throw new Exception($"{fieldName} must be TRUE or FALSE.");
+            }
 
-            throw new Exception($"Invalid boolean value: '{value}'.");
+            return parsedValue;
         }
 
         private static int? ParseNullableInt(string? value)

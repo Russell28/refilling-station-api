@@ -20,7 +20,8 @@ namespace RefillingStation.Api.Features.Trips.dtos
         [Name("Trip Type")]
         public string TripType { get; set; } = string.Empty;
 
-        public string Employee { get; set; } = string.Empty;
+        [Name("Employee Name")]
+        public string EmployeeName { get; set; } = string.Empty;
 
         [Name("Customer Category")]
         public string CustomerCategory { get; set; } = string.Empty;
