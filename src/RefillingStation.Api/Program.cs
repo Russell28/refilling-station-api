@@ -5,6 +5,7 @@ using Microsoft.OpenApi;
 using RefillingStation.Api.Data;
 using RefillingStation.Api.Entities;
 using RefillingStation.Api.Features.Expenses;
+using RefillingStation.Api.Features.Payrolls;
 using RefillingStation.Api.Features.Trips;
 using RefillingStation.Api.Features.Trips.dtos;
 using RefillingStation.Api.Features.Trips.validators;
@@ -26,6 +27,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateTripRequestValidator>
 // Services
 builder.Services.AddScoped<TripImportService>();
 builder.Services.AddScoped<ExpenseImportService>();
+builder.Services.AddScoped<PayrollEntryImportService>();
 
 // Enable Swagger
 builder.Services.AddSwaggerGen(options =>
@@ -371,6 +373,13 @@ app.MapDelete("/payroll-entries/{id}", async (int id, AppDbContext db) =>
 
     return Results.NoContent();
 });
+
+app.MapPost("/payroll-entries/import", async (IFormFile file, PayrollEntryImportService service) =>
+{
+    var result = await service.ImportAsync(file);
+    return Results.Ok(result);
+})
+.DisableAntiforgery();
 
 // Dashboard API
 app.MapGet("/daily-summary/{date}", async (

@@ -8,6 +8,6 @@
         public decimal AdvanceGiven { get; set; }
         public decimal AdvanceDeduction { get; set; }
         public decimal CashPaid { get; set; }
-        public string Notes { get; set; } = string.Empty;
+        public string? Notes { get; set; }
     }
 }
