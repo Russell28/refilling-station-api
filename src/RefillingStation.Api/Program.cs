@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using RefillingStation.Api.Data;
 using RefillingStation.Api.Entities;
+using RefillingStation.Api.Features.Expenses;
 using RefillingStation.Api.Features.Trips;
 using RefillingStation.Api.Features.Trips.dtos;
 using RefillingStation.Api.Features.Trips.validators;
@@ -24,6 +25,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateTripRequestValidator>
 
 // Services
 builder.Services.AddScoped<TripImportService>();
+builder.Services.AddScoped<ExpenseImportService>();
 
 // Enable Swagger
 builder.Services.AddSwaggerGen(options =>
@@ -312,6 +314,16 @@ app.MapDelete("/expenses/{id}", async (int id, AppDbContext db) =>
     return Results.NoContent();
 });
 
+app.MapPost("/expenses/import", async (
+    IFormFile file, 
+    ExpenseImportService service) =>
+{
+    var result = await service.ImportAsync(file);
+    return Results.Ok(result);
+})
+.DisableAntiforgery();
+
+// Payroll
 app.MapGet("/payroll-entries", async (AppDbContext db) =>
     await db.PayrollEntries
         .OrderByDescending(x => x.Date)
