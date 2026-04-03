@@ -468,4 +468,189 @@ app.MapGet("/daily-summary/{date}", async (
     return Results.Ok(result);
 });
 
+app.MapGet("/dashboard", async (
+    DateTime startDate, 
+    DateTime endDate, 
+    AppDbContext db,
+    IConfiguration config) =>
+{
+    var dateOnlyStart = DateOnly.FromDateTime(startDate);
+    var dateOnlyEnd = DateOnly.FromDateTime(endDate);
+
+    // Within start and end dates
+    var trips = await db.Trips
+        .Where(x => 
+            x.Date >= dateOnlyStart
+            && x.Date <= dateOnlyEnd)
+        .ToListAsync();
+
+    var expenses = await db.Expenses
+        .Where(x => x.Date >= startDate && x.Date <= endDate)
+        .ToListAsync();
+
+    var payrolls = await db.PayrollEntries
+        .Where(x => x.Date >= startDate && x.Date <= endDate)
+        .ToListAsync();
+
+    var debts = await db.CustomerDebtEntries
+        .Where(x => x.Date >= startDate && x.Date <= endDate)
+        .ToListAsync();
+
+    // Before start date
+    var tripsBefore = await db.Trips
+        .Where(x => x.Date < dateOnlyStart)
+        .ToListAsync();
+
+    var debtsRunning = await db.CustomerDebtEntries
+        .Where(x => x.Date <= endDate)
+        .ToListAsync();
+
+    var payrollRunning = await db.PayrollEntries
+        .Where(x => x.Date <= endDate)
+        .ToListAsync();
+
+    // Compute Summary (CORE)
+
+    // Backlog Start
+    var openingBacklogQty = config.GetValue<decimal>("BacklogSettings:OpeningBacklogQty");
+
+    var previousCollected = tripsBefore.Sum(x => x.CollectedQty);
+    var previousDelivered = tripsBefore.Sum(x => x.DeliveredQty);
+
+    var backlogStartQty = openingBacklogQty + previousCollected - previousDelivered;
+
+    // Operations
+    var totalTrips = trips.Count;
+    var totalCollectedQty = trips.Sum(x => x.CollectedQty);
+    var totalDeliveredQty = trips.Sum(x => x.DeliveredQty);
+    var totalLoadedQty = trips.Sum(x => x.LoadedQty);
+
+    var backlogEndQty = backlogStartQty + totalCollectedQty - totalDeliveredQty;
+
+    // Cash
+    var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
+    var totalExpenses = expenses.Sum(x => x.Amount);
+    var totalPayrollPaid = payrolls.Sum(x => x.CashPaid);
+
+    var netCashFlow = totalCashCollected - totalExpenses - totalPayrollPaid;
+
+    // Debt
+    var totalDebtCreated = debts.Where(x => x.Amount > 0).Sum(x => x.Amount);
+    var totalDebtPayments = debts.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount));
+
+    var outstandingDebt = debtsRunning.Sum(x => x.Amount);
+
+    // Payroll
+    var totalSalaryEarned = payrolls.Sum(x => x.SalaryAmount);
+    var payrollPaid = payrolls.Sum(x => x.CashPaid);
+
+    var payrollOwed = totalSalaryEarned - payrollPaid;
+
+    var outstandingPayroll = payrollRunning.Sum(x => x.SalaryAmount)
+        - payrollRunning.Sum(x => x.CashPaid);
+
+    // DAILY Report
+    var dailyReports = new List<object>();
+
+    for (var date = startDate; date <= endDate; date = date.AddDays(1))
+    {
+        var tripDateOnly = DateOnly.FromDateTime(date);
+
+        var tripsPerDay = trips.Where(x => x.Date == tripDateOnly).ToList();
+        var expensesPerDay = expenses.Where(x => x.Date == date).ToList();
+        var payrollsPerDay = payrolls.Where(x => x.Date == date).ToList();
+        var debtsPerDay = debts.Where(x => x.Date == date).ToList();
+
+        var collected = tripsPerDay.Sum(x => x.CollectedQty);
+        var delivered = tripsPerDay.Sum(x => x.DeliveredQty);
+        var cashTotal = tripsPerDay.Sum(x => x.ActualCashCollected);
+        var payrollPaidTotal = payrollsPerDay.Sum(x => x.CashPaid);
+        var expenseTotal = expensesPerDay.Sum(x => x.Amount);
+
+        backlogStartQty += collected - delivered;
+
+        dailyReports.Add(new
+        {
+            date,
+            tripCount = tripsPerDay.Count(),
+            collectedQty = collected,
+            deliveredQty = delivered,
+            cashCollected = cashTotal,
+            expenses = expenseTotal,
+            payrollPaid = payrollPaidTotal,
+            debtCreated = debtsPerDay.Where(x => x.Amount > 0).Sum(x => x.Amount),
+            debtPayments = debtsPerDay.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount)),
+            netCashFlow = cashTotal - expenseTotal - payrollPaidTotal,
+            backlogEndQty = backlogStartQty
+        });
+    }
+
+    // Expense Breakdown
+    var expenseBreakdown = expenses
+        .GroupBy(x => x.ExpenseCategory)
+        .Select(g => new
+        {
+            category = g.Key,
+            amount = g.Sum(x => x.Amount),
+        })
+        .ToList();
+
+    // Debt Breakdown
+    var debtBreakdown = debts
+        .GroupBy(x => x.CustomerName)
+        .Select(g => new
+        {
+            customerName = g.Key,
+            debtCreated = g.Where(x => x.Amount > 0).Sum(x => x.Amount),
+            debtPayments = g.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount)),
+            balance = g.Sum(x => x.Amount)
+        })
+        .ToList();
+
+    // Payroll Breakdown
+    var payrollBreakdown = payrolls
+        .GroupBy(x => x.EmployeeName)
+        .Select(g => new
+        {
+            employeeName = g.Key,
+            salaryEarned = g.Sum(x => x.SalaryAmount),
+            cashPaid = g.Sum(x => x.CashPaid),
+            balance = g.Sum(x => x.SalaryAmount) - g.Sum(x => x.CashPaid)
+        })
+        .ToList();
+
+
+
+    return Results.Ok(new
+    {
+        summary = new
+        {
+            totalTrips,
+            backlogStartQty,
+            totalCollectedQty,
+            totalLoadedQty,
+            totalDeliveredQty,
+            backlogEndQty,
+
+            totalCashCollected,
+            totalExpenses,
+            totalPayrollPaid,
+            netCashFlow,
+
+            totalDebtCreated,
+            totalDebtPayments,
+            outstandingDebt,
+
+            totalSalaryEarned,
+            payrollPaid,
+            payrollOwed,
+            outstandingPayroll
+        },
+        dailyReports,
+        expenseBreakdown,
+        debtBreakdown,
+        payrollBreakdown,
+    });
+});
+
 app.Run();
