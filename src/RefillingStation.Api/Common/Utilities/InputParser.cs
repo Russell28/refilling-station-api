@@ -64,5 +64,20 @@
 
             return parsedValue;
         }
+
+        public static decimal ParseRequiredDecimal(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return 0;
+            }
+
+            if (!decimal.TryParse(value, out var parsedValue))
+            {
+                throw new Exception($"{fieldName} must be a valid number.");
+            }
+
+            return parsedValue;
+        }
     }
 }
