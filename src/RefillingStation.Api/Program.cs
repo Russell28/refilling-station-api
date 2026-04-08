@@ -6,6 +6,7 @@ using RefillingStation.Api.Data;
 using RefillingStation.Api.Entities;
 using RefillingStation.Api.Features.CustomerDebts;
 using RefillingStation.Api.Features.Expenses;
+using RefillingStation.Api.Features.MontlyClosing.dtos;
 using RefillingStation.Api.Features.Payrolls;
 using RefillingStation.Api.Features.Trips;
 using RefillingStation.Api.Features.Trips.dtos;
@@ -660,6 +661,172 @@ app.MapGet("/dashboard", async (
         expenseBreakdown,
         debtBreakdown,
         payrollBreakdown,
+    });
+});
+
+app.MapGet("/monthly-summary", async (
+    string month, AppDbContext db) =>
+{
+    if (String.IsNullOrEmpty(month))
+    {
+        return Results.BadRequest("Month is required. Use format yyyy-MM.");
+    }
+
+    if (!DateOnly.TryParse($"{month}-01", out var firstDayOfMonth))
+    {
+        return Results.BadRequest("Invalid month format. Use format yyyy-MM.");
+    }
+
+    var firstDayDateTime = firstDayOfMonth.ToDateTime(TimeOnly.MinValue);
+    var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+    var lastDayDateTime = lastDayOfMonth.ToDateTime(TimeOnly.MaxValue);
+
+    var trips = await db.Trips
+        .Where(x => x.Date >= firstDayOfMonth &&  x.Date <= lastDayOfMonth)
+        .ToListAsync();
+
+    var expenses = await db.Expenses
+        .Where(x => x.Date >= firstDayDateTime && x.Date <= lastDayDateTime)
+        .ToListAsync();
+
+    //var debts = await db.CustomerDebtEntries
+    //    .Where(x => x.Date >= firstDayDateTime && x.Date <= lastDayDateTime)
+    //    .ToListAsync();
+
+    var payrolls = await db.PayrollEntries
+        .Where(x => x.Date >= firstDayDateTime && x.Date <= lastDayDateTime)
+        .ToListAsync();
+
+    var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
+    var totalExpenses = expenses.Sum(x => x.Amount);
+    var totalPayrollEarned = payrolls.Sum(x => x.SalaryAmount);
+
+    var netProfit = totalCashCollected - totalExpenses - totalPayrollEarned;
+
+    var savedClosing = await db.MonthlyClosings
+        .Where(x => x.Month == month)
+        .Select(x => new
+        {
+            x.ManagerShare,
+            x.OwnerShare,
+            x.Notes,
+            x.CreatedAt
+        })
+        .FirstOrDefaultAsync();
+
+    var result = new
+    {
+        Month = month,
+        TotalCashCollected = totalCashCollected,
+        TotalExpenses = totalExpenses,
+        TotalPayrollEarned = totalPayrollEarned,
+        NetProfit = netProfit,
+        SavedClosing = savedClosing
+    };
+
+    return Results.Ok(result);
+});
+
+app.MapPost("/monthly-summary", async (MonthlyClosingRequestDto request, AppDbContext db) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Month))
+    {
+        return Results.BadRequest("Month is required. Use format yyyy-MM.");
+    }
+
+    if (!DateOnly.TryParse($"{request.Month}-01", out var firstDayOfMonth))
+    {
+        return Results.BadRequest("Invalid month format. Use format yyyy-MM.");
+    }
+
+    if (request.ManagerShare < 0)
+    {
+        return Results.BadRequest("Manager share cannot be negative.");
+    }
+
+    if (request.OwnerShare < 0)
+    {
+        return Results.BadRequest("Owner share cannot be negative.");
+    }
+
+    var firstDayDateTime = firstDayOfMonth.ToDateTime(TimeOnly.MinValue);
+    var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+    var lastDayDateTime = lastDayOfMonth.ToDateTime(TimeOnly.MaxValue);
+
+    var trips = await db.Trips
+        .Where(x => x.Date >= firstDayOfMonth && x.Date <= lastDayOfMonth)
+        .ToListAsync();
+
+    var expenses = await db.Expenses
+        .Where(x => x.Date >= firstDayDateTime && x.Date <= lastDayDateTime)
+        .ToListAsync();
+
+    var payrolls = await db.PayrollEntries
+        .Where(x => x.Date >= firstDayDateTime && x.Date <= lastDayDateTime)
+        .ToListAsync();
+
+    var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
+    var totalExpenses = expenses.Sum(x => x.Amount);
+    var totalPayrollEarned = payrolls.Sum(x => x.SalaryAmount);
+
+    var netProfit = totalCashCollected - totalExpenses - totalPayrollEarned;
+
+    if (netProfit < 0 && (request.ManagerShare > 0 || request.OwnerShare > 0))
+    {
+        return Results.BadRequest("Cannot assign profit shares when net profit is negative.");
+    }
+
+    var totalShare = request.ManagerShare + request.OwnerShare;
+
+    if (totalShare > netProfit)
+    {
+        return Results.BadRequest("Total shares cannot be greater than net profit.");
+    }
+
+    var existingClosing = await db.MonthlyClosings
+        .FirstOrDefaultAsync(x => x.Month == request.Month);
+
+    if (existingClosing is null)
+    {
+        var monthlyClosing = new MonthlyClosing
+        {
+            Month = request.Month,
+            TotalCashCollected = totalCashCollected,
+            TotalExpenses = totalExpenses,
+            TotalPayrollEarned = totalPayrollEarned,
+            NetProfit = netProfit,
+            ManagerShare = request.ManagerShare,
+            OwnerShare = request.OwnerShare,
+            Notes = request.Notes,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        db.MonthlyClosings.Add(monthlyClosing);
+    }
+    else
+    {
+        existingClosing.TotalCashCollected = totalCashCollected;
+        existingClosing.TotalExpenses = totalExpenses;
+        existingClosing.TotalPayrollEarned = totalPayrollEarned;
+        existingClosing.NetProfit = netProfit;
+        existingClosing.ManagerShare = request.ManagerShare;
+        existingClosing.OwnerShare = request.OwnerShare;
+        existingClosing.Notes = request.Notes;
+    }
+
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new
+    {
+        Message = "Monthly summary saved successfully.",
+        Month = request.Month,
+        TotalCashCollected = totalCashCollected,
+        TotalExpenses = totalExpenses,
+        TotalPayrollEarned = totalPayrollEarned,
+        NetProfit = netProfit,
+        ManagerShare = request.ManagerShare,
+        OwnerShare = request.OwnerShare,
+        RemainingBalance = netProfit - totalShare
     });
 });
 
