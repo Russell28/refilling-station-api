@@ -7,6 +7,7 @@ namespace RefillingStation.Api.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base (options) { }
 
+        public DbSet<User> Users => Set<User>();
         public DbSet<Trip> Trips => Set<Trip>();
         public DbSet<CustomerDebtEntry> CustomerDebtEntries => Set<CustomerDebtEntry>();
         public DbSet<Expense> Expenses => Set<Expense>();
@@ -16,6 +17,24 @@ namespace RefillingStation.Api.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // User Constraint
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(x => x.Username)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.PasswordHash)
+                    .IsRequired();
+
+                entity.Property(x => x.Role)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.HasIndex(x => x.Username)
+                    .IsUnique();
+            });
 
             // Trip
             modelBuilder.Entity<Trip>(entity =>
