@@ -1,3 +1,4 @@
+using BCrypt.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -108,6 +109,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 // Middleware Pipeline - End
 
+// Map Endpoints
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "ok",
@@ -874,5 +876,30 @@ app.MapPost("/monthly-summary", async (MonthlyClosingRequestDto request, AppDbCo
         RemainingBalance = netProfit - totalShare
     });
 });
+
+// Seed DB
+await SeedAdminUserAsync(app.Services);
+static async Task SeedAdminUserAsync(IServiceProvider services)
+{
+    using var scope = services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await db.Database.MigrateAsync();
+
+    var adminExists = await db.Users.AnyAsync(u => u.Username == "admin");
+
+    if (adminExists)
+        return;
+
+    var adminUser = new User
+    {
+        Username = "admin",
+        PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+        Role = " Admin"
+    };
+
+    db.Users.Add(adminUser);
+    await db.SaveChangesAsync();
+}
 
 app.Run();
