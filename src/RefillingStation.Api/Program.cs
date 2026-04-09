@@ -7,6 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using RefillingStation.Api.Data;
 using RefillingStation.Api.Entities;
+using RefillingStation.Api.Features.Auth;
+using RefillingStation.Api.Features.Auth.dtos;
 using RefillingStation.Api.Features.CustomerDebts;
 using RefillingStation.Api.Features.Expenses;
 using RefillingStation.Api.Features.MontlyClosing.dtos;
@@ -31,6 +33,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateTripRequestValidator>();
 
 // Services
+builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<TripImportService>();
 builder.Services.AddScoped<ExpenseImportService>();
 builder.Services.AddScoped<PayrollEntryImportService>();
@@ -117,6 +120,36 @@ app.MapGet("/health", () => Results.Ok(new
     utc = DateTime.UtcNow
 }));
 
+// Auth API
+app.MapPost("/auth/login", async (
+    LoginRequest request, 
+    TokenService service,
+    AppDbContext db) =>
+{
+    if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+        return Results.BadRequest("Username and Password are required.");
+
+    var user = await db.Users
+        .FirstOrDefaultAsync(u => u.Username == request.Username);
+
+    if (user is null)
+        return Results.Unauthorized();
+
+    var isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+
+    if (!isPasswordValid)
+        return Results.Unauthorized();
+
+    var token = service.GenerateToken(user);
+
+    return Results.Ok(new
+    {
+        token,
+        username = user.Username,
+        role = user.Role
+    });
+});
+
 // Trips API
 app.MapGet("/trips", async (AppDbContext db) =>
     await db.Trips
@@ -124,7 +157,9 @@ app.MapGet("/trips", async (AppDbContext db) =>
         .ThenBy(t => t.TripNumber)
         .Take(50)
         .ToListAsync()
-);
+)
+.RequireAuthorization();
+
 app.MapGet("/trips/{id}", async (int id, AppDbContext db) =>
     await db.Trips.FindAsync(id) is Trip trip
         ? Results.Ok(trip)
