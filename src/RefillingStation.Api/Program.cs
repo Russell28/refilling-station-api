@@ -79,6 +79,7 @@ app.MapGet("/trips", async (AppDbContext db) =>
     await db.Trips
         .OrderByDescending(t => t.Date)
         .ThenBy(t => t.TripNumber)
+        .Take(50)
         .ToListAsync()
 );
 app.MapGet("/trips/{id}", async (int id, AppDbContext db) =>
@@ -230,6 +231,7 @@ app.MapPost("/trips/import", async (
 app.MapGet("/debt-entries", async (AppDbContext db) =>
     await db.CustomerDebtEntries
         .OrderByDescending(x => x.Date)
+        .Take(50)
         .ToListAsync()
 );
 
@@ -285,6 +287,7 @@ app.MapPost("/debt-entries/import", async (IFormFile file, CustomerDebtImportSer
 app.MapGet("/expenses", async (AppDbContext db) => 
     await db.Expenses
         .OrderByDescending(x => x.Date)
+        .Take(50)
         .ToListAsync()
 );
 
@@ -340,6 +343,7 @@ app.MapPost("/expenses/import", async (
 app.MapGet("/payroll-entries", async (AppDbContext db) =>
     await db.PayrollEntries
         .OrderByDescending(x => x.Date)
+        .Take(50)
         .ToListAsync()
 );
 
