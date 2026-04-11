@@ -16,6 +16,7 @@ using RefillingStation.Api.Features.Payrolls;
 using RefillingStation.Api.Features.Trips;
 using RefillingStation.Api.Features.Trips.dtos;
 using RefillingStation.Api.Features.Trips.validators;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -92,7 +93,11 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Admin"));
+});
 
 var app = builder.Build();
 
@@ -113,12 +118,20 @@ app.UseAuthorization();
 // Middleware Pipeline - End
 
 // Map Endpoints
-app.MapGet("/health", () => Results.Ok(new
+app.MapGet("/auth/me", (ClaimsPrincipal user) =>
 {
-    status = "ok",
-    service = "RefillingStation.Api",
-    utc = DateTime.UtcNow
-}));
+    var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var username = user.Identity?.Name;
+    var role = user.FindFirst(ClaimTypes.Role)?.Value;
+
+    return Results.Ok(new
+    {
+        userId,
+        username,
+        role
+    });
+})
+.RequireAuthorization();
 
 // Auth API
 app.MapPost("/auth/login", async (
@@ -164,7 +177,8 @@ app.MapGet("/trips/{id}", async (int id, AppDbContext db) =>
     await db.Trips.FindAsync(id) is Trip trip
         ? Results.Ok(trip)
         : Results.NotFound()
-);
+).RequireAuthorization();
+
 app.MapPost("/trips", async (CreateTripRequest request, 
     IValidator<CreateTripRequest> validator,
     AppDbContext db) =>
@@ -223,7 +237,9 @@ app.MapPost("/trips", async (CreateTripRequest request,
     await db.SaveChangesAsync();
 
     return Results.Created($"/trips/{trip.Id}", trip);
-});
+})
+.RequireAuthorization();
+
 app.MapPut("/trips/{id}", async (
     int id, 
     UpdateTripRequest request, 
@@ -285,7 +301,9 @@ app.MapPut("/trips/{id}", async (
     await db.SaveChangesAsync();
 
     return Results.NoContent();
-});
+})
+.RequireAuthorization();
+
 app.MapDelete("/trips/{id}", async (int id, AppDbContext db) =>
 {
     var trip = await db.Trips.FindAsync(id);
@@ -295,7 +313,9 @@ app.MapDelete("/trips/{id}", async (int id, AppDbContext db) =>
     await db.SaveChangesAsync();
 
     return Results.NoContent();
-});
+})
+.RequireAuthorization();
+
 app.MapPost("/trips/import", async (
         IFormFile file,
         TripImportService service) =>
@@ -303,7 +323,8 @@ app.MapPost("/trips/import", async (
     var result = await service.ImportAsync(file);
     return Results.Ok(result);
 })
-.DisableAntiforgery();
+.DisableAntiforgery()
+.RequireAuthorization("AdminOnly");
 
 // Customer Debt Entries API
 app.MapGet("/debt-entries", async (AppDbContext db) =>
@@ -311,13 +332,15 @@ app.MapGet("/debt-entries", async (AppDbContext db) =>
         .OrderByDescending(x => x.Date)
         .Take(50)
         .ToListAsync()
-);
+)
+.RequireAuthorization();
 
 app.MapGet("/debt-entries/{id}", async (int id, AppDbContext db) =>
     await db.CustomerDebtEntries.FindAsync(id) is CustomerDebtEntry debt 
         ? Results.Ok(debt)
         : Results.NotFound()
-);
+)
+.RequireAuthorization();
 
 app.MapPost("/debt-entries", async (CustomerDebtEntry debt, AppDbContext db) =>
 {
@@ -325,7 +348,8 @@ app.MapPost("/debt-entries", async (CustomerDebtEntry debt, AppDbContext db) =>
     await db.SaveChangesAsync();
 
     return Results.Created($"/debt-entries/{debt.Id}", debt);
-});
+})
+.RequireAuthorization();
 
 app.MapPut("/debt-entries/{id}", async (int id, CustomerDebtEntry inputDebt, AppDbContext db) => {
     var debt = await db.CustomerDebtEntries.FindAsync(id);
@@ -340,7 +364,8 @@ app.MapPut("/debt-entries/{id}", async (int id, CustomerDebtEntry inputDebt, App
 
     await db.SaveChangesAsync();
     return Results.NoContent();
-});
+})
+.RequireAuthorization();
 
 app.MapDelete("/debt-entries/{id}", async (int id, AppDbContext db) =>
 {
@@ -351,7 +376,8 @@ app.MapDelete("/debt-entries/{id}", async (int id, AppDbContext db) =>
     await db.SaveChangesAsync();
 
     return Results.NoContent();
-});
+})
+.RequireAuthorization();
 
 app.MapPost("/debt-entries/import", async (IFormFile file, CustomerDebtImportService service) =>
 {
@@ -359,7 +385,8 @@ app.MapPost("/debt-entries/import", async (IFormFile file, CustomerDebtImportSer
 
     return Results.Ok(result);
 })
-.DisableAntiforgery();
+.DisableAntiforgery()
+.RequireAuthorization("AdminOnly");
 
 // Expenses API
 app.MapGet("/expenses", async (AppDbContext db) => 
@@ -367,13 +394,15 @@ app.MapGet("/expenses", async (AppDbContext db) =>
         .OrderByDescending(x => x.Date)
         .Take(50)
         .ToListAsync()
-);
+)
+.RequireAuthorization();
 
 app.MapGet("/expenses/{id}", async (int id, AppDbContext db) => 
     await db.Expenses.FindAsync(id) is Expense expense
         ? Results.Ok(expense)
         : Results.NotFound()
-);
+)
+.RequireAuthorization();
 
 app.MapPost("/expenses", async (Expense expense, AppDbContext db) =>
 {
@@ -381,7 +410,8 @@ app.MapPost("/expenses", async (Expense expense, AppDbContext db) =>
     await db.SaveChangesAsync();
 
     return Results.Created($"/debt-entries/{expense.Id}", expense);
-});
+})
+.RequireAuthorization();
 
 app.MapPut("/expenses/{id}", async (int id, Expense inputExpense, AppDbContext db) =>
 {
@@ -395,7 +425,8 @@ app.MapPut("/expenses/{id}", async (int id, Expense inputExpense, AppDbContext d
 
     await db.SaveChangesAsync();
     return Results.NoContent();
-});
+})
+.RequireAuthorization();
 
 app.MapDelete("/expenses/{id}", async (int id, AppDbContext db) =>
 {
@@ -406,7 +437,8 @@ app.MapDelete("/expenses/{id}", async (int id, AppDbContext db) =>
     await db.SaveChangesAsync();
 
     return Results.NoContent();
-});
+})
+.RequireAuthorization();
 
 app.MapPost("/expenses/import", async (
     IFormFile file, 
@@ -415,7 +447,8 @@ app.MapPost("/expenses/import", async (
     var result = await service.ImportAsync(file);
     return Results.Ok(result);
 })
-.DisableAntiforgery();
+.DisableAntiforgery()
+.RequireAuthorization("AdminOnly");
 
 // Payroll
 app.MapGet("/payroll-entries", async (AppDbContext db) =>
@@ -423,13 +456,15 @@ app.MapGet("/payroll-entries", async (AppDbContext db) =>
         .OrderByDescending(x => x.Date)
         .Take(50)
         .ToListAsync()
-);
+)
+.RequireAuthorization("AdminOnly");
 
 app.MapGet("/payroll-entries/{id}", async (int id, AppDbContext db) =>
     await db.PayrollEntries.FindAsync(id) is PayrollEntry payrollEntry
         ? Results.Ok(payrollEntry)
         : Results.NotFound()
-);
+)
+.RequireAuthorization("AdminOnly");
 
 app.MapPost("/payroll-entries", async(PayrollEntry payrollEntry, AppDbContext db) => 
 {
@@ -437,7 +472,8 @@ app.MapPost("/payroll-entries", async(PayrollEntry payrollEntry, AppDbContext db
     await db.SaveChangesAsync();
 
     return Results.Created($"/payroll-entries/{payrollEntry.Id}", payrollEntry);
-});
+})
+.RequireAuthorization("AdminOnly");
 
 app.MapPut("/payroll-entries/{id}", async(int id, PayrollEntry inputPayrollEntry, AppDbContext db) =>
 {
@@ -454,7 +490,8 @@ app.MapPut("/payroll-entries/{id}", async(int id, PayrollEntry inputPayrollEntry
 
     await db.SaveChangesAsync();
     return Results.NoContent();
-});
+})
+.RequireAuthorization("AdminOnly");
 
 app.MapDelete("/payroll-entries/{id}", async (int id, AppDbContext db) =>
 {
@@ -465,14 +502,16 @@ app.MapDelete("/payroll-entries/{id}", async (int id, AppDbContext db) =>
     await db.SaveChangesAsync();
 
     return Results.NoContent();
-});
+})
+.RequireAuthorization("AdminOnly");
 
 app.MapPost("/payroll-entries/import", async (IFormFile file, PayrollEntryImportService service) =>
 {
     var result = await service.ImportAsync(file);
     return Results.Ok(result);
 })
-.DisableAntiforgery();
+.DisableAntiforgery()
+.RequireAuthorization("AdminOnly");
 
 // Dashboard API
 app.MapGet("/daily-summary/{date}", async (
@@ -744,7 +783,8 @@ app.MapGet("/dashboard", async (
         debtBreakdown,
         payrollBreakdown,
     });
-});
+})
+.RequireAuthorization("AdminOnly");
 
 app.MapGet("/monthly-summary", async (
     string month, AppDbContext db) =>
@@ -807,7 +847,8 @@ app.MapGet("/monthly-summary", async (
     };
 
     return Results.Ok(result);
-});
+})
+.RequireAuthorization("AdminOnly");
 
 app.MapPost("/monthly-summary", async (MonthlyClosingRequestDto request, AppDbContext db) =>
 {
@@ -910,7 +951,8 @@ app.MapPost("/monthly-summary", async (MonthlyClosingRequestDto request, AppDbCo
         OwnerShare = request.OwnerShare,
         RemainingBalance = netProfit - totalShare
     });
-});
+})
+.RequireAuthorization("AdminOnly");
 
 // Seed DB
 await SeedAdminUserAsync(app.Services);
@@ -921,20 +963,38 @@ static async Task SeedAdminUserAsync(IServiceProvider services)
 
     await db.Database.MigrateAsync();
 
+    // Admin
     var adminExists = await db.Users.AnyAsync(u => u.Username == "admin");
 
-    if (adminExists)
-        return;
-
-    var adminUser = new User
+    if (!adminExists)
     {
-        Username = "admin",
-        PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
-        Role = " Admin"
-    };
+        var adminUser = new User
+        {
+            Username = "admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+            Role = "Admin"
+        };
+        db.Users.Add(adminUser);
+    }
 
-    db.Users.Add(adminUser);
-    await db.SaveChangesAsync();
+    // Employee
+    var employeeExists = await db.Users.AnyAsync(u => u.Username == "employee");
+
+    if (!employeeExists)
+    {
+        var employeeUser = new User
+        {
+            Username = "employee",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+            Role = "Employee"
+        };
+
+        db.Users.Add(employeeUser);
+        await db.SaveChangesAsync();
+    }
+
+    if (!adminExists || !employeeExists)
+        await db.SaveChangesAsync();
 }
 
 app.Run();
