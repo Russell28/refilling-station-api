@@ -25,3 +25,9 @@ appsettings.Development.json
 *.db
 *.db-shm
 *.db-wal
+
+# =========================
+# React build output inside API project
+# =========================
+src/RefillingStation.Api/wwwroot/*
+!src/RefillingStation.Api/wwwroot/.gitkeep

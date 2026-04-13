@@ -105,20 +105,26 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.MapOpenApi();
+    //api.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
+    //app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+// Serve React build files
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseCors("Frontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 // Middleware Pipeline - End
 
+var api = app.MapGroup("/api");
+
 // Map Endpoints
-app.MapGet("/auth/me", (ClaimsPrincipal user) =>
+api.MapGet("/auth/me", (ClaimsPrincipal user) =>
 {
     var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     var username = user.Identity?.Name;
@@ -134,7 +140,7 @@ app.MapGet("/auth/me", (ClaimsPrincipal user) =>
 .RequireAuthorization();
 
 // Auth API
-app.MapPost("/auth/login", async (
+api.MapPost("/auth/login", async (
     LoginRequest request, 
     TokenService service,
     AppDbContext db) =>
@@ -164,7 +170,7 @@ app.MapPost("/auth/login", async (
 });
 
 // Trips API
-app.MapGet("/trips", async (AppDbContext db) =>
+api.MapGet("/trips", async (AppDbContext db) =>
     await db.Trips
         .OrderByDescending(t => t.Date)
         .ThenBy(t => t.TripNumber)
@@ -173,13 +179,13 @@ app.MapGet("/trips", async (AppDbContext db) =>
 )
 .RequireAuthorization();
 
-app.MapGet("/trips/{id}", async (int id, AppDbContext db) =>
+api.MapGet("/trips/{id}", async (int id, AppDbContext db) =>
     await db.Trips.FindAsync(id) is Trip trip
         ? Results.Ok(trip)
         : Results.NotFound()
 ).RequireAuthorization();
 
-app.MapPost("/trips", async (CreateTripRequest request, 
+api.MapPost("/trips", async (CreateTripRequest request, 
     IValidator<CreateTripRequest> validator,
     AppDbContext db) =>
 {
@@ -240,7 +246,7 @@ app.MapPost("/trips", async (CreateTripRequest request,
 })
 .RequireAuthorization();
 
-app.MapPut("/trips/{id}", async (
+api.MapPut("/trips/{id}", async (
     int id, 
     UpdateTripRequest request, 
     IValidator<UpdateTripRequest> validator,
@@ -304,7 +310,7 @@ app.MapPut("/trips/{id}", async (
 })
 .RequireAuthorization();
 
-app.MapDelete("/trips/{id}", async (int id, AppDbContext db) =>
+api.MapDelete("/trips/{id}", async (int id, AppDbContext db) =>
 {
     var trip = await db.Trips.FindAsync(id);
     if (trip is null) return Results.NotFound();
@@ -316,7 +322,7 @@ app.MapDelete("/trips/{id}", async (int id, AppDbContext db) =>
 })
 .RequireAuthorization();
 
-app.MapPost("/trips/import", async (
+api.MapPost("/trips/import", async (
         IFormFile file,
         TripImportService service) =>
 {
@@ -327,7 +333,7 @@ app.MapPost("/trips/import", async (
 .RequireAuthorization("AdminOnly");
 
 // Customer Debt Entries API
-app.MapGet("/debt-entries", async (AppDbContext db) =>
+api.MapGet("/debt-entries", async (AppDbContext db) =>
     await db.CustomerDebtEntries
         .OrderByDescending(x => x.Date)
         .Take(50)
@@ -335,14 +341,14 @@ app.MapGet("/debt-entries", async (AppDbContext db) =>
 )
 .RequireAuthorization();
 
-app.MapGet("/debt-entries/{id}", async (int id, AppDbContext db) =>
+api.MapGet("/debt-entries/{id}", async (int id, AppDbContext db) =>
     await db.CustomerDebtEntries.FindAsync(id) is CustomerDebtEntry debt 
         ? Results.Ok(debt)
         : Results.NotFound()
 )
 .RequireAuthorization();
 
-app.MapPost("/debt-entries", async (CustomerDebtEntry debt, AppDbContext db) =>
+api.MapPost("/debt-entries", async (CustomerDebtEntry debt, AppDbContext db) =>
 {
     db.CustomerDebtEntries.Add(debt);
     await db.SaveChangesAsync();
@@ -351,7 +357,7 @@ app.MapPost("/debt-entries", async (CustomerDebtEntry debt, AppDbContext db) =>
 })
 .RequireAuthorization();
 
-app.MapPut("/debt-entries/{id}", async (int id, CustomerDebtEntry inputDebt, AppDbContext db) => {
+api.MapPut("/debt-entries/{id}", async (int id, CustomerDebtEntry inputDebt, AppDbContext db) => {
     var debt = await db.CustomerDebtEntries.FindAsync(id);
     if (debt is null) return Results.NotFound();
 
@@ -367,7 +373,7 @@ app.MapPut("/debt-entries/{id}", async (int id, CustomerDebtEntry inputDebt, App
 })
 .RequireAuthorization();
 
-app.MapDelete("/debt-entries/{id}", async (int id, AppDbContext db) =>
+api.MapDelete("/debt-entries/{id}", async (int id, AppDbContext db) =>
 {
     var debt = await db.CustomerDebtEntries.FindAsync(id);
     if (debt is null) return Results.NotFound();
@@ -379,7 +385,7 @@ app.MapDelete("/debt-entries/{id}", async (int id, AppDbContext db) =>
 })
 .RequireAuthorization();
 
-app.MapPost("/debt-entries/import", async (IFormFile file, CustomerDebtImportService service) =>
+api.MapPost("/debt-entries/import", async (IFormFile file, CustomerDebtImportService service) =>
 {
     var result = await service.ImportAsync(file);
 
@@ -389,7 +395,7 @@ app.MapPost("/debt-entries/import", async (IFormFile file, CustomerDebtImportSer
 .RequireAuthorization("AdminOnly");
 
 // Expenses API
-app.MapGet("/expenses", async (AppDbContext db) => 
+api.MapGet("/expenses", async (AppDbContext db) => 
     await db.Expenses
         .OrderByDescending(x => x.Date)
         .Take(50)
@@ -397,14 +403,14 @@ app.MapGet("/expenses", async (AppDbContext db) =>
 )
 .RequireAuthorization();
 
-app.MapGet("/expenses/{id}", async (int id, AppDbContext db) => 
+api.MapGet("/expenses/{id}", async (int id, AppDbContext db) => 
     await db.Expenses.FindAsync(id) is Expense expense
         ? Results.Ok(expense)
         : Results.NotFound()
 )
 .RequireAuthorization();
 
-app.MapPost("/expenses", async (Expense expense, AppDbContext db) =>
+api.MapPost("/expenses", async (Expense expense, AppDbContext db) =>
 {
     db.Expenses.Add(expense);
     await db.SaveChangesAsync();
@@ -413,7 +419,7 @@ app.MapPost("/expenses", async (Expense expense, AppDbContext db) =>
 })
 .RequireAuthorization();
 
-app.MapPut("/expenses/{id}", async (int id, Expense inputExpense, AppDbContext db) =>
+api.MapPut("/expenses/{id}", async (int id, Expense inputExpense, AppDbContext db) =>
 {
     var expense = await db.Expenses.FindAsync(id);
     if (expense is null) return Results.NotFound();
@@ -428,7 +434,7 @@ app.MapPut("/expenses/{id}", async (int id, Expense inputExpense, AppDbContext d
 })
 .RequireAuthorization();
 
-app.MapDelete("/expenses/{id}", async (int id, AppDbContext db) =>
+api.MapDelete("/expenses/{id}", async (int id, AppDbContext db) =>
 {
     var expense = await db.Expenses.FindAsync(id);
     if (expense is null) return Results.NotFound();
@@ -440,7 +446,7 @@ app.MapDelete("/expenses/{id}", async (int id, AppDbContext db) =>
 })
 .RequireAuthorization();
 
-app.MapPost("/expenses/import", async (
+api.MapPost("/expenses/import", async (
     IFormFile file, 
     ExpenseImportService service) =>
 {
@@ -451,7 +457,7 @@ app.MapPost("/expenses/import", async (
 .RequireAuthorization("AdminOnly");
 
 // Payroll
-app.MapGet("/payroll-entries", async (AppDbContext db) =>
+api.MapGet("/payroll-entries", async (AppDbContext db) =>
     await db.PayrollEntries
         .OrderByDescending(x => x.Date)
         .Take(50)
@@ -459,14 +465,14 @@ app.MapGet("/payroll-entries", async (AppDbContext db) =>
 )
 .RequireAuthorization("AdminOnly");
 
-app.MapGet("/payroll-entries/{id}", async (int id, AppDbContext db) =>
+api.MapGet("/payroll-entries/{id}", async (int id, AppDbContext db) =>
     await db.PayrollEntries.FindAsync(id) is PayrollEntry payrollEntry
         ? Results.Ok(payrollEntry)
         : Results.NotFound()
 )
 .RequireAuthorization("AdminOnly");
 
-app.MapPost("/payroll-entries", async(PayrollEntry payrollEntry, AppDbContext db) => 
+api.MapPost("/payroll-entries", async(PayrollEntry payrollEntry, AppDbContext db) => 
 {
     db.PayrollEntries.Add(payrollEntry);
     await db.SaveChangesAsync();
@@ -475,7 +481,7 @@ app.MapPost("/payroll-entries", async(PayrollEntry payrollEntry, AppDbContext db
 })
 .RequireAuthorization("AdminOnly");
 
-app.MapPut("/payroll-entries/{id}", async(int id, PayrollEntry inputPayrollEntry, AppDbContext db) =>
+api.MapPut("/payroll-entries/{id}", async(int id, PayrollEntry inputPayrollEntry, AppDbContext db) =>
 {
     var payrollEntry = await db.PayrollEntries.FindAsync(id);
     if (payrollEntry is null) return Results.NotFound();
@@ -493,7 +499,7 @@ app.MapPut("/payroll-entries/{id}", async(int id, PayrollEntry inputPayrollEntry
 })
 .RequireAuthorization("AdminOnly");
 
-app.MapDelete("/payroll-entries/{id}", async (int id, AppDbContext db) =>
+api.MapDelete("/payroll-entries/{id}", async (int id, AppDbContext db) =>
 {
     var payrollEntry = await db.PayrollEntries.FindAsync(id);
     if (payrollEntry is null) return Results.NotFound();
@@ -505,7 +511,7 @@ app.MapDelete("/payroll-entries/{id}", async (int id, AppDbContext db) =>
 })
 .RequireAuthorization("AdminOnly");
 
-app.MapPost("/payroll-entries/import", async (IFormFile file, PayrollEntryImportService service) =>
+api.MapPost("/payroll-entries/import", async (IFormFile file, PayrollEntryImportService service) =>
 {
     var result = await service.ImportAsync(file);
     return Results.Ok(result);
@@ -514,7 +520,7 @@ app.MapPost("/payroll-entries/import", async (IFormFile file, PayrollEntryImport
 .RequireAuthorization("AdminOnly");
 
 // Dashboard API
-app.MapGet("/daily-summary/{date}", async (
+api.MapGet("/daily-summary/{date}", async (
     DateTime date, 
     AppDbContext db,
     IConfiguration config) =>
@@ -600,7 +606,7 @@ app.MapGet("/daily-summary/{date}", async (
     return Results.Ok(result);
 });
 
-app.MapGet("/dashboard", async (
+api.MapGet("/dashboard", async (
     DateTime startDate, 
     DateTime endDate, 
     AppDbContext db,
@@ -786,7 +792,7 @@ app.MapGet("/dashboard", async (
 })
 .RequireAuthorization("AdminOnly");
 
-app.MapGet("/monthly-summary", async (
+api.MapGet("/monthly-summary", async (
     string month, AppDbContext db) =>
 {
     if (String.IsNullOrEmpty(month))
@@ -850,7 +856,7 @@ app.MapGet("/monthly-summary", async (
 })
 .RequireAuthorization("AdminOnly");
 
-app.MapPost("/monthly-summary", async (MonthlyClosingRequestDto request, AppDbContext db) =>
+api.MapPost("/monthly-summary", async (MonthlyClosingRequestDto request, AppDbContext db) =>
 {
     if (string.IsNullOrWhiteSpace(request.Month))
     {
@@ -996,5 +1002,8 @@ static async Task SeedAdminUserAsync(IServiceProvider services)
     if (!adminExists || !employeeExists)
         await db.SaveChangesAsync();
 }
+
+// Fallback for React client-side routes
+api.MapFallbackToFile("index.html");
 
 app.Run();
