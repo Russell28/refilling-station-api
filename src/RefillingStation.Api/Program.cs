@@ -108,12 +108,13 @@ if (app.Environment.IsDevelopment())
     //api.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
-    //app.UseHttpsRedirection();
 }
 
-// Serve React build files
-app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseHttpsRedirection();
+
+// Serve React build files - for monolithic or static hosting
+//app.UseDefaultFiles();
+//app.UseStaticFiles();
 
 app.UseCors("Frontend");
 
@@ -1003,7 +1004,7 @@ static async Task SeedAdminUserAsync(IServiceProvider services)
         await db.SaveChangesAsync();
 }
 
-// Fallback for React client-side routes
-api.MapFallbackToFile("index.html");
+// Fallback for React client-side routes - for monolithic or static hosting
+//api.MapFallbackToFile("index.html"); 
 
 app.Run();
