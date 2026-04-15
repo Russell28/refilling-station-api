@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RefillingStation.Api.Entities;
 
 namespace RefillingStation.Api.Data
@@ -16,6 +17,16 @@ namespace RefillingStation.Api.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties()
+                    .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)))
+                {
+                    property.SetValueConverter(new ValueConverter<DateTime, DateTime>(
+                        v => v.ToUniversalTime(),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)));
+                }
+            }
             base.OnModelCreating(modelBuilder);
 
             // User Constraint

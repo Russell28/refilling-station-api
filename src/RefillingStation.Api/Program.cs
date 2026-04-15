@@ -27,7 +27,7 @@ builder.Services.AddOpenApi();
 
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Fluent Validation
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
