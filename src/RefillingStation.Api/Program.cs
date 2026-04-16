@@ -63,14 +63,13 @@ builder.Services.AddCors(options =>
 });
 
 // Authentication & Authorization
-var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("JWT Key is not configured.");
+var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
 
-var jwtIssuer = builder.Configuration["Jwt:Issuer"]
-    ?? throw new InvalidOperationException("JWT Issuer is not configured.");
-
-var jwtAudience = builder.Configuration["Jwt:Audience"]
-    ?? throw new InvalidOperationException("JWT Audience is not configured");
+Console.WriteLine($"JWT Key: {jwtKey}");
+Console.WriteLine($"JWT Issuer: {jwtIssuer}");
+Console.WriteLine($"JWT Audience: {jwtAudience}");
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -125,6 +124,8 @@ app.UseAuthorization();
 var api = app.MapGroup("/api");
 
 // Map Endpoints
+api.MapGet("/ping", () => "API is alive");
+
 api.MapGet("/auth/me", (ClaimsPrincipal user) =>
 {
     var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -968,7 +969,15 @@ static async Task SeedAdminUserAsync(IServiceProvider services)
     using var scope = services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    await db.Database.MigrateAsync();
+    try
+    {
+        await db.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("MIGRATION ERROR: " + ex.Message);
+        throw;
+    }
 
     // Admin
     var adminExists = await db.Users.AnyAsync(u => u.Username == "admin");
