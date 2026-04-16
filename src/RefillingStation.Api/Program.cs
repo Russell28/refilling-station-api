@@ -67,9 +67,17 @@ var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 
-Console.WriteLine($"JWT Key: {jwtKey}");
-Console.WriteLine($"JWT Issuer: {jwtIssuer}");
-Console.WriteLine($"JWT Audience: {jwtAudience}");
+// Validate required configuration
+if (string.IsNullOrEmpty(jwtKey))
+    throw new InvalidOperationException("Jwt:Key configuration is missing. Set environment variable: Jwt__Key");
+if (string.IsNullOrEmpty(jwtIssuer))
+    throw new InvalidOperationException("Jwt:Issuer configuration is missing. Set environment variable: Jwt__Issuer");
+if (string.IsNullOrEmpty(jwtAudience))
+    throw new InvalidOperationException("Jwt:Audience configuration is missing. Set environment variable: Jwt__Audience");
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+    throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing. Set environment variable: ConnectionStrings__DefaultConnection");
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
