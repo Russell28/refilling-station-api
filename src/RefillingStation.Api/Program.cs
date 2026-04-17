@@ -340,6 +340,30 @@ api.MapPost("/trips/import", async (
 .DisableAntiforgery()
 .RequireAuthorization("AdminOnly");
 
+api.MapGet("/trips/next-trip-number", async (DateOnly date, AppDbContext db) =>
+{
+    // Default next trip number
+    var nextTripNo = 1;
+
+    var trips = await db.Trips
+        .Where(x => x.Date == date)
+        .ToListAsync();
+
+    if (trips.Any())
+    {
+        nextTripNo = trips.Max(x => x.TripNumber) + 1;
+    }
+
+    var result = new
+    {
+        date = date,
+        nextTripNo = nextTripNo
+    };
+
+    return Results.Ok(result);
+
+});
+
 // Customer Debt Entries API
 api.MapGet("/debt-entries", async (AppDbContext db) =>
     await db.CustomerDebtEntries
