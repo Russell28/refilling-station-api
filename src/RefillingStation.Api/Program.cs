@@ -14,6 +14,7 @@ using RefillingStation.Api.Features.CustomerDebts;
 using RefillingStation.Api.Features.Expenses;
 using RefillingStation.Api.Features.MontlyClosing.dtos;
 using RefillingStation.Api.Features.Payrolls;
+using RefillingStation.Api.Features.Payrolls.dtos;
 using RefillingStation.Api.Features.Trips;
 using RefillingStation.Api.Features.Trips.dtos;
 using RefillingStation.Api.Features.Trips.validators;
@@ -504,27 +505,65 @@ api.MapGet("/payroll-entries/{id}", async (int id, AppDbContext db) =>
 )
 .RequireAuthorization("AdminOnly");
 
-api.MapPost("/payroll-entries", async(PayrollEntry payrollEntry, AppDbContext db) => 
+api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<CreatePayrollRequest> validator, AppDbContext db) => 
 {
-    db.PayrollEntries.Add(payrollEntry);
+    var validationResult = await validator.ValidateAsync(request);
+
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(
+            validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                )
+        );
+    }
+
+    var newPayroll = new PayrollEntry()
+    {
+        Date = request.Date,
+        EmployeeName = request.EmployeeName,
+        SalaryAmount = request.SalaryAmount,
+        AdvanceGiven = request.AdvanceGiven,
+        AdvanceDeduction = request.AdvanceDeduction,
+        CashPaid = request.CashPaid,
+        Notes = request.Notes
+    };
+
+    db.PayrollEntries.Add(newPayroll);
     await db.SaveChangesAsync();
 
-    return Results.Created($"/payroll-entries/{payrollEntry.Id}", payrollEntry);
+    return Results.Created($"/payroll-entries/{newPayroll.Id}", request);
 })
 .RequireAuthorization("AdminOnly");
 
-api.MapPut("/payroll-entries/{id}", async(int id, PayrollEntry inputPayrollEntry, AppDbContext db) =>
+api.MapPut("/payroll-entries/{id}", async(int id, CreatePayrollRequest request, IValidator<CreatePayrollRequest> validator, AppDbContext db) =>
 {
+    var validationResult = await validator.ValidateAsync(request);
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(
+            validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                )
+        );
+    }
+
     var payrollEntry = await db.PayrollEntries.FindAsync(id);
     if (payrollEntry is null) return Results.NotFound();
 
-    payrollEntry.Date = inputPayrollEntry.Date;
-    payrollEntry.EmployeeName = inputPayrollEntry.EmployeeName;
-    payrollEntry.SalaryAmount = inputPayrollEntry.SalaryAmount;
-    payrollEntry.AdvanceGiven = inputPayrollEntry.AdvanceGiven;
-    payrollEntry.AdvanceDeduction = inputPayrollEntry.AdvanceDeduction;
-    payrollEntry.CashPaid = inputPayrollEntry.CashPaid;
-    payrollEntry.Notes = inputPayrollEntry.Notes;
+    payrollEntry.Date = request.Date;
+    payrollEntry.EmployeeName = request.EmployeeName;
+    payrollEntry.SalaryAmount = request.SalaryAmount;
+    payrollEntry.AdvanceGiven = request.AdvanceGiven;
+    payrollEntry.AdvanceDeduction = request.AdvanceDeduction;
+    payrollEntry.CashPaid = request.CashPaid;
+    payrollEntry.Notes = request.Notes;
 
     await db.SaveChangesAsync();
     return Results.NoContent();
