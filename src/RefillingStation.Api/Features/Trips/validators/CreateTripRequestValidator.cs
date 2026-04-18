@@ -3,9 +3,9 @@ using RefillingStation.Api.Features.Trips.dtos;
 
 namespace RefillingStation.Api.Features.Trips.validators
 {
-    public class UpdateTripRequestValidator : AbstractValidator<CreateTripRequest>
+    public class CreateTripRequestValidator : AbstractValidator<CreateTripRequest>
     {
-        public UpdateTripRequestValidator()
+        public CreateTripRequestValidator()
         {
             RuleFor(x => x.Date)
                 .NotEmpty()
@@ -42,6 +42,13 @@ namespace RefillingStation.Api.Features.Trips.validators
             RuleFor(x => x)
                 .Must(x => !x.TimeStarted.HasValue || !x.TimeEnded.HasValue || x.TimeEnded.Value >= x.TimeStarted.Value)
                 .WithMessage("TimeEnded must be greater than or equal to TimeStarted.");
+
+            RuleFor(x => x)
+                .Must(x => x.DeliveredQty > 0 
+                        || x.LoadedQty > 0 
+                        || x.CollectedQty > 0 
+                        || x.ActualCashCollected > 0)
+                .WithMessage("A trip requires at least one of Delivered Qty, Loaded Qty, Collected Qty, or Actual Cash Collected to be greater than zero.");
         }
     }
 }
