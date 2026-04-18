@@ -11,13 +11,16 @@ using RefillingStation.Api.Entities;
 using RefillingStation.Api.Features.Auth;
 using RefillingStation.Api.Features.Auth.dtos;
 using RefillingStation.Api.Features.CustomerDebts;
+using RefillingStation.Api.Features.CustomerDebts.dtos;
 using RefillingStation.Api.Features.Expenses;
+using RefillingStation.Api.Features.Expenses.dtos;
 using RefillingStation.Api.Features.MontlyClosing.dtos;
 using RefillingStation.Api.Features.Payrolls;
 using RefillingStation.Api.Features.Payrolls.dtos;
 using RefillingStation.Api.Features.Trips;
 using RefillingStation.Api.Features.Trips.dtos;
 using RefillingStation.Api.Features.Trips.validators;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
 
@@ -381,8 +384,30 @@ api.MapGet("/debt-entries/{id}", async (int id, AppDbContext db) =>
 )
 .RequireAuthorization();
 
-api.MapPost("/debt-entries", async (CustomerDebtEntry debt, AppDbContext db) =>
+api.MapPost("/debt-entries", async (CreateDebtRequest request, IValidator<CreateDebtRequest> validator, AppDbContext db) =>
 {
+    var validationResult = await validator.ValidateAsync(request);
+
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(
+            validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                )
+        );
+    }
+
+    var debt = new CustomerDebtEntry
+    {
+        Date = request.Date,
+        CustomerName = request.CustomerName,
+        Amount = request.Amount,
+        Notes = request.Notes
+    };
+
     db.CustomerDebtEntries.Add(debt);
     await db.SaveChangesAsync();
 
@@ -390,16 +415,28 @@ api.MapPost("/debt-entries", async (CustomerDebtEntry debt, AppDbContext db) =>
 })
 .RequireAuthorization();
 
-api.MapPut("/debt-entries/{id}", async (int id, CustomerDebtEntry inputDebt, AppDbContext db) => {
+api.MapPut("/debt-entries/{id}", async (int id, CreateDebtRequest request, IValidator <CreateDebtRequest> validator, AppDbContext db) => {
+    var validationResult = await validator.ValidateAsync(request);
+
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(
+            validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                )
+        );
+    }
+
     var debt = await db.CustomerDebtEntries.FindAsync(id);
     if (debt is null) return Results.NotFound();
 
-    debt.Date = inputDebt.Date;
-    debt.Amount = inputDebt.Amount;
-    debt.CustomerName = inputDebt.CustomerName;
-    debt.EntryType = inputDebt.EntryType;
-    debt.RelatedTripId = inputDebt.RelatedTripId;
-    debt.Notes = inputDebt.Notes;
+    debt.Date = request.Date;
+    debt.Amount = request.Amount;
+    debt.CustomerName = request.CustomerName;
+    debt.Notes = request.Notes;
 
     await db.SaveChangesAsync();
     return Results.NoContent();
@@ -443,12 +480,34 @@ api.MapGet("/expenses/{id}", async (int id, AppDbContext db) =>
 )
 .RequireAuthorization();
 
-api.MapPost("/expenses", async (Expense expense, AppDbContext db) =>
+api.MapPost("/expenses", async (CreateExpenseRequest request, IValidator<CreateExpenseRequest> validator, AppDbContext db) =>
 {
-    db.Expenses.Add(expense);
+    var validationResult = await validator.ValidateAsync(request);
+
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(
+            validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                )
+        );
+    }
+
+    var newExpense = new Expense()
+    {
+        Date = request.Date,
+        ExpenseCategory = request.ExpenseCategory,
+        Amount = request.Amount,
+        Notes = request.Notes
+    };
+
+    db.Expenses.Add(newExpense);
     await db.SaveChangesAsync();
 
-    return Results.Created($"/debt-entries/{expense.Id}", expense);
+    return Results.Created($"/expenses/{newExpense.Id}", newExpense);
 })
 .RequireAuthorization();
 
@@ -542,6 +601,7 @@ api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<C
 api.MapPut("/payroll-entries/{id}", async(int id, CreatePayrollRequest request, IValidator<CreatePayrollRequest> validator, AppDbContext db) =>
 {
     var validationResult = await validator.ValidateAsync(request);
+
     if (!validationResult.IsValid)
     {
         return Results.ValidationProblem(
