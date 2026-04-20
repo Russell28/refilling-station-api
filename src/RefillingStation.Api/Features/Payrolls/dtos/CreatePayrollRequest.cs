@@ -2,11 +2,10 @@
 {
     public class CreatePayrollRequest
     {
-        public DateTime Date { get; set; }
+        public DateTime EarnedDate { get; set; }
+        public DateTime? PaidDate { get; set; } 
         public string EmployeeName { get; set; } = string.Empty;
         public decimal SalaryAmount { get; set; }
-        public decimal AdvanceGiven { get; set; }
-        public decimal AdvanceDeduction { get; set; }
         public decimal CashPaid { get; set; }
         public string? Notes { get; set; }
     }

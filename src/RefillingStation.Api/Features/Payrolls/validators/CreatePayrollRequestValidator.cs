@@ -7,7 +7,7 @@ namespace RefillingStation.Api.Features.Payrolls.validators
     {
         public CreatePayrollRequestValidator()
         {
-            RuleFor(x => x.Date)
+            RuleFor(x => x.EarnedDate)
                 .NotEmpty()
                 .Must(date => date.Date <= DateTime.Today)
                 .WithMessage("Cannot select future date.");
@@ -18,16 +18,12 @@ namespace RefillingStation.Api.Features.Payrolls.validators
 
             RuleFor(x => x.SalaryAmount).GreaterThanOrEqualTo(0);
 
-            RuleFor(x => x.AdvanceGiven).GreaterThanOrEqualTo(0);
-            RuleFor(x => x.AdvanceDeduction).GreaterThanOrEqualTo(0);
             RuleFor(x => x.CashPaid).GreaterThanOrEqualTo(0);
 
             RuleFor(x => x)
                 .Must(x => x.SalaryAmount > 0
-                        || x.AdvanceGiven > 0
-                        || x.AdvanceDeduction > 0
                         || x.CashPaid > 0)
-                .WithMessage("A payroll requires at least one of Salary Amount, Advance Given, Advance Deduction, or Cash Paid to be greater than zero.");
+                .WithMessage("A payroll requires at least one of Salary Amount or Cash Paid to be greater than zero.");
         }
     }
 }

@@ -11,14 +11,6 @@ namespace RefillingStation.Api.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "AdvanceDeduction",
-                table: "PayrollEntries");
-
-            migrationBuilder.DropColumn(
-                name: "AdvanceGiven",
-                table: "PayrollEntries");
-
             migrationBuilder.RenameColumn(
                 name: "Date",
                 table: "PayrollEntries",
@@ -29,6 +21,21 @@ namespace RefillingStation.Api.Migrations
                 table: "PayrollEntries",
                 type: "timestamp with time zone",
                 nullable: true);
+
+            migrationBuilder.Sql(@"
+                UPDATE ""PayrollEntries""
+                SET ""CashPaid"" = ""CashPaid""
+                + COALESCE(""AdvanceGiven"", 0) 
+                - COALESCE(""AdvanceDeduction"", 0)
+            ");
+
+            migrationBuilder.DropColumn(
+                name: "AdvanceDeduction",
+                table: "PayrollEntries");
+
+            migrationBuilder.DropColumn(
+                name: "AdvanceGiven",
+                table: "PayrollEntries");
         }
 
         /// <inheritdoc />

@@ -25,6 +25,17 @@
             return parsed;
         }
 
+        public static DateOnly? ParseOptionalDate(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            if (!DateOnly.TryParse(value, out var parsed))
+                throw new Exception($"{fieldName} must be a valid date.");
+
+            return parsed;
+        }
+
         public static int ParseRequiredInt(string? value, string fieldName)
         {
             if (string.IsNullOrWhiteSpace(value))

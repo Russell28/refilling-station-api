@@ -99,11 +99,13 @@ namespace RefillingStation.Api.Features.Payrolls
 
         private PayrollEntry MapRowToPayroll(PayrollEntryImportRowDto row)
         {
-            var date = InputParser.ParseRequiredDate(row.Date, "Date");
+            var earnedDate = InputParser.ParseRequiredDate(row.EarnedDate, "Earned Date");
+            var paidDate = InputParser.ParseOptionalDate(row.PaidDate, "Paid Date");
 
             return new PayrollEntry
             {
-                EarnedDate = date.ToDateTime(TimeOnly.MinValue), // Convert dateonly to datetime midnight
+                EarnedDate = earnedDate.ToDateTime(TimeOnly.MinValue), // Convert dateonly to datetime midnight
+                PaidDate = paidDate?.ToDateTime(TimeOnly.MinValue), 
                 EmployeeName = InputParser.ParseRequiredString(row.EmployeeName, "Employee Name"),
                 SalaryAmount = InputParser.ParseNonNegativeDecimal(row.SalaryAmount, "Salary Amount"),
                 CashPaid = InputParser.ParseNonNegativeDecimal(row.CashPaid, "Cash Paid"),

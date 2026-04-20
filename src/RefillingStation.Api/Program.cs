@@ -582,7 +582,8 @@ api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<C
 
     var newPayroll = new PayrollEntry()
     {
-        EarnedDate = request.Date,
+        EarnedDate = request.EarnedDate,
+        PaidDate = request.PaidDate,
         EmployeeName = request.EmployeeName,
         SalaryAmount = request.SalaryAmount,
         CashPaid = request.CashPaid,
@@ -615,7 +616,9 @@ api.MapPut("/payroll-entries/{id}", async(int id, CreatePayrollRequest request, 
     var payrollEntry = await db.PayrollEntries.FindAsync(id);
     if (payrollEntry is null) return Results.NotFound();
 
-    payrollEntry.EarnedDate = request.Date;
+    payrollEntry.EarnedDate = request.EarnedDate;
+    payrollEntry.PaidDate = request.PaidDate;
+
     payrollEntry.EmployeeName = request.EmployeeName;
     payrollEntry.SalaryAmount = request.SalaryAmount;
     payrollEntry.CashPaid = request.CashPaid;
