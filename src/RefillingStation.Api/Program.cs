@@ -551,7 +551,7 @@ api.MapPost("/expenses/import", async (
 // Payroll
 api.MapGet("/payroll-entries", async (AppDbContext db) =>
     await db.PayrollEntries
-        .OrderByDescending(x => x.Date)
+        .OrderByDescending(x => x.EarnedDate)
         .Take(50)
         .ToListAsync()
 )
@@ -582,11 +582,9 @@ api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<C
 
     var newPayroll = new PayrollEntry()
     {
-        Date = request.Date,
+        EarnedDate = request.Date,
         EmployeeName = request.EmployeeName,
         SalaryAmount = request.SalaryAmount,
-        AdvanceGiven = request.AdvanceGiven,
-        AdvanceDeduction = request.AdvanceDeduction,
         CashPaid = request.CashPaid,
         Notes = request.Notes
     };
@@ -617,11 +615,9 @@ api.MapPut("/payroll-entries/{id}", async(int id, CreatePayrollRequest request, 
     var payrollEntry = await db.PayrollEntries.FindAsync(id);
     if (payrollEntry is null) return Results.NotFound();
 
-    payrollEntry.Date = request.Date;
+    payrollEntry.EarnedDate = request.Date;
     payrollEntry.EmployeeName = request.EmployeeName;
     payrollEntry.SalaryAmount = request.SalaryAmount;
-    payrollEntry.AdvanceGiven = request.AdvanceGiven;
-    payrollEntry.AdvanceDeduction = request.AdvanceDeduction;
     payrollEntry.CashPaid = request.CashPaid;
     payrollEntry.Notes = request.Notes;
 
@@ -669,7 +665,7 @@ api.MapGet("/daily-summary/{date}", async (
         .ToListAsync();
 
     var payrolls = await db.PayrollEntries
-        .Where(x => x.Date.Date == targetDateTime.Date)
+        .Where(x => x.EarnedDate.Date == targetDateTime.Date)
         .ToListAsync();
 
     var debtToday = await db.CustomerDebtEntries
@@ -758,7 +754,7 @@ api.MapGet("/dashboard", async (
         .ToListAsync();
 
     var payrolls = await db.PayrollEntries
-        .Where(x => x.Date >= startDate && x.Date <= endDate)
+        .Where(x => x.EarnedDate >= startDate && x.EarnedDate <= endDate)
         .ToListAsync();
 
     var debts = await db.CustomerDebtEntries
@@ -775,7 +771,7 @@ api.MapGet("/dashboard", async (
         .ToListAsync();
 
     var payrollRunning = await db.PayrollEntries
-        .Where(x => x.Date <= endDate)
+        .Where(x => x.EarnedDate <= endDate)
         .ToListAsync();
 
     // Compute Summary (CORE)
@@ -827,7 +823,7 @@ api.MapGet("/dashboard", async (
 
         var tripsPerDay = trips.Where(x => x.Date == tripDateOnly).ToList();
         var expensesPerDay = expenses.Where(x => x.Date == date).ToList();
-        var payrollsPerDay = payrolls.Where(x => x.Date == date).ToList();
+        var payrollsPerDay = payrolls.Where(x => x.EarnedDate == date).ToList();
         var debtsPerDay = debts.Where(x => x.Date == date).ToList();
 
         var collected = tripsPerDay.Sum(x => x.CollectedQty);
@@ -953,7 +949,7 @@ api.MapGet("/monthly-summary", async (
     //    .ToListAsync();
 
     var payrolls = await db.PayrollEntries
-        .Where(x => x.Date >= firstDayDateTime && x.Date <= lastDayDateTime)
+        .Where(x => x.EarnedDate >= firstDayDateTime && x.EarnedDate <= lastDayDateTime)
         .ToListAsync();
 
     var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
@@ -1022,7 +1018,7 @@ api.MapPost("/monthly-summary", async (MonthlyClosingRequestDto request, AppDbCo
         .ToListAsync();
 
     var payrolls = await db.PayrollEntries
-        .Where(x => x.Date >= firstDayDateTime && x.Date <= lastDayDateTime)
+        .Where(x => x.EarnedDate >= firstDayDateTime && x.EarnedDate <= lastDayDateTime)
         .ToListAsync();
 
     var totalCashCollected = trips.Sum(x => x.ActualCashCollected);

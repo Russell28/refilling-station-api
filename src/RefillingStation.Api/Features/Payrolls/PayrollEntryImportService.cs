@@ -103,11 +103,9 @@ namespace RefillingStation.Api.Features.Payrolls
 
             return new PayrollEntry
             {
-                Date = date.ToDateTime(TimeOnly.MinValue), // Convert dateonly to datetime midnight
+                EarnedDate = date.ToDateTime(TimeOnly.MinValue), // Convert dateonly to datetime midnight
                 EmployeeName = InputParser.ParseRequiredString(row.EmployeeName, "Employee Name"),
                 SalaryAmount = InputParser.ParseNonNegativeDecimal(row.SalaryAmount, "Salary Amount"),
-                AdvanceGiven = InputParser.ParseNonNegativeDecimal(row.AdvanceGiven, "Advance Given"),
-                AdvanceDeduction = InputParser.ParseNonNegativeDecimal(row.AdvanceDeduction, "Advance Deduction"),
                 CashPaid = InputParser.ParseNonNegativeDecimal(row.CashPaid, "Cash Paid"),
                 Notes = InputParser.ParseOptionalString(row.Notes)
             };
