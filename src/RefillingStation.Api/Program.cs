@@ -20,7 +20,6 @@ using RefillingStation.Api.Features.Payrolls.dtos;
 using RefillingStation.Api.Features.Trips;
 using RefillingStation.Api.Features.Trips.dtos;
 using RefillingStation.Api.Features.Trips.validators;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
 
@@ -43,6 +42,7 @@ builder.Services.AddScoped<PayrollEntryImportService>();
 builder.Services.AddScoped<CustomerDebtImportService>();
 
 // Enable Swagger
+builder.Services.AddEndpointsApiExplorer(); // minimal API explorer for Swagger
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
