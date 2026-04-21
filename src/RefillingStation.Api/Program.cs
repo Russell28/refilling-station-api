@@ -704,33 +704,55 @@ api.MapGet("/daily-summary/{date}", async (
 
     var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
     var totalExpenses = expenses.Sum(x => x.Amount);
+    var totalPayrollEarned = payrolls.Sum(x => x.SalaryAmount);
     var totalPayrollPaid = payrolls.Sum(x => x.CashPaid);
 
+    // Debt Breakdown
+    var debtBreakdown = runningDebt
+        .GroupBy(x => x.CustomerName)
+        .Select(g => new
+        {
+            customerName = g.Key,
+            debtCreated = g.Where(x => x.Amount > 0).Sum(x => x.Amount),
+            debtPayments = g.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount)),
+            balance = g.Sum(x => x.Amount),
+            latestTransactionDate = g.Max(x => x.Date)
+        })
+        .Where(x => x.balance != 0)
+        .OrderByDescending(x => x.latestTransactionDate)
+        .ToList();
+
+    
 
     var result = new
     {
-        Date = targetDate,
-        TripCount = trips.Count,
+        summary = new
+        {
+            Date = targetDate,
+            TripCount = trips.Count,
 
-        BacklogStartQty = backlogStartQty,
-        TotalCollectedQty = totalCollectedQty,
-        TotalLoadedQty = totalLoadedQty,
-        TotalDeliveredQty = totalDeliveredQty,
-        BacklogEndQty = backlogEndQty,
+            BacklogStartQty = backlogStartQty,
+            TotalCollectedQty = totalCollectedQty,
+            TotalLoadedQty = totalLoadedQty,
+            TotalDeliveredQty = totalDeliveredQty,
+            BacklogEndQty = backlogEndQty,
 
-        TotalFreeQty = totalFreeQty,
-        TotalReturnedQty = totalReturnedQty,
-        TotalReplacementQty = totalReplacementQty,
+            TotalFreeQty = totalFreeQty,
+            TotalReturnedQty = totalReturnedQty,
+            TotalReplacementQty = totalReplacementQty,
 
-        TotalCashCollected = totalCashCollected,
-        TotalExpenses = totalExpenses,
-        TotalPayrollPaid = totalPayrollPaid,
+            TotalCashCollected = totalCashCollected,
+            TotalExpenses = totalExpenses,
+            TotalPayrollEarned = totalPayrollEarned,
+            TotalPayrollPaid = totalPayrollPaid,
 
-        TotalDebtCreatedToday = debtToday.Where(x => x.Amount > 0).Sum(x => x.Amount),
-        TotalDebtPaymentsToday = debtToday.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount)),
-        OutstandingDebt = runningDebt.Sum(x => x.Amount),
+            TotalDebtCreatedToday = debtToday.Where(x => x.Amount > 0).Sum(x => x.Amount),
+            TotalDebtPaymentsToday = debtToday.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount)),
+            OutstandingDebt = runningDebt.Sum(x => x.Amount),
 
-        NetCashFlow = totalCashCollected - totalExpenses - totalPayrollPaid
+            NetCashFlow = totalCashCollected - totalExpenses - totalPayrollPaid
+        },
+        DebtBreakdown = debtBreakdown
     };
 
     return Results.Ok(result);
@@ -873,6 +895,7 @@ api.MapGet("/dashboard", async (
             debtPayments = g.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount)),
             balance = g.Sum(x => x.Amount)
         })
+        .Where(x => x.balance != 0)
         .ToList();
 
     // Payroll Breakdown
