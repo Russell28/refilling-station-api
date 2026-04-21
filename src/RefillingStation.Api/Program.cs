@@ -753,15 +753,15 @@ api.MapGet("/dashboard", async (
         .ToListAsync();
 
     var expenses = await db.Expenses
-        .Where(x => x.Date >= startDate && x.Date <= endDate)
+        .Where(x => x.Date.Date >= startDate.Date && x.Date.Date <= endDate.Date)
         .ToListAsync();
 
     var payrolls = await db.PayrollEntries
-        .Where(x => x.EarnedDate >= startDate && x.EarnedDate <= endDate)
+        .Where(x => x.EarnedDate.Date >= startDate.Date && x.EarnedDate.Date <= endDate.Date)
         .ToListAsync();
 
     var debts = await db.CustomerDebtEntries
-        .Where(x => x.Date >= startDate && x.Date <= endDate)
+        .Where(x => x.Date.Date >= startDate.Date && x.Date.Date <= endDate.Date)
         .ToListAsync();
 
     // Before start date
@@ -770,11 +770,11 @@ api.MapGet("/dashboard", async (
         .ToListAsync();
 
     var debtsRunning = await db.CustomerDebtEntries
-        .Where(x => x.Date <= endDate)
+        .Where(x => x.Date.Date <= endDate.Date)
         .ToListAsync();
 
     var payrollRunning = await db.PayrollEntries
-        .Where(x => x.EarnedDate <= endDate)
+        .Where(x => x.EarnedDate.Date <= endDate.Date)
         .ToListAsync();
 
     // Compute Summary (CORE)
@@ -820,14 +820,14 @@ api.MapGet("/dashboard", async (
     // DAILY Report
     var dailyReports = new List<object>();
 
-    for (var date = startDate; date <= endDate; date = date.AddDays(1))
+    for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
     {
         var tripDateOnly = DateOnly.FromDateTime(date);
 
         var tripsPerDay = trips.Where(x => x.Date == tripDateOnly).ToList();
-        var expensesPerDay = expenses.Where(x => x.Date == date).ToList();
-        var payrollsPerDay = payrolls.Where(x => x.EarnedDate == date).ToList();
-        var debtsPerDay = debts.Where(x => x.Date == date).ToList();
+        var expensesPerDay = expenses.Where(x => x.Date.Date == date).ToList();
+        var payrollsPerDay = payrolls.Where(x => x.EarnedDate.Date == date).ToList();
+        var debtsPerDay = debts.Where(x => x.Date.Date == date).ToList();
 
         var collected = tripsPerDay.Sum(x => x.CollectedQty);
         var delivered = tripsPerDay.Sum(x => x.DeliveredQty);
