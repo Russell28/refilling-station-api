@@ -16,7 +16,7 @@ namespace RefillingStation.Api.Features.CustomerDebts.validators
                 .NotEmpty().WithMessage("Customer name is required.");
 
             RuleFor(x => x.Amount)
-                .GreaterThan(0).WithMessage("Amount must be greater than zero.");
+                .NotEqual(0).WithMessage("Amount cannot be zero.");
 
             RuleFor(x => x.Notes)
                 .MaximumLength(500).WithMessage("Notes cannot exceed 500 characters.");
