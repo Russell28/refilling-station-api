@@ -12,6 +12,7 @@ using RefillingStation.Api.Features.Auth;
 using RefillingStation.Api.Features.Auth.dtos;
 using RefillingStation.Api.Features.CustomerDebts;
 using RefillingStation.Api.Features.CustomerDebts.dtos;
+using RefillingStation.Api.Features.Customers.dtos;
 using RefillingStation.Api.Features.Expenses;
 using RefillingStation.Api.Features.Expenses.dtos;
 using RefillingStation.Api.Features.MontlyClosing.dtos;
@@ -179,6 +180,17 @@ api.MapPost("/auth/login", async (
         username = user.Username,
         role = user.Role
     });
+});
+
+// Customers API
+api.MapGet("/customers", async (AppDbContext db) =>
+{
+    return await db.Customers
+        .OrderBy(x => x.Name.Contains("Other")) // Push "Other" to the end of the list
+        .ThenBy(x => x.Name)
+        .Select(x => new CustomerListItem(x.Id, x.Name))
+        .Take(100) // Limit to 100 customers for performance
+        .ToListAsync();
 });
 
 // Trips API
@@ -370,11 +382,23 @@ api.MapGet("/trips/next-trip-number", async (DateOnly date, AppDbContext db) =>
 
 // Customer Debt Entries API
 api.MapGet("/debt-entries", async (AppDbContext db) =>
-    await db.CustomerDebtEntries
+{
+    var debts = await db.CustomerDebtEntries
         .OrderByDescending(x => x.Date)
         .Take(50)
-        .ToListAsync()
-)
+        .Select(c => new CustomerDebtResponse
+        {
+            Id = c.Id,
+            CustomerId = c.CustomerId,
+            Date = c.Date,
+            CustomerName = c.Customer.Name,
+            Amount = c.Amount,
+            Notes = c.Notes
+        })
+        .ToListAsync();
+
+    return Results.Ok(debts);
+})
 .RequireAuthorization();
 
 api.MapGet("/debt-entries/{id}", async (int id, AppDbContext db) =>
@@ -403,7 +427,7 @@ api.MapPost("/debt-entries", async (CreateDebtRequest request, IValidator<Create
     var debt = new CustomerDebtEntry
     {
         Date = request.Date,
-        CustomerName = request.CustomerName,
+        CustomerId = request.CustomerId,
         Amount = request.Amount,
         Notes = request.Notes
     };
@@ -435,7 +459,7 @@ api.MapPut("/debt-entries/{id}", async (int id, CreateDebtRequest request, IVali
 
     debt.Date = request.Date;
     debt.Amount = request.Amount;
-    debt.CustomerName = request.CustomerName;
+    debt.CustomerId = request.CustomerId;
     debt.Notes = request.Notes;
 
     await db.SaveChangesAsync();
@@ -677,6 +701,12 @@ api.MapGet("/daily-summary/{date}", async (
 
     var runningDebt = await db.CustomerDebtEntries
         .Where(x => x.Date.Date <= targetDateTime.Date)
+        .Select(x => new
+        {
+            CustomerName = x.Customer.Name,
+            x.Amount,
+            x.Date
+        })
         .ToListAsync();
 
     // Previous
@@ -784,6 +814,12 @@ api.MapGet("/dashboard", async (
 
     var debts = await db.CustomerDebtEntries
         .Where(x => x.Date.Date >= startDate.Date && x.Date.Date <= endDate.Date)
+        .Select(x => new
+        {
+            CustomerName = x.Customer.Name,
+            x.Amount,
+            x.Date
+        })
         .ToListAsync();
 
     // Before start date

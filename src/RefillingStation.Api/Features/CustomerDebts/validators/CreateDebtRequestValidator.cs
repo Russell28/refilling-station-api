@@ -12,8 +12,8 @@ namespace RefillingStation.Api.Features.CustomerDebts.validators
                 .Must(date => date.Date <= DateTime.Today)
                 .WithMessage("Cannot select future date.");
 
-            RuleFor(x => x.CustomerName)
-                .NotEmpty().WithMessage("Customer name is required.");
+            RuleFor(x => x.CustomerId)
+                .NotEmpty().WithMessage("Customer ID is required.");
 
             RuleFor(x => x.Amount)
                 .NotEqual(0).WithMessage("Amount cannot be zero.");

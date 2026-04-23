@@ -4,10 +4,12 @@
     {
         public DateTime Date { get; set; }
         public string? CustomerName { get; set; }
+        public int CustomerId { get; set; }
         // Positive = debt created, Negative = payment received
         public decimal Amount { get; set; }
         public int? RelatedTripId { get; set; }
         public string? EntryType { get; set; }
         public string? Notes { get; set; }
+        public Customer Customer { get; set; } = null!;
     }
 }

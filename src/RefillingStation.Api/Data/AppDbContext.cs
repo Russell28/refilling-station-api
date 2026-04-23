@@ -14,6 +14,7 @@ namespace RefillingStation.Api.Data
         public DbSet<Expense> Expenses => Set<Expense>();
         public DbSet<PayrollEntry> PayrollEntries => Set<PayrollEntry>();
         public DbSet<MonthlyClosing> MonthlyClosings => Set<MonthlyClosing>();
+        public DbSet<Customer> Customers => Set<Customer>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -66,6 +67,17 @@ namespace RefillingStation.Api.Data
                     .HasColumnType("date");
 
                 entity.HasIndex(x => new { x.Date, x.TripNumber }).IsUnique();
+            });
+
+            // Customer 
+            modelBuilder.Entity<Customer>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                entity.HasIndex(x => x.Name)
+                    .IsUnique();
             });
 
             // Monthly Closing
