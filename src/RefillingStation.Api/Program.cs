@@ -193,6 +193,85 @@ api.MapGet("/customers", async (AppDbContext db) =>
         .ToListAsync();
 });
 
+api.MapGet("/customers/{id}", async (int id, AppDbContext db) =>
+{
+    var entity = await db.Customers.FindAsync(id);
+    if (entity is null) return Results.NotFound();
+
+    var dto = new CustomerListItem(entity.Id, entity.Name);
+    return Results.Ok(dto);
+});
+
+api.MapPost("/customers", async (CreateCustomerRequest request, IValidator<CreateCustomerRequest> validator, AppDbContext db) =>
+{
+    var validationResult = await validator.ValidateAsync(request);
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(
+            validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                )
+        );
+    }
+    
+    if (await db.Customers.AnyAsync(c => c.Name.ToLower() == request.Name.ToLower().Trim()))
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["Name"] = new[] { "Customer name already exists." }
+        });
+    }
+
+    var customer = new Customer
+    {
+        Name = request.Name.Trim()
+    };
+
+    db.Customers.Add(customer);
+    await db.SaveChangesAsync();
+    return Results.Created($"/customers/{customer.Id}", new CustomerListItem(customer.Id, customer.Name));
+});
+
+api.MapPut("/customers/{id}", async (int id, CreateCustomerRequest request, IValidator<CreateCustomerRequest> validator, AppDbContext db) =>
+{
+    var validationResult = await validator.ValidateAsync(request);
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(
+            validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                )
+        );
+    }
+    var customer = await db.Customers.FindAsync(id);
+    if (customer is null) return Results.NotFound();
+    if (await db.Customers.AnyAsync(c => c.Id != id && c.Name.ToLower() == request.Name.ToLower().Trim()))
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["Name"] = new[] { "Customer name already exists." }
+        });
+    }
+    customer.Name = request.Name.Trim();
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+api.MapDelete("/customers/{id}", async (int id, AppDbContext db) =>
+{
+    var customer = await db.Customers.FindAsync(id);
+    if (customer is null) return Results.NotFound();
+    db.Customers.Remove(customer);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
 // Trips API
 api.MapGet("/trips", async (AppDbContext db) =>
     await db.Trips
