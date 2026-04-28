@@ -17,6 +17,7 @@ namespace RefillingStation.Api.Data
         public DbSet<PayrollEntry> PayrollEntries => Set<PayrollEntry>();
         public DbSet<MonthlyClosing> MonthlyClosings => Set<MonthlyClosing>();
         public DbSet<Customer> Customers => Set<Customer>();
+        public DbSet<ExpenseCategory> ExpenseCategories => Set<ExpenseCategory>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -105,6 +106,21 @@ namespace RefillingStation.Api.Data
                     .HasMaxLength(100);
                 entity.HasIndex(x => x.Name)
                     .IsUnique();
+            });
+
+            // Expense Category
+            modelBuilder.Entity<ExpenseCategory>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Name)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("citext");
+                entity.HasIndex(x => x.Name)
+                    .IsUnique();
+                entity.Property(x => x.Description)
+                    .HasMaxLength(500)
+                    .IsRequired(false);
             });
 
             // Monthly Closing
