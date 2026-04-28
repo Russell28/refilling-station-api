@@ -11,6 +11,9 @@ namespace RefillingStation.Api.Entities
         public string? PhoneNumber { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
 
+        // Relationships
+        public ICollection<Trip> Trips { get; set; } = new List<Trip>();
+
         [NotMapped]
         public string FullName => $"{FirstName} {LastName}";
     }
