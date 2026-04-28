@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RefillingStation.Api.Entities;
 
@@ -9,6 +10,7 @@ namespace RefillingStation.Api.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base (options) { }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<Employee> Employees => Set<Employee>();
         public DbSet<Trip> Trips => Set<Trip>();
         public DbSet<CustomerDebtEntry> CustomerDebtEntries => Set<CustomerDebtEntry>();
         public DbSet<Expense> Expenses => Set<Expense>();
@@ -46,6 +48,31 @@ namespace RefillingStation.Api.Data
 
                 entity.HasIndex(x => x.Username)
                     .IsUnique();
+            });
+
+            // Employee Constraint
+            modelBuilder.Entity<Employee>(entity =>
+            {
+                entity.Property(x => x.FirstName)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("citext");
+
+                entity.Property(x => x.LastName)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("citext");
+
+                entity.Property(x => x.PhoneNumber)
+                    .HasMaxLength(15)
+                    .HasColumnType("citext")
+                    .IsRequired(false);
+
+                entity.Property(x => x.Role)
+                    .IsRequired();
+
+                entity.Property(x => x.IsActive)
+                    .IsRequired();
             });
 
             // Trip
