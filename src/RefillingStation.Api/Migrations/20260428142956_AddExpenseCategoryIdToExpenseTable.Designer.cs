@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RefillingStation.Api.Data;
@@ -11,9 +12,11 @@ using RefillingStation.Api.Data;
 namespace RefillingStation.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260428142956_AddExpenseCategoryIdToExpenseTable")]
+    partial class AddExpenseCategoryIdToExpenseTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,8 +132,6 @@ namespace RefillingStation.Api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ExpenseCategoryId");
 
                     b.ToTable("Expenses");
                 });
@@ -364,17 +365,6 @@ namespace RefillingStation.Api.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Expense", b =>
-                {
-                    b.HasOne("RefillingStation.Api.Entities.ExpenseCategory", "Category")
-                        .WithMany("Expenses")
-                        .HasForeignKey("ExpenseCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("RefillingStation.Api.Entities.PayrollEntry", b =>
                 {
                     b.HasOne("RefillingStation.Api.Entities.Employee", "Employee")
@@ -405,11 +395,6 @@ namespace RefillingStation.Api.Migrations
             modelBuilder.Entity("RefillingStation.Api.Entities.Employee", b =>
                 {
                     b.Navigation("Trips");
-                });
-
-            modelBuilder.Entity("RefillingStation.Api.Entities.ExpenseCategory", b =>
-                {
-                    b.Navigation("Expenses");
                 });
 #pragma warning restore 612, 618
         }
