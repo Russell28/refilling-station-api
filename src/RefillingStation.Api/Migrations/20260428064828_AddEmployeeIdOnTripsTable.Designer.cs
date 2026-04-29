@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RefillingStation.Api.Data;
@@ -11,9 +12,11 @@ using RefillingStation.Api.Data;
 namespace RefillingStation.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260428064828_AddEmployeeIdOnTripsTable")]
+    partial class AddEmployeeIdOnTripsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,45 +125,12 @@ namespace RefillingStation.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("ExpenseCategoryId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExpenseCategoryId");
-
                     b.ToTable("Expenses");
-                });
-
-            modelBuilder.Entity("RefillingStation.Api.Entities.ExpenseCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("citext");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("ExpenseCategories");
                 });
 
             modelBuilder.Entity("RefillingStation.Api.Entities.MonthlyClosing", b =>
@@ -222,9 +192,6 @@ namespace RefillingStation.Api.Migrations
                     b.Property<DateTime>("EarnedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("EmployeeName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -239,8 +206,6 @@ namespace RefillingStation.Api.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
 
                     b.ToTable("PayrollEntries");
                 });
@@ -338,12 +303,12 @@ namespace RefillingStation.Api.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("citext");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("citext");
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -362,28 +327,6 @@ namespace RefillingStation.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("RefillingStation.Api.Entities.Expense", b =>
-                {
-                    b.HasOne("RefillingStation.Api.Entities.ExpenseCategory", "Category")
-                        .WithMany("Expenses")
-                        .HasForeignKey("ExpenseCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("RefillingStation.Api.Entities.PayrollEntry", b =>
-                {
-                    b.HasOne("RefillingStation.Api.Entities.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("RefillingStation.Api.Entities.Trip", b =>
@@ -405,11 +348,6 @@ namespace RefillingStation.Api.Migrations
             modelBuilder.Entity("RefillingStation.Api.Entities.Employee", b =>
                 {
                     b.Navigation("Trips");
-                });
-
-            modelBuilder.Entity("RefillingStation.Api.Entities.ExpenseCategory", b =>
-                {
-                    b.Navigation("Expenses");
                 });
 #pragma warning restore 612, 618
         }
