@@ -10,7 +10,7 @@ namespace RefillingStation.Api.Entities
         public DateTime? TimeEnded { get; set; }
 
         // ===== Source info =====
-        public int EmployeeId { get; set; }
+        public int? EmployeeId { get; set; }
         public string EmployeeName { get; set; } = string.Empty;
         public string? Source { get; set; }
         public string? TripType { get; set; }
