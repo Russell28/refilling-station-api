@@ -38,6 +38,7 @@ namespace RefillingStation.Api.Data
             {
                 entity.Property(x => x.Username)
                     .IsRequired()
+                    .HasColumnType("citext")
                     .HasMaxLength(50);
 
                 entity.Property(x => x.PasswordHash)
@@ -45,6 +46,7 @@ namespace RefillingStation.Api.Data
 
                 entity.Property(x => x.Role)
                     .IsRequired()
+                    .HasColumnType("citext")
                     .HasMaxLength(20);
 
                 entity.HasIndex(x => x.Username)
