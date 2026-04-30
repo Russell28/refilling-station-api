@@ -12,9 +12,8 @@ namespace RefillingStation.Api.Features.Expenses.validators
                 .Must(date => date.Date <= DateTime.Today)
                 .WithMessage("Cannot select future date.");
 
-            RuleFor(x => x.ExpenseCategory)
-                .NotEmpty()
-                .MaximumLength(100);
+            RuleFor(x => x.ExpenseCategoryId)
+                .NotEmpty();
 
             RuleFor(x => x.Amount).GreaterThan(0);
             RuleFor(x => x.Notes).MaximumLength(500);

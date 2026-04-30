@@ -14,6 +14,7 @@ using RefillingStation.Api.Features.CustomerDebts;
 using RefillingStation.Api.Features.CustomerDebts.dtos;
 using RefillingStation.Api.Features.Customers.dtos;
 using RefillingStation.Api.Features.Employees.dtos;
+using RefillingStation.Api.Features.ExpenseCategories.dtos;
 using RefillingStation.Api.Features.Expenses;
 using RefillingStation.Api.Features.Expenses.dtos;
 using RefillingStation.Api.Features.MontlyClosing.dtos;
@@ -642,20 +643,61 @@ api.MapPost("/debt-entries/import", async (IFormFile file, CustomerDebtImportSer
 .DisableAntiforgery()
 .RequireAuthorization("AdminOnly");
 
-// Expenses API
-api.MapGet("/expenses", async (AppDbContext db) => 
-    await db.Expenses
-        .OrderByDescending(x => x.Date)
-        .Take(50)
-        .ToListAsync()
-)
+// Expense Categories API
+api.MapGet("/expense-categories/list", async (AppDbContext db) =>
+{
+    var categories = await db.ExpenseCategories
+        .OrderBy(x => x.SortOrder)
+        .ThenBy(x => x.Name) // Secondary sort by name
+        .Select(x => new ExpenseCategoryListItem(
+            x.Id,
+            x.Name
+        ))
+        .ToListAsync();
+
+    return Results.Ok(categories);
+})
 .RequireAuthorization();
 
-api.MapGet("/expenses/{id}", async (int id, AppDbContext db) => 
-    await db.Expenses.FindAsync(id) is Expense expense
-        ? Results.Ok(expense)
-        : Results.NotFound()
-)
+// Expenses API
+api.MapGet("/expenses", async (AppDbContext db) =>
+{
+    var expenses = await db.Expenses
+        .OrderByDescending(x => x.Date)
+        .Take(50)
+        .Select(x => new ExpenseDetailResponse(
+            x.Id,
+            x.Date,
+            x.ExpenseCategoryId,
+            x.Category.Name,
+            x.Amount,
+            x.Notes
+        ))
+        .ToListAsync();
+
+    return Results.Ok(expenses);
+})
+.RequireAuthorization();
+
+api.MapGet("/expenses/{id}", async (int id, AppDbContext db) =>
+{
+    var expense = await db.Expenses
+        .Where(x => x.Id == id)
+        .AsNoTracking()
+        .Select(x => new ExpenseDetailResponse(
+            x.Id,
+            x.Date,
+            x.ExpenseCategoryId,
+            x.Category.Name,
+            x.Amount,
+            x.Notes
+        ))
+        .FirstOrDefaultAsync();
+
+    if (expense is null) return Results.NotFound();
+
+    return Results.Ok(expense);
+})
 .RequireAuthorization();
 
 api.MapPost("/expenses", async (CreateExpenseRequest request, IValidator<CreateExpenseRequest> validator, AppDbContext db) =>
@@ -677,7 +719,7 @@ api.MapPost("/expenses", async (CreateExpenseRequest request, IValidator<CreateE
     var newExpense = new Expense()
     {
         Date = request.Date,
-        ExpenseCategory = request.ExpenseCategory,
+        ExpenseCategoryId = request.ExpenseCategoryId,
         Amount = request.Amount,
         Notes = request.Notes
     };
@@ -695,7 +737,7 @@ api.MapPut("/expenses/{id}", async (int id, Expense inputExpense, AppDbContext d
     if (expense is null) return Results.NotFound();
 
     expense.Date = inputExpense.Date;
-    expense.ExpenseCategory = inputExpense.ExpenseCategory;
+    expense.ExpenseCategoryId = inputExpense.ExpenseCategoryId;
     expense.Amount = inputExpense.Amount;
     expense.Notes = inputExpense.Notes;
 
@@ -768,7 +810,8 @@ api.MapGet("/payroll-entries/{id}", async (int id, AppDbContext db) =>
     if (payrollEntry is null) return Results.NotFound();
 
     return Results.Ok(payrollEntry);
-});
+})
+.RequireAuthorization("AdminOnly");
 
 api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<CreatePayrollRequest> validator, AppDbContext db) => 
 {
@@ -1123,7 +1166,7 @@ api.MapGet("/dashboard", async (
 
     // Expense Breakdown
     var expenseBreakdown = expenses
-        .GroupBy(x => x.ExpenseCategory)
+        .GroupBy(x => x.ExpenseCategoryId)
         .Select(g => new
         {
             category = g.Key,

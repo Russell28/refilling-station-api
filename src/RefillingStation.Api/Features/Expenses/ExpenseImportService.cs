@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.EntityFrameworkCore;
 using RefillingStation.Api.Common.Import;
 using RefillingStation.Api.Common.Utilities;
 using RefillingStation.Api.Data;
@@ -21,6 +22,11 @@ namespace RefillingStation.Api.Features.Expenses
         {
             public int RowNumber { get; set; }
             public Expense Expense { get; set; } = null!;
+        }
+
+        private sealed class ParsedExpense : CreateExpenseRequest 
+        {
+            public string ExpenseCategory { get; set; } = string.Empty;
         }
 
         public async Task<ImportResult> ImportAsync(IFormFile file)
@@ -53,6 +59,9 @@ namespace RefillingStation.Api.Features.Expenses
             var rows = csv.GetRecords<ExpenseImportRowDto>().ToList();
             result.TotalRows = rows.Count;
 
+            var categories = await _db.ExpenseCategories
+                .ToDictionaryAsync(x => x.Name, x => x.Id);
+
             for (int i = 0; i < rows.Count; i++)
             {
                 var rowNumber = i + 2; // header is row 1
@@ -60,7 +69,15 @@ namespace RefillingStation.Api.Features.Expenses
 
                 try
                 {
-                    var expense = MapRowToExpense(row);
+                    var parsedExpense = MapRowToExpense(row);
+                    var expense = new Expense
+                    {
+                        Date = parsedExpense.Date,
+                        Amount = parsedExpense.Amount,
+                        Notes = parsedExpense.Notes,
+                        ExpenseCategoryId = categories[parsedExpense.ExpenseCategory]
+                    };
+
                     parsedRows.Add(new ParsedExpenseRow
                     {
                         RowNumber = rowNumber,
@@ -97,11 +114,11 @@ namespace RefillingStation.Api.Features.Expenses
             return result;
         }
 
-        private Expense MapRowToExpense(ExpenseImportRowDto row)
+        private ParsedExpense MapRowToExpense(ExpenseImportRowDto row)
         {
             var date = InputParser.ParseRequiredDate(row.Date, "Date");
 
-            return new Expense
+            return new ParsedExpense
             {
                 Date = date.ToDateTime(TimeOnly.MinValue), // Convert dateonly to datetime midnight
                 ExpenseCategory = InputParser.ParseRequiredString(row.ExpenseCategory, "Category"),
