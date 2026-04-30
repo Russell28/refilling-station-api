@@ -4,7 +4,7 @@
     {
         public DateTime EarnedDate { get; set; }
         public DateTime? PaidDate { get; set; } 
-        public string EmployeeName { get; set; } = string.Empty;
+        public int EmployeeId { get; set; }
         public decimal SalaryAmount { get; set; }
         public decimal CashPaid { get; set; }
         public string? Notes { get; set; }

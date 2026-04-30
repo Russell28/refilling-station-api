@@ -12,9 +12,8 @@ namespace RefillingStation.Api.Features.Payrolls.validators
                 .Must(date => date.Date <= DateTime.Today)
                 .WithMessage("Cannot select future date.");
 
-            RuleFor(x => x.EmployeeName)
-                .NotEmpty()
-                .MaximumLength(100);
+            RuleFor(x => x.EmployeeId)
+                .NotEmpty();
 
             RuleFor(x => x.SalaryAmount).GreaterThanOrEqualTo(0);
 

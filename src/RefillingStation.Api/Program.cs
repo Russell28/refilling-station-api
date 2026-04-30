@@ -728,19 +728,47 @@ api.MapPost("/expenses/import", async (
 
 // Payroll
 api.MapGet("/payroll-entries", async (AppDbContext db) =>
-    await db.PayrollEntries
+{
+    var payrolls = await db.PayrollEntries
         .OrderByDescending(x => x.EarnedDate)
         .Take(50)
-        .ToListAsync()
-)
+        .Select(x => new PayrollDetailResponse(
+            x.Id,
+            x.EarnedDate,
+            x.PaidDate,
+            x.EmployeeId,
+            x.Employee.FullName,
+            x.SalaryAmount,
+            x.CashPaid,
+            x.Notes
+        ))
+        .ToListAsync();
+
+    return Results.Ok(payrolls);
+})
 .RequireAuthorization("AdminOnly");
 
 api.MapGet("/payroll-entries/{id}", async (int id, AppDbContext db) =>
-    await db.PayrollEntries.FindAsync(id) is PayrollEntry payrollEntry
-        ? Results.Ok(payrollEntry)
-        : Results.NotFound()
-)
-.RequireAuthorization("AdminOnly");
+{
+    var payrollEntry = await db.PayrollEntries
+        .AsNoTracking()
+        .Where(x => x.Id == id)   // <-- filter first
+        .Select(x => new PayrollDetailResponse(
+            x.Id,
+            x.EarnedDate,
+            x.PaidDate,
+            x.EmployeeId,
+            x.Employee.FullName,
+            x.SalaryAmount,
+            x.CashPaid,
+            x.Notes
+        ))
+        .FirstOrDefaultAsync();
+
+    if (payrollEntry is null) return Results.NotFound();
+
+    return Results.Ok(payrollEntry);
+});
 
 api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<CreatePayrollRequest> validator, AppDbContext db) => 
 {
@@ -758,11 +786,21 @@ api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<C
         );
     }
 
+    var employee = await db.Employees.AnyAsync(e => e.Id == request.EmployeeId);
+
+    if (!employee)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["EmployeeId"] = new[] { "Employee not found." }
+        });
+    }
+
     var newPayroll = new PayrollEntry()
     {
         EarnedDate = request.EarnedDate,
         PaidDate = request.PaidDate,
-        EmployeeName = request.EmployeeName,
+        EmployeeId = request.EmployeeId,
         SalaryAmount = request.SalaryAmount,
         CashPaid = request.CashPaid,
         Notes = request.Notes
@@ -791,13 +829,23 @@ api.MapPut("/payroll-entries/{id}", async(int id, CreatePayrollRequest request, 
         );
     }
 
+    var employee = await db.Employees.AnyAsync(e => e.Id == request.EmployeeId);
+
+    if (!employee)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["EmployeeId"] = new[] { "Employee not found." }
+        });
+    }
+
     var payrollEntry = await db.PayrollEntries.FindAsync(id);
     if (payrollEntry is null) return Results.NotFound();
 
     payrollEntry.EarnedDate = request.EarnedDate;
     payrollEntry.PaidDate = request.PaidDate;
 
-    payrollEntry.EmployeeName = request.EmployeeName;
+    payrollEntry.EmployeeId = request.EmployeeId;
     payrollEntry.SalaryAmount = request.SalaryAmount;
     payrollEntry.CashPaid = request.CashPaid;
     payrollEntry.Notes = request.Notes;
@@ -964,6 +1012,14 @@ api.MapGet("/dashboard", async (
 
     var payrolls = await db.PayrollEntries
         .Where(x => x.EarnedDate.Date >= startDate.Date && x.EarnedDate.Date <= endDate.Date)
+        .Select(x => new
+        {
+            x.EmployeeId,
+            x.Employee.FullName,
+            x.SalaryAmount,
+            x.CashPaid,
+            x.EarnedDate
+        })
         .ToListAsync();
 
     var debts = await db.CustomerDebtEntries
@@ -1090,10 +1146,11 @@ api.MapGet("/dashboard", async (
 
     // Payroll Breakdown
     var payrollBreakdown = payrolls
-        .GroupBy(x => x.EmployeeName)
+        .GroupBy(x => x.EmployeeId)
         .Select(g => new
         {
-            employeeName = g.Key,
+            employeeId = g.Key,
+            employeeName = g.First().FullName,
             salaryEarned = g.Sum(x => x.SalaryAmount),
             cashPaid = g.Sum(x => x.CashPaid),
             balance = g.Sum(x => x.SalaryAmount) - g.Sum(x => x.CashPaid)
