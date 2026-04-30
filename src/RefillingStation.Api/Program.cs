@@ -13,6 +13,7 @@ using RefillingStation.Api.Features.Auth.dtos;
 using RefillingStation.Api.Features.CustomerDebts;
 using RefillingStation.Api.Features.CustomerDebts.dtos;
 using RefillingStation.Api.Features.Customers.dtos;
+using RefillingStation.Api.Features.Employees.dtos;
 using RefillingStation.Api.Features.Expenses;
 using RefillingStation.Api.Features.Expenses.dtos;
 using RefillingStation.Api.Features.MontlyClosing.dtos;
@@ -272,21 +273,78 @@ api.MapDelete("/customers/{id}", async (int id, AppDbContext db) =>
     return Results.NoContent();
 });
 
+// Employees API
+api.MapGet("/employees/list", async (AppDbContext db) =>
+    await db.Employees
+        .Where(x => x.IsActive)
+        .OrderBy(e => e.FirstName)
+        .Select(e => new EmployeeListItem(
+            e.Id, 
+            $"{e.FirstName.Trim()} {e.LastName.Trim()}"
+        ))
+        .ToListAsync()
+);
+
 // Trips API
 api.MapGet("/trips", async (AppDbContext db) =>
     await db.Trips
         .OrderByDescending(t => t.Date)
         .ThenBy(t => t.TripNumber)
         .Take(50)
+        .Include(t => t.Employee)
+        .Select(t => new TripDetailResponse(
+            t.Id,
+            t.Date,
+            t.TripNumber,
+            t.EmployeeId,
+            t.Employee.FullName,
+            t.CustomerCategory,
+            t.CollectedQty,
+            t.LoadedQty,
+            t.DeliveredQty,
+            t.FreeQty,
+            t.ReturnedQty,
+            t.ReplacementQty,
+            t.ActualCashCollected,
+            t.IsRemitted,
+            t.Notes
+        ))
         .ToListAsync()
 )
 .RequireAuthorization();
 
 api.MapGet("/trips/{id}", async (int id, AppDbContext db) =>
-    await db.Trips.FindAsync(id) is Trip trip
-        ? Results.Ok(trip)
-        : Results.NotFound()
-).RequireAuthorization();
+{
+    var trip = await db.Trips
+        .AsNoTracking() // No tracking since we are only reading data
+        .Include(x => x.Employee)
+        .FirstOrDefaultAsync(x => x.Id == id);
+
+    if (trip is null) 
+        return Results.NotFound();
+
+    var dto = new TripDetailResponse(
+        trip.Id,
+        trip.Date,
+        trip.TripNumber,
+        trip.EmployeeId,
+        trip.Employee.FullName,
+        trip.CustomerCategory,
+        trip.CollectedQty,
+        trip.LoadedQty,
+        trip.DeliveredQty,
+        trip.FreeQty,
+        trip.ReturnedQty,
+        trip.ReplacementQty,
+        trip.ActualCashCollected,
+        trip.IsRemitted,
+        trip.Notes
+    );
+
+    return Results.Ok(dto);
+}).RequireAuthorization();
+
+
 
 api.MapPost("/trips", async (CreateTripRequest request, 
     IValidator<CreateTripRequest> validator,
@@ -304,6 +362,16 @@ api.MapPost("/trips", async (CreateTripRequest request,
                     g => g.Select(e => e.ErrorMessage).ToArray()
                 )
         );
+    }
+
+    var employee = await db.Employees.AnyAsync(e => e.Id == request.EmployeeId);
+
+    if (!employee)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["EmployeeId"] = new[] { "Employee not found." }
+        });
     }
 
     // Check for duplicate
@@ -325,7 +393,7 @@ api.MapPost("/trips", async (CreateTripRequest request,
         TripNumber = request.TripNumber,
         TimeStarted = request.TimeStarted,
         TimeEnded = request.TimeEnded,
-        EmployeeName = request.EmployeeName,
+        EmployeeId = request.EmployeeId,
         Source = request.Source,
         TripType = request.TripType,
         CustomerCategory = request.CustomerCategory,
@@ -338,9 +406,6 @@ api.MapPost("/trips", async (CreateTripRequest request,
         ActualCashCollected = request.ActualCashCollected,
         Notes = request.Notes
     };
-
-    
-
 
     db.Trips.Add(trip);
     await db.SaveChangesAsync();
@@ -369,6 +434,16 @@ api.MapPut("/trips/{id}", async (
         );
     }
 
+    var employee = await db.Employees.AnyAsync(e => e.Id == request.EmployeeId);
+
+    if (!employee)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["EmployeeId"] = new[] { "Employee not found." }
+        });
+    }
+
     // Check for duplicate
     var exists = await db.Trips.AnyAsync(x =>
         x.Id != id // exclude self
@@ -393,7 +468,7 @@ api.MapPut("/trips/{id}", async (
     trip.TripNumber = request.TripNumber;
     trip.TimeStarted = request.TimeStarted;
     trip.TimeEnded = request.TimeEnded;
-    trip.EmployeeName = request.EmployeeName;
+    trip.EmployeeId = request.EmployeeId;
     trip.Source = request.Source;
     trip.TripType = request.TripType;
     trip.CustomerCategory = request.CustomerCategory;

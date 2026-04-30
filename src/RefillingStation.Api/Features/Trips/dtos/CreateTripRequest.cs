@@ -9,7 +9,7 @@ namespace RefillingStation.Api.Features.Trips.dtos
         public DateTime? TimeStarted { get; set; }
         public DateTime? TimeEnded { get; set; }
 
-        public string EmployeeName { get; set; } = string.Empty;
+        public int EmployeeId { get; set; }
         public string? Source { get; set; }
         public string? TripType { get; set; }
         public string? CustomerCategory { get; set; }

@@ -81,9 +81,6 @@ namespace RefillingStation.Api.Data
             // Trip
             modelBuilder.Entity<Trip>(entity =>
             {
-                entity.Property(x => x.EmployeeName)
-                    .HasMaxLength(100)
-                    .IsRequired();
                 entity.Property(x => x.Source).HasMaxLength(100);
                 entity.Property(x => x.TripType).HasMaxLength(50);
                 entity.Property(x => x.CustomerCategory).HasMaxLength(50);

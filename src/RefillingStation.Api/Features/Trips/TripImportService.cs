@@ -23,6 +23,11 @@ namespace RefillingStation.Api.Features.Trips
             public Trip Trip { get; set; } = null!;
         }
 
+        private sealed class ParsedTrip : Trip 
+        {
+            public string EmployeeName { get; set; } = string.Empty;
+        }
+
         public async Task<TripImportResult> ImportAsync(IFormFile file)
         {
             var result = new TripImportResult();
@@ -53,6 +58,8 @@ namespace RefillingStation.Api.Features.Trips
             var rows = csv.GetRecords<TripImportRowDto>().ToList();
             result.TotalRows = rows.Count;
 
+            var employees = await _db.Employees.ToListAsync();
+
             for (int i =0; i < rows.Count; i++)
             {
                 var rowNumber = i + 2; // header is row 1
@@ -60,7 +67,24 @@ namespace RefillingStation.Api.Features.Trips
 
                 try
                 {
-                    var trip = MapRowToTrip(row);
+                    var parsedTrip = MapRowToTrip(row);
+                    var trip = new Trip
+                    {
+                        Date = parsedTrip.Date,
+                        TripNumber = parsedTrip.TripNumber,
+                        EmployeeId = employees.FirstOrDefault(x => x.FullName.Trim() == parsedTrip.EmployeeName)?.Id
+                            ?? throw new Exception($"Employee '{parsedTrip.EmployeeName}' not found"),
+                        CustomerCategory = parsedTrip.CustomerCategory,
+                        CollectedQty = parsedTrip.CollectedQty,
+                        LoadedQty = parsedTrip.LoadedQty,
+                        DeliveredQty = parsedTrip.DeliveredQty,
+                        ReturnedQty = parsedTrip.ReturnedQty,
+                        ReplacementQty = parsedTrip.ReplacementQty,
+                        FreeQty = parsedTrip.FreeQty,
+                        ActualCashCollected = parsedTrip.ActualCashCollected,
+                        IsRemitted = parsedTrip.IsRemitted,
+                        Notes = parsedTrip.Notes
+                    };
                     // Save parsed rows to a list
                     parsedRows.Add(new ParsedTripRow
                     {
@@ -154,7 +178,7 @@ namespace RefillingStation.Api.Features.Trips
             }
         }
 
-        private Trip MapRowToTrip(TripImportRowDto row)
+        private ParsedTrip MapRowToTrip(TripImportRowDto row)
         {
             var date = ParseRequiredDate(row.Date, "Date");
             var tripNumber = ParseRequiredInt(row.TripNo, "Trip No");
@@ -166,7 +190,7 @@ namespace RefillingStation.Api.Features.Trips
                 throw new Exception("Time Ended must be greater than or equal to Time Started.");
             }
 
-            return new Trip
+            return new ParsedTrip
             {
                 Date = date,
                 TripNumber = tripNumber,
