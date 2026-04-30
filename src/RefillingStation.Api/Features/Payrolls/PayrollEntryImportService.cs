@@ -1,9 +1,11 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.EntityFrameworkCore;
 using RefillingStation.Api.Common.Import;
 using RefillingStation.Api.Common.Utilities;
 using RefillingStation.Api.Data;
 using RefillingStation.Api.Entities;
+using RefillingStation.Api.Features.Employees.dtos;
 using RefillingStation.Api.Features.Payrolls.dtos;
 using System.Globalization;
 
@@ -22,6 +24,11 @@ namespace RefillingStation.Api.Features.Payrolls
         {
             public int RowNumber { get; set; }
             public PayrollEntry Payroll { get; set; } = null!;
+        }
+
+        private sealed class ParsedPayroll : CreatePayrollRequest
+        {
+            public string EmployeeName { get; set; } = string.Empty;
         }
 
         public async Task<ImportResult> ImportAsync(IFormFile file)
@@ -52,6 +59,10 @@ namespace RefillingStation.Api.Features.Payrolls
             var rows = csv.GetRecords<PayrollEntryImportRowDto>().ToList();
             result.TotalRows = rows.Count;
 
+            var employees = await _db.Employees
+                .Select(e => new EmployeeListItem(e.Id, e.FullName))
+                .ToListAsync();
+
             for (int i = 0; i < rows.Count; i++)
             {
                 var rowNumber = i + 2; // header is row 1
@@ -59,7 +70,17 @@ namespace RefillingStation.Api.Features.Payrolls
 
                 try
                 {
-                    var payroll = MapRowToPayroll(row);
+                    var parsedPayroll = MapRowToPayroll(row);
+                    var payroll = new PayrollEntry
+                    {
+                        EarnedDate = parsedPayroll.EarnedDate,
+                        PaidDate = parsedPayroll.PaidDate,
+                        EmployeeId = employees.FirstOrDefault(e => e.Name.Trim() == parsedPayroll.EmployeeName)?.Id
+                            ?? throw new Exception($"Employee '{parsedPayroll.EmployeeName}' not found"),
+                        SalaryAmount = parsedPayroll.SalaryAmount,
+                        CashPaid = parsedPayroll.CashPaid,
+                        Notes = parsedPayroll.Notes
+                    };
                     parsedRows.Add(new ParsedPayrollRow
                     {
                         RowNumber = rowNumber,
@@ -97,12 +118,12 @@ namespace RefillingStation.Api.Features.Payrolls
 
         }
 
-        private PayrollEntry MapRowToPayroll(PayrollEntryImportRowDto row)
+        private ParsedPayroll MapRowToPayroll(PayrollEntryImportRowDto row)
         {
             var earnedDate = InputParser.ParseRequiredDate(row.EarnedDate, "Earned Date");
             var paidDate = InputParser.ParseOptionalDate(row.PaidDate, "Paid Date");
 
-            return new PayrollEntry
+            return new ParsedPayroll
             {
                 EarnedDate = earnedDate.ToDateTime(TimeOnly.MinValue), // Convert dateonly to datetime midnight
                 PaidDate = paidDate?.ToDateTime(TimeOnly.MinValue), 

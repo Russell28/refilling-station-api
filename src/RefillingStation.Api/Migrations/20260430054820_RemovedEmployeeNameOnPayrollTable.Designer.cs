@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RefillingStation.Api.Data;
@@ -11,9 +12,11 @@ using RefillingStation.Api.Data;
 namespace RefillingStation.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260430054820_RemovedEmployeeNameOnPayrollTable")]
+    partial class RemovedEmployeeNameOnPayrollTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,7 +121,11 @@ namespace RefillingStation.Api.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ExpenseCategoryId")
+                    b.Property<string>("ExpenseCategory")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ExpenseCategoryId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Notes")
@@ -355,9 +362,7 @@ namespace RefillingStation.Api.Migrations
                 {
                     b.HasOne("RefillingStation.Api.Entities.ExpenseCategory", "Category")
                         .WithMany("Expenses")
-                        .HasForeignKey("ExpenseCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ExpenseCategoryId");
 
                     b.Navigation("Category");
                 });

@@ -15,9 +15,8 @@ namespace RefillingStation.Api.Features.Trips.validators
             RuleFor(x => x.TripNumber)
                 .GreaterThan(0);
 
-            RuleFor(x => x.EmployeeName)
-                .NotEmpty()
-                .MaximumLength(100);
+            RuleFor(x => x.EmployeeId)
+                .NotEmpty();
 
             RuleFor(x => x.Source)
                 .MaximumLength(100);

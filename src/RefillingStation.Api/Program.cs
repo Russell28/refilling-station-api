@@ -13,6 +13,8 @@ using RefillingStation.Api.Features.Auth.dtos;
 using RefillingStation.Api.Features.CustomerDebts;
 using RefillingStation.Api.Features.CustomerDebts.dtos;
 using RefillingStation.Api.Features.Customers.dtos;
+using RefillingStation.Api.Features.Employees.dtos;
+using RefillingStation.Api.Features.ExpenseCategories.dtos;
 using RefillingStation.Api.Features.Expenses;
 using RefillingStation.Api.Features.Expenses.dtos;
 using RefillingStation.Api.Features.MontlyClosing.dtos;
@@ -272,21 +274,78 @@ api.MapDelete("/customers/{id}", async (int id, AppDbContext db) =>
     return Results.NoContent();
 });
 
+// Employees API
+api.MapGet("/employees/list", async (AppDbContext db) =>
+    await db.Employees
+        .Where(x => x.IsActive)
+        .OrderBy(e => e.FirstName)
+        .Select(e => new EmployeeListItem(
+            e.Id, 
+            $"{e.FirstName.Trim()} {e.LastName.Trim()}"
+        ))
+        .ToListAsync()
+);
+
 // Trips API
 api.MapGet("/trips", async (AppDbContext db) =>
     await db.Trips
         .OrderByDescending(t => t.Date)
         .ThenBy(t => t.TripNumber)
         .Take(50)
+        .Include(t => t.Employee)
+        .Select(t => new TripDetailResponse(
+            t.Id,
+            t.Date,
+            t.TripNumber,
+            t.EmployeeId,
+            t.Employee.FullName,
+            t.CustomerCategory,
+            t.CollectedQty,
+            t.LoadedQty,
+            t.DeliveredQty,
+            t.FreeQty,
+            t.ReturnedQty,
+            t.ReplacementQty,
+            t.ActualCashCollected,
+            t.IsRemitted,
+            t.Notes
+        ))
         .ToListAsync()
 )
 .RequireAuthorization();
 
 api.MapGet("/trips/{id}", async (int id, AppDbContext db) =>
-    await db.Trips.FindAsync(id) is Trip trip
-        ? Results.Ok(trip)
-        : Results.NotFound()
-).RequireAuthorization();
+{
+    var trip = await db.Trips
+        .AsNoTracking() // No tracking since we are only reading data
+        .Include(x => x.Employee)
+        .FirstOrDefaultAsync(x => x.Id == id);
+
+    if (trip is null) 
+        return Results.NotFound();
+
+    var dto = new TripDetailResponse(
+        trip.Id,
+        trip.Date,
+        trip.TripNumber,
+        trip.EmployeeId,
+        trip.Employee.FullName,
+        trip.CustomerCategory,
+        trip.CollectedQty,
+        trip.LoadedQty,
+        trip.DeliveredQty,
+        trip.FreeQty,
+        trip.ReturnedQty,
+        trip.ReplacementQty,
+        trip.ActualCashCollected,
+        trip.IsRemitted,
+        trip.Notes
+    );
+
+    return Results.Ok(dto);
+}).RequireAuthorization();
+
+
 
 api.MapPost("/trips", async (CreateTripRequest request, 
     IValidator<CreateTripRequest> validator,
@@ -304,6 +363,16 @@ api.MapPost("/trips", async (CreateTripRequest request,
                     g => g.Select(e => e.ErrorMessage).ToArray()
                 )
         );
+    }
+
+    var employee = await db.Employees.AnyAsync(e => e.Id == request.EmployeeId);
+
+    if (!employee)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["EmployeeId"] = new[] { "Employee not found." }
+        });
     }
 
     // Check for duplicate
@@ -325,7 +394,7 @@ api.MapPost("/trips", async (CreateTripRequest request,
         TripNumber = request.TripNumber,
         TimeStarted = request.TimeStarted,
         TimeEnded = request.TimeEnded,
-        EmployeeName = request.EmployeeName,
+        EmployeeId = request.EmployeeId,
         Source = request.Source,
         TripType = request.TripType,
         CustomerCategory = request.CustomerCategory,
@@ -338,9 +407,6 @@ api.MapPost("/trips", async (CreateTripRequest request,
         ActualCashCollected = request.ActualCashCollected,
         Notes = request.Notes
     };
-
-    
-
 
     db.Trips.Add(trip);
     await db.SaveChangesAsync();
@@ -369,6 +435,16 @@ api.MapPut("/trips/{id}", async (
         );
     }
 
+    var employee = await db.Employees.AnyAsync(e => e.Id == request.EmployeeId);
+
+    if (!employee)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["EmployeeId"] = new[] { "Employee not found." }
+        });
+    }
+
     // Check for duplicate
     var exists = await db.Trips.AnyAsync(x =>
         x.Id != id // exclude self
@@ -393,7 +469,7 @@ api.MapPut("/trips/{id}", async (
     trip.TripNumber = request.TripNumber;
     trip.TimeStarted = request.TimeStarted;
     trip.TimeEnded = request.TimeEnded;
-    trip.EmployeeName = request.EmployeeName;
+    trip.EmployeeId = request.EmployeeId;
     trip.Source = request.Source;
     trip.TripType = request.TripType;
     trip.CustomerCategory = request.CustomerCategory;
@@ -567,20 +643,61 @@ api.MapPost("/debt-entries/import", async (IFormFile file, CustomerDebtImportSer
 .DisableAntiforgery()
 .RequireAuthorization("AdminOnly");
 
-// Expenses API
-api.MapGet("/expenses", async (AppDbContext db) => 
-    await db.Expenses
-        .OrderByDescending(x => x.Date)
-        .Take(50)
-        .ToListAsync()
-)
+// Expense Categories API
+api.MapGet("/expense-categories/list", async (AppDbContext db) =>
+{
+    var categories = await db.ExpenseCategories
+        .OrderBy(x => x.SortOrder)
+        .ThenBy(x => x.Name) // Secondary sort by name
+        .Select(x => new ExpenseCategoryListItem(
+            x.Id,
+            x.Name
+        ))
+        .ToListAsync();
+
+    return Results.Ok(categories);
+})
 .RequireAuthorization();
 
-api.MapGet("/expenses/{id}", async (int id, AppDbContext db) => 
-    await db.Expenses.FindAsync(id) is Expense expense
-        ? Results.Ok(expense)
-        : Results.NotFound()
-)
+// Expenses API
+api.MapGet("/expenses", async (AppDbContext db) =>
+{
+    var expenses = await db.Expenses
+        .OrderByDescending(x => x.Date)
+        .Take(50)
+        .Select(x => new ExpenseDetailResponse(
+            x.Id,
+            x.Date,
+            x.ExpenseCategoryId,
+            x.Category.Name,
+            x.Amount,
+            x.Notes
+        ))
+        .ToListAsync();
+
+    return Results.Ok(expenses);
+})
+.RequireAuthorization();
+
+api.MapGet("/expenses/{id}", async (int id, AppDbContext db) =>
+{
+    var expense = await db.Expenses
+        .Where(x => x.Id == id)
+        .AsNoTracking()
+        .Select(x => new ExpenseDetailResponse(
+            x.Id,
+            x.Date,
+            x.ExpenseCategoryId,
+            x.Category.Name,
+            x.Amount,
+            x.Notes
+        ))
+        .FirstOrDefaultAsync();
+
+    if (expense is null) return Results.NotFound();
+
+    return Results.Ok(expense);
+})
 .RequireAuthorization();
 
 api.MapPost("/expenses", async (CreateExpenseRequest request, IValidator<CreateExpenseRequest> validator, AppDbContext db) =>
@@ -602,7 +719,7 @@ api.MapPost("/expenses", async (CreateExpenseRequest request, IValidator<CreateE
     var newExpense = new Expense()
     {
         Date = request.Date,
-        ExpenseCategory = request.ExpenseCategory,
+        ExpenseCategoryId = request.ExpenseCategoryId,
         Amount = request.Amount,
         Notes = request.Notes
     };
@@ -620,7 +737,7 @@ api.MapPut("/expenses/{id}", async (int id, Expense inputExpense, AppDbContext d
     if (expense is null) return Results.NotFound();
 
     expense.Date = inputExpense.Date;
-    expense.ExpenseCategory = inputExpense.ExpenseCategory;
+    expense.ExpenseCategoryId = inputExpense.ExpenseCategoryId;
     expense.Amount = inputExpense.Amount;
     expense.Notes = inputExpense.Notes;
 
@@ -653,18 +770,47 @@ api.MapPost("/expenses/import", async (
 
 // Payroll
 api.MapGet("/payroll-entries", async (AppDbContext db) =>
-    await db.PayrollEntries
+{
+    var payrolls = await db.PayrollEntries
         .OrderByDescending(x => x.EarnedDate)
         .Take(50)
-        .ToListAsync()
-)
+        .Select(x => new PayrollDetailResponse(
+            x.Id,
+            x.EarnedDate,
+            x.PaidDate,
+            x.EmployeeId,
+            x.Employee.FullName,
+            x.SalaryAmount,
+            x.CashPaid,
+            x.Notes
+        ))
+        .ToListAsync();
+
+    return Results.Ok(payrolls);
+})
 .RequireAuthorization("AdminOnly");
 
 api.MapGet("/payroll-entries/{id}", async (int id, AppDbContext db) =>
-    await db.PayrollEntries.FindAsync(id) is PayrollEntry payrollEntry
-        ? Results.Ok(payrollEntry)
-        : Results.NotFound()
-)
+{
+    var payrollEntry = await db.PayrollEntries
+        .AsNoTracking()
+        .Where(x => x.Id == id)   // <-- filter first
+        .Select(x => new PayrollDetailResponse(
+            x.Id,
+            x.EarnedDate,
+            x.PaidDate,
+            x.EmployeeId,
+            x.Employee.FullName,
+            x.SalaryAmount,
+            x.CashPaid,
+            x.Notes
+        ))
+        .FirstOrDefaultAsync();
+
+    if (payrollEntry is null) return Results.NotFound();
+
+    return Results.Ok(payrollEntry);
+})
 .RequireAuthorization("AdminOnly");
 
 api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<CreatePayrollRequest> validator, AppDbContext db) => 
@@ -683,11 +829,21 @@ api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<C
         );
     }
 
+    var employee = await db.Employees.AnyAsync(e => e.Id == request.EmployeeId);
+
+    if (!employee)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["EmployeeId"] = new[] { "Employee not found." }
+        });
+    }
+
     var newPayroll = new PayrollEntry()
     {
         EarnedDate = request.EarnedDate,
         PaidDate = request.PaidDate,
-        EmployeeName = request.EmployeeName,
+        EmployeeId = request.EmployeeId,
         SalaryAmount = request.SalaryAmount,
         CashPaid = request.CashPaid,
         Notes = request.Notes
@@ -716,13 +872,23 @@ api.MapPut("/payroll-entries/{id}", async(int id, CreatePayrollRequest request, 
         );
     }
 
+    var employee = await db.Employees.AnyAsync(e => e.Id == request.EmployeeId);
+
+    if (!employee)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["EmployeeId"] = new[] { "Employee not found." }
+        });
+    }
+
     var payrollEntry = await db.PayrollEntries.FindAsync(id);
     if (payrollEntry is null) return Results.NotFound();
 
     payrollEntry.EarnedDate = request.EarnedDate;
     payrollEntry.PaidDate = request.PaidDate;
 
-    payrollEntry.EmployeeName = request.EmployeeName;
+    payrollEntry.EmployeeId = request.EmployeeId;
     payrollEntry.SalaryAmount = request.SalaryAmount;
     payrollEntry.CashPaid = request.CashPaid;
     payrollEntry.Notes = request.Notes;
@@ -889,6 +1055,14 @@ api.MapGet("/dashboard", async (
 
     var payrolls = await db.PayrollEntries
         .Where(x => x.EarnedDate.Date >= startDate.Date && x.EarnedDate.Date <= endDate.Date)
+        .Select(x => new
+        {
+            x.EmployeeId,
+            x.Employee.FullName,
+            x.SalaryAmount,
+            x.CashPaid,
+            x.EarnedDate
+        })
         .ToListAsync();
 
     var debts = await db.CustomerDebtEntries
@@ -992,7 +1166,7 @@ api.MapGet("/dashboard", async (
 
     // Expense Breakdown
     var expenseBreakdown = expenses
-        .GroupBy(x => x.ExpenseCategory)
+        .GroupBy(x => x.ExpenseCategoryId)
         .Select(g => new
         {
             category = g.Key,
@@ -1015,10 +1189,11 @@ api.MapGet("/dashboard", async (
 
     // Payroll Breakdown
     var payrollBreakdown = payrolls
-        .GroupBy(x => x.EmployeeName)
+        .GroupBy(x => x.EmployeeId)
         .Select(g => new
         {
-            employeeName = g.Key,
+            employeeId = g.Key,
+            employeeName = g.First().FullName,
             salaryEarned = g.Sum(x => x.SalaryAmount),
             cashPaid = g.Sum(x => x.CashPaid),
             balance = g.Sum(x => x.SalaryAmount) - g.Sum(x => x.CashPaid)
