@@ -27,4 +27,13 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\RefillingStation.Application\RefillingStation.Application.csproj" />
+	  <ProjectReference Include="..\RefillingStation.Infrastructure\RefillingStation.Infrastructure.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Controllers\" />
+	</ItemGroup>
+
 </Project>
