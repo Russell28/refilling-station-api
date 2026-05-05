@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Application.DTOs.Debts
+﻿namespace RefillingStation.Application.DTOs.CustomerDebts
 {
     public class CreateDebtRequest
     {

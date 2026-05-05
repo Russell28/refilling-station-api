@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RefillingStation.Application.DTOs.Debts;
+using RefillingStation.Application.DTOs.CustomerDebts;
 
 namespace RefillingStation.Api.Features.CustomerDebts.validators
 {

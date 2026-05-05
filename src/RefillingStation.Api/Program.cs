@@ -11,7 +11,7 @@ using RefillingStation.Domain.Entities;
 using RefillingStation.Api.Features.Auth;
 using RefillingStation.Application.DTOs.Auth;
 using RefillingStation.Api.Features.CustomerDebts;
-using RefillingStation.Application.DTOs.Debts;
+using RefillingStation.Application.DTOs.CustomerDebts;
 using RefillingStation.Application.DTOs.Customers;
 using RefillingStation.Application.DTOs.Employees;
 using RefillingStation.Application.DTOs.ExpenseCategories;

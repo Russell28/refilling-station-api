@@ -5,7 +5,7 @@ using RefillingStation.Api.Common.Import;
 using RefillingStation.Api.Common.Utilities;
 using RefillingStation.Api.Data;
 using RefillingStation.Domain.Entities;
-using RefillingStation.Application.DTOs.Debts;
+using RefillingStation.Application.DTOs.CustomerDebts;
 using System.Globalization;
 
 namespace RefillingStation.Api.Features.CustomerDebts
