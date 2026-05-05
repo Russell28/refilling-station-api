@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Api.Entities
+﻿namespace RefillingStation.Domain.Entities
 {
     public class ExpenseCategory : BaseEntity
     {

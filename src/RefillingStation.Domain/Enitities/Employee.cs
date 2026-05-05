@@ -1,7 +1,6 @@
-﻿using RefillingStation.Api.Features.Employees.enums;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using RefillingStation.Domain.Enums;
 
-namespace RefillingStation.Api.Entities
+namespace RefillingStation.Domain.Entities
 {
     public class Employee : BaseEntity
     {
@@ -14,7 +13,7 @@ namespace RefillingStation.Api.Entities
         // Relationships
         public ICollection<Trip> Trips { get; set; } = new List<Trip>();
 
-        [NotMapped]
+        // Computed properties
         public string FullName => $"{FirstName} {LastName}";
     }
 }

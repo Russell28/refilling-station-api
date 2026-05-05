@@ -26,7 +26,7 @@ namespace RefillingStation.Api.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Customer", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Customer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,7 +47,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.CustomerDebtEntry", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.CustomerDebtEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,7 +74,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("CustomerDebtEntries");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Employee", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Employee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -107,7 +107,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Expense", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Expense", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -138,7 +138,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("Expenses");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.ExpenseCategory", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.ExpenseCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -166,7 +166,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("ExpenseCategories");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.MonthlyClosing", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.MonthlyClosing", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -211,7 +211,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("MonthlyClosings");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.PayrollEntry", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.PayrollEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -248,7 +248,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("PayrollEntries");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Trip", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Trip", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -321,7 +321,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("Trips");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.User", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -351,9 +351,9 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.CustomerDebtEntry", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.CustomerDebtEntry", b =>
                 {
-                    b.HasOne("RefillingStation.Api.Entities.Customer", "Customer")
+                    b.HasOne("RefillingStation.Domain.Entities.Customer", "Customer")
                         .WithMany("CustomerDebtEntries")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -362,27 +362,27 @@ namespace RefillingStation.Api.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Expense", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Expense", b =>
                 {
-                    b.HasOne("RefillingStation.Api.Entities.ExpenseCategory", "Category")
+                    b.HasOne("RefillingStation.Domain.Entities.ExpenseCategory", "Category")
                         .WithMany("Expenses")
                         .HasForeignKey("ExpenseCategoryId");
 
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.PayrollEntry", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.PayrollEntry", b =>
                 {
-                    b.HasOne("RefillingStation.Api.Entities.Employee", "Employee")
+                    b.HasOne("RefillingStation.Domain.Entities.Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId");
 
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Trip", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Trip", b =>
                 {
-                    b.HasOne("RefillingStation.Api.Entities.Employee", "Employee")
+                    b.HasOne("RefillingStation.Domain.Entities.Employee", "Employee")
                         .WithMany("Trips")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -391,17 +391,17 @@ namespace RefillingStation.Api.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Customer", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Customer", b =>
                 {
                     b.Navigation("CustomerDebtEntries");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Employee", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Employee", b =>
                 {
                     b.Navigation("Trips");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.ExpenseCategory", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.ExpenseCategory", b =>
                 {
                     b.Navigation("Expenses");
                 });

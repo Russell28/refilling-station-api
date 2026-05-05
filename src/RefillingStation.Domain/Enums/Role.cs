@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Api.Features.Employees.enums
+﻿namespace RefillingStation.Domain.Enums
 {
     public enum Role
     {

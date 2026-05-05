@@ -1,4 +1,4 @@
-﻿using RefillingStation.Api.Features.Employees.enums;
+﻿using RefillingStation.Domain.Enums;
 
 namespace RefillingStation.Api.Features.Employees.dtos
 {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RefillingStation.Api.Common.Import;
 using RefillingStation.Api.Common.Utilities;
 using RefillingStation.Api.Data;
-using RefillingStation.Api.Entities;
+using RefillingStation.Domain.Entities;
 using RefillingStation.Api.Features.Employees.dtos;
 using RefillingStation.Api.Features.Payrolls.dtos;
 using System.Globalization;

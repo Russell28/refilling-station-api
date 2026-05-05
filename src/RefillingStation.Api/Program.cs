@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using RefillingStation.Api.Data;
-using RefillingStation.Api.Entities;
+using RefillingStation.Domain.Entities;
 using RefillingStation.Api.Features.Auth;
 using RefillingStation.Api.Features.Auth.dtos;
 using RefillingStation.Api.Features.CustomerDebts;

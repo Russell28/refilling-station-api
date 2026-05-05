@@ -25,7 +25,7 @@ namespace RefillingStation.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.CustomerDebtEntry", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.CustomerDebtEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -56,7 +56,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("CustomerDebtEntries");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Expense", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Expense", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,7 +82,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("Expenses");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.MonthlyClosing", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.MonthlyClosing", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -127,7 +127,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("MonthlyClosings");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.PayrollEntry", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.PayrollEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -162,7 +162,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("PayrollEntries");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.Trip", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.Trip", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -235,7 +235,7 @@ namespace RefillingStation.Api.Migrations
                     b.ToTable("Trips");
                 });
 
-            modelBuilder.Entity("RefillingStation.Api.Entities.User", b =>
+            modelBuilder.Entity("RefillingStation.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RefillingStation.Api.Entities;
+using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Api.Data
 {

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace RefillingStation.Api.Entities
+﻿namespace RefillingStation.Domain.Entities
 {
     public class Trip : BaseEntity
     {

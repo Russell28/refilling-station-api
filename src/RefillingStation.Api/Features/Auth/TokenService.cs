@@ -1,5 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using RefillingStation.Api.Entities;
+using RefillingStation.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
