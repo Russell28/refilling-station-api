@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Api.Features.Auth.dtos
+﻿namespace RefillingStation.Application.DTOs.Auth
 {
     public class LoginRequest
     {

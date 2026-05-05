@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Api.Features.MontlyClosing.dtos
+﻿namespace RefillingStation.Application.DTOs.MonthlyClosings
 {
     public class MonthlyClosingRequestDto
     {

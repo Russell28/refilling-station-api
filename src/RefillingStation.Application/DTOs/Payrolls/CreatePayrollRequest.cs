@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Api.Features.Payrolls.dtos
+﻿namespace RefillingStation.Application.DTOs.Payrolls
 {
     public class CreatePayrollRequest
     {

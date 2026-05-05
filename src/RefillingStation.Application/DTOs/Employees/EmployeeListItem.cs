@@ -1,6 +1,6 @@
 ﻿using RefillingStation.Domain.Enums;
 
-namespace RefillingStation.Api.Features.Employees.dtos
+namespace RefillingStation.Application.DTOs.Employees
 {
     public record EmployeeListItem(
         int Id,

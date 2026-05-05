@@ -3,7 +3,7 @@ using CsvHelper.Configuration;
 using Microsoft.EntityFrameworkCore;
 using RefillingStation.Api.Data;
 using RefillingStation.Domain.Entities;
-using RefillingStation.Api.Features.Trips.dtos;
+using RefillingStation.Application.DTOs.Trips;
 using System.Globalization;
 
 namespace RefillingStation.Api.Features.Trips

@@ -1,9 +1,9 @@
-﻿namespace RefillingStation.Api.Features.Expenses.dtos
+﻿namespace RefillingStation.Application.DTOs.Debts
 {
-    public class CreateExpenseRequest
+    public class CreateDebtRequest
     {
         public DateTime Date { get; set; }
-        public int ExpenseCategoryId { get; set; }
+        public int CustomerId { get; set; }
         public decimal Amount { get; set; }
         public string? Notes { get; set; }
     }

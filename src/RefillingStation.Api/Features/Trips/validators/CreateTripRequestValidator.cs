@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RefillingStation.Api.Features.Trips.dtos;
+using RefillingStation.Application.DTOs.Trips;
 
 namespace RefillingStation.Api.Features.Trips.validators
 {

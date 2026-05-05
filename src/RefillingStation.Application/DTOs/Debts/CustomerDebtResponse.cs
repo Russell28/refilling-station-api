@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Api.Features.CustomerDebts.dtos
+﻿namespace RefillingStation.Application.DTOs.Debts
 {
     public class CustomerDebtResponse
     {

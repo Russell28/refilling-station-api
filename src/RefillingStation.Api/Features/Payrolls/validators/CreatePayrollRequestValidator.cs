@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RefillingStation.Api.Features.Payrolls.dtos;
+using RefillingStation.Application.DTOs.Payrolls;
 
 namespace RefillingStation.Api.Features.Payrolls.validators
 {

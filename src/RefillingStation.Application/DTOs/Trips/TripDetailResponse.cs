@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Api.Features.Trips.dtos
+﻿namespace RefillingStation.Application.DTOs.Trips
 {
     public record TripDetailResponse(
         int Id,

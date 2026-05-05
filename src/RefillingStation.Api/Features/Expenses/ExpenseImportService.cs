@@ -5,7 +5,7 @@ using RefillingStation.Api.Common.Import;
 using RefillingStation.Api.Common.Utilities;
 using RefillingStation.Api.Data;
 using RefillingStation.Domain.Entities;
-using RefillingStation.Api.Features.Expenses.dtos;
+using RefillingStation.Application.DTOs.Expenses;
 using System.Globalization;
 
 namespace RefillingStation.Api.Features.Expenses

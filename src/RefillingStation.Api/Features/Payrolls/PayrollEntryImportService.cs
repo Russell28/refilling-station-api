@@ -5,8 +5,8 @@ using RefillingStation.Api.Common.Import;
 using RefillingStation.Api.Common.Utilities;
 using RefillingStation.Api.Data;
 using RefillingStation.Domain.Entities;
-using RefillingStation.Api.Features.Employees.dtos;
-using RefillingStation.Api.Features.Payrolls.dtos;
+using RefillingStation.Application.DTOs.Employees;
+using RefillingStation.Application.DTOs.Payrolls;
 using System.Globalization;
 
 namespace RefillingStation.Api.Features.Payrolls

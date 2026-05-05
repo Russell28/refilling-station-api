@@ -1,6 +1,4 @@
-﻿using CsvHelper.Configuration.Attributes;
-
-namespace RefillingStation.Api.Features.Trips.dtos
+﻿namespace RefillingStation.Application.DTOs.Trips
 {
     public class UpdateTripRequest
     {

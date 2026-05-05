@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Api.Features.Customers.dtos
+﻿namespace RefillingStation.Application.DTOs.Customers
 {
     public record CustomerListItem(int Id, string Name);
 }

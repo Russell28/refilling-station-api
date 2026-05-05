@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Api.Features.ExpenseCategories.dtos
+﻿namespace RefillingStation.Application.DTOs.ExpenseCategories
 {
     public record ExpenseCategoryListItem(
         int Id,
