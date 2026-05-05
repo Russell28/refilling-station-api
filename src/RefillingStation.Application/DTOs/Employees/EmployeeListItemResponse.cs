@@ -2,7 +2,7 @@
 
 namespace RefillingStation.Application.DTOs.Employees
 {
-    public record EmployeeListItem(
+    public record EmployeeListItemResponse(
         int Id,
         string Name
     );

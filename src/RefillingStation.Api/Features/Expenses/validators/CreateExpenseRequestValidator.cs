@@ -3,7 +3,7 @@ using RefillingStation.Application.DTOs.Expenses;
 
 namespace RefillingStation.Api.Features.Expenses.validators
 {
-    public class CreateExpenseRequestValidator : AbstractValidator<CreateExpenseRequest>
+    public class CreateExpenseRequestValidator : AbstractValidator<ExpenseCreateRequest>
     {
         public CreateExpenseRequestValidator()
         {

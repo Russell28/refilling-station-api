@@ -55,7 +55,7 @@ namespace RefillingStation.Api.Features.Trips
                 TrimOptions = TrimOptions.Trim
             });
 
-            var rows = csv.GetRecords<TripImportRowDto>().ToList();
+            var rows = csv.GetRecords<TripImportRowRequest>().ToList();
             result.TotalRows = rows.Count;
 
             var employees = await _db.Employees.ToListAsync();
@@ -178,7 +178,7 @@ namespace RefillingStation.Api.Features.Trips
             }
         }
 
-        private ParsedTrip MapRowToTrip(TripImportRowDto row)
+        private ParsedTrip MapRowToTrip(TripImportRowRequest row)
         {
             var date = ParseRequiredDate(row.Date, "Date");
             var tripNumber = ParseRequiredInt(row.TripNo, "Trip No");

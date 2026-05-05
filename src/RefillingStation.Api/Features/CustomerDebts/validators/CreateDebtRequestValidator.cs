@@ -3,7 +3,7 @@ using RefillingStation.Application.DTOs.CustomerDebts;
 
 namespace RefillingStation.Api.Features.CustomerDebts.validators
 {
-    public class CreateDebtRequestValidator : AbstractValidator<CreateDebtRequest>
+    public class CreateDebtRequestValidator : AbstractValidator<CustomerDebtCreateRequest>
     {
         public CreateDebtRequestValidator()
         {

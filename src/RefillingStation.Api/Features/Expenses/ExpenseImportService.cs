@@ -24,7 +24,7 @@ namespace RefillingStation.Api.Features.Expenses
             public Expense Expense { get; set; } = null!;
         }
 
-        private sealed class ParsedExpense : CreateExpenseRequest 
+        private sealed class ParsedExpense : ExpenseCreateRequest 
         {
             public string ExpenseCategory { get; set; } = string.Empty;
         }
@@ -56,7 +56,7 @@ namespace RefillingStation.Api.Features.Expenses
                 TrimOptions = TrimOptions.Trim
             });
 
-            var rows = csv.GetRecords<ExpenseImportRowDto>().ToList();
+            var rows = csv.GetRecords<ExpenseImportRowRequest>().ToList();
             result.TotalRows = rows.Count;
 
             var categories = await _db.ExpenseCategories
@@ -114,7 +114,7 @@ namespace RefillingStation.Api.Features.Expenses
             return result;
         }
 
-        private ParsedExpense MapRowToExpense(ExpenseImportRowDto row)
+        private ParsedExpense MapRowToExpense(ExpenseImportRowRequest row)
         {
             var date = InputParser.ParseRequiredDate(row.Date, "Date");
 

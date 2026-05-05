@@ -3,7 +3,7 @@ using RefillingStation.Application.DTOs.Payrolls;
 
 namespace RefillingStation.Api.Features.Payrolls.validators
 {
-    public class CreatePayrollRequestValidator : AbstractValidator<CreatePayrollRequest>
+    public class CreatePayrollRequestValidator : AbstractValidator<PayrollCreateRequest>
     {
         public CreatePayrollRequestValidator()
         {

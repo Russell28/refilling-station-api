@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Trips
 {
-    public class UpdateTripRequest
+    public class TripCreateRequest
     {
         public DateTime Date { get; set; }
         public int TripNumber { get; set; }
@@ -20,7 +20,6 @@
         public decimal ReplacementQty { get; set; }
 
         public decimal ActualCashCollected { get; set; }
-        public bool IsRemitted { get; set; } = false;
 
         public string? Notes { get; set; }
     }

@@ -50,7 +50,7 @@ namespace RefillingStation.Api.Features.CustomerDebts
                 TrimOptions = TrimOptions.Trim
             });
 
-            var rows = csv.GetRecords<CustomerDebtImportRowDto>().ToList();
+            var rows = csv.GetRecords<CustomerDebtImportRowRequest>().ToList();
             result.TotalRows = rows.Count;
 
             var customers = await _db.Customers.ToListAsync();
@@ -108,7 +108,7 @@ namespace RefillingStation.Api.Features.CustomerDebts
             return result;
         }
 
-        private ParsedDebt MapRowToDebt(CustomerDebtImportRowDto row)
+        private ParsedDebt MapRowToDebt(CustomerDebtImportRowRequest row)
         {
             var date = InputParser.ParseRequiredDate(row.Date, "Date");
 

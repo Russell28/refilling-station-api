@@ -26,7 +26,7 @@ namespace RefillingStation.Api.Features.Payrolls
             public PayrollEntry Payroll { get; set; } = null!;
         }
 
-        private sealed class ParsedPayroll : CreatePayrollRequest
+        private sealed class ParsedPayroll : PayrollCreateRequest
         {
             public string EmployeeName { get; set; } = string.Empty;
         }
@@ -56,11 +56,11 @@ namespace RefillingStation.Api.Features.Payrolls
                 TrimOptions = TrimOptions.Trim
             });
 
-            var rows = csv.GetRecords<PayrollEntryImportRowDto>().ToList();
+            var rows = csv.GetRecords<PayrollImportRowRequest>().ToList();
             result.TotalRows = rows.Count;
 
             var employees = await _db.Employees
-                .Select(e => new EmployeeListItem(e.Id, e.FullName))
+                .Select(e => new EmployeeListItemResponse(e.Id, e.FullName))
                 .ToListAsync();
 
             for (int i = 0; i < rows.Count; i++)
@@ -118,7 +118,7 @@ namespace RefillingStation.Api.Features.Payrolls
 
         }
 
-        private ParsedPayroll MapRowToPayroll(PayrollEntryImportRowDto row)
+        private ParsedPayroll MapRowToPayroll(PayrollImportRowRequest row)
         {
             var earnedDate = InputParser.ParseRequiredDate(row.EarnedDate, "Earned Date");
             var paidDate = InputParser.ParseOptionalDate(row.PaidDate, "Paid Date");

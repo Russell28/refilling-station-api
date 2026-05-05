@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Payrolls
 {
-    public class PayrollEntryImportRowDto
+    public class PayrollImportRowRequest
     {
         public string EarnedDate { get; set; } = string.Empty;
         public string PaidDate { get; set; } = string.Empty;

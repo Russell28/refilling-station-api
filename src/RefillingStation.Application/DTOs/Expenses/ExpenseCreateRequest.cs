@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Expenses
 {
-    public class CreateExpenseRequest
+    public class ExpenseCreateRequest
     {
         public DateTime Date { get; set; }
         public int ExpenseCategoryId { get; set; }

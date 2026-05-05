@@ -190,7 +190,7 @@ api.MapGet("/customers", async (AppDbContext db) =>
     return await db.Customers
         .OrderBy(x => x.Name.Contains("Other")) // Push "Other" to the end of the list
         .ThenBy(x => x.Name)
-        .Select(x => new CustomerListItem(x.Id, x.Name))
+        .Select(x => new CustomerListItemResponse(x.Id, x.Name))
         .Take(100) // Limit to 100 customers for performance
         .ToListAsync();
 });
@@ -200,11 +200,11 @@ api.MapGet("/customers/{id}", async (int id, AppDbContext db) =>
     var entity = await db.Customers.FindAsync(id);
     if (entity is null) return Results.NotFound();
 
-    var dto = new CustomerListItem(entity.Id, entity.Name);
+    var dto = new CustomerListItemResponse(entity.Id, entity.Name);
     return Results.Ok(dto);
 });
 
-api.MapPost("/customers", async (CreateCustomerRequest request, IValidator<CreateCustomerRequest> validator, AppDbContext db) =>
+api.MapPost("/customers", async (CustomerCreateRequest request, IValidator<CustomerCreateRequest> validator, AppDbContext db) =>
 {
     var validationResult = await validator.ValidateAsync(request);
     if (!validationResult.IsValid)
@@ -234,10 +234,10 @@ api.MapPost("/customers", async (CreateCustomerRequest request, IValidator<Creat
 
     db.Customers.Add(customer);
     await db.SaveChangesAsync();
-    return Results.Created($"/customers/{customer.Id}", new CustomerListItem(customer.Id, customer.Name));
+    return Results.Created($"/customers/{customer.Id}", new CustomerListItemResponse(customer.Id, customer.Name));
 });
 
-api.MapPut("/customers/{id}", async (int id, CreateCustomerRequest request, IValidator<CreateCustomerRequest> validator, AppDbContext db) =>
+api.MapPut("/customers/{id}", async (int id, CustomerCreateRequest request, IValidator<CustomerCreateRequest> validator, AppDbContext db) =>
 {
     var validationResult = await validator.ValidateAsync(request);
     if (!validationResult.IsValid)
@@ -279,7 +279,7 @@ api.MapGet("/employees/list", async (AppDbContext db) =>
     await db.Employees
         .Where(x => x.IsActive)
         .OrderBy(e => e.FirstName)
-        .Select(e => new EmployeeListItem(
+        .Select(e => new EmployeeListItemResponse(
             e.Id, 
             $"{e.FirstName.Trim()} {e.LastName.Trim()}"
         ))
@@ -347,8 +347,8 @@ api.MapGet("/trips/{id}", async (int id, AppDbContext db) =>
 
 
 
-api.MapPost("/trips", async (CreateTripRequest request, 
-    IValidator<CreateTripRequest> validator,
+api.MapPost("/trips", async (TripCreateRequest request, 
+    IValidator<TripCreateRequest> validator,
     AppDbContext db) =>
 {
     var validationResult = await validator.ValidateAsync(request);
@@ -417,8 +417,8 @@ api.MapPost("/trips", async (CreateTripRequest request,
 
 api.MapPut("/trips/{id}", async (
     int id, 
-    UpdateTripRequest request, 
-    IValidator<UpdateTripRequest> validator,
+    TripUpdateRequest request, 
+    IValidator<TripUpdateRequest> validator,
     AppDbContext db) =>
 {
     var validationResult = await validator.ValidateAsync(request);
@@ -563,7 +563,7 @@ api.MapGet("/debt-entries/{id}", async (int id, AppDbContext db) =>
 )
 .RequireAuthorization();
 
-api.MapPost("/debt-entries", async (CreateDebtRequest request, IValidator<CreateDebtRequest> validator, AppDbContext db) =>
+api.MapPost("/debt-entries", async (CustomerDebtCreateRequest request, IValidator<CustomerDebtCreateRequest> validator, AppDbContext db) =>
 {
     var validationResult = await validator.ValidateAsync(request);
 
@@ -594,7 +594,7 @@ api.MapPost("/debt-entries", async (CreateDebtRequest request, IValidator<Create
 })
 .RequireAuthorization();
 
-api.MapPut("/debt-entries/{id}", async (int id, CreateDebtRequest request, IValidator <CreateDebtRequest> validator, AppDbContext db) => {
+api.MapPut("/debt-entries/{id}", async (int id, CustomerDebtCreateRequest request, IValidator <CustomerDebtCreateRequest> validator, AppDbContext db) => {
     var validationResult = await validator.ValidateAsync(request);
 
     if (!validationResult.IsValid)
@@ -649,7 +649,7 @@ api.MapGet("/expense-categories/list", async (AppDbContext db) =>
     var categories = await db.ExpenseCategories
         .OrderBy(x => x.SortOrder)
         .ThenBy(x => x.Name) // Secondary sort by name
-        .Select(x => new ExpenseCategoryListItem(
+        .Select(x => new ExpenseCategoryListItemResponse(
             x.Id,
             x.Name
         ))
@@ -700,7 +700,7 @@ api.MapGet("/expenses/{id}", async (int id, AppDbContext db) =>
 })
 .RequireAuthorization();
 
-api.MapPost("/expenses", async (CreateExpenseRequest request, IValidator<CreateExpenseRequest> validator, AppDbContext db) =>
+api.MapPost("/expenses", async (ExpenseCreateRequest request, IValidator<ExpenseCreateRequest> validator, AppDbContext db) =>
 {
     var validationResult = await validator.ValidateAsync(request);
 
@@ -813,7 +813,7 @@ api.MapGet("/payroll-entries/{id}", async (int id, AppDbContext db) =>
 })
 .RequireAuthorization("AdminOnly");
 
-api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<CreatePayrollRequest> validator, AppDbContext db) => 
+api.MapPost("/payroll-entries", async(PayrollCreateRequest request, IValidator<PayrollCreateRequest> validator, AppDbContext db) => 
 {
     var validationResult = await validator.ValidateAsync(request);
 
@@ -856,7 +856,7 @@ api.MapPost("/payroll-entries", async(CreatePayrollRequest request, IValidator<C
 })
 .RequireAuthorization("AdminOnly");
 
-api.MapPut("/payroll-entries/{id}", async(int id, CreatePayrollRequest request, IValidator<CreatePayrollRequest> validator, AppDbContext db) =>
+api.MapPut("/payroll-entries/{id}", async(int id, PayrollCreateRequest request, IValidator<PayrollCreateRequest> validator, AppDbContext db) =>
 {
     var validationResult = await validator.ValidateAsync(request);
 
@@ -1299,7 +1299,7 @@ api.MapGet("/monthly-summary", async (
 })
 .RequireAuthorization("AdminOnly");
 
-api.MapPost("/monthly-summary", async (MonthlyClosingRequestDto request, AppDbContext db) =>
+api.MapPost("/monthly-summary", async (MonthlyClosingRequest request, AppDbContext db) =>
 {
     if (string.IsNullOrWhiteSpace(request.Month))
     {

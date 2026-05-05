@@ -3,7 +3,7 @@ using RefillingStation.Application.DTOs.Trips;
 
 namespace RefillingStation.Api.Features.Trips.validators
 {
-    public class CreateTripRequestValidator : AbstractValidator<CreateTripRequest>
+    public class CreateTripRequestValidator : AbstractValidator<TripCreateRequest>
     {
         public CreateTripRequestValidator()
         {
