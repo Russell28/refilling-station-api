@@ -1,8 +1,8 @@
-﻿namespace RefillingStation.Application.DTOs.MonthlyClosings
+﻿namespace RefillingStation.Application.DTOs.Reports.MonthlySummary
 {
     public class MonthlyClosingRequest
     {
-        public string Month { get; set; } = String.Empty;
+        public string Month { get; set; } = string.Empty;
         public decimal ManagerShare { get; set; }
         public decimal OwnerShare { get; set; }
         public string? Notes{ get; set; }

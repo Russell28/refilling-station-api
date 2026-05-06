@@ -17,7 +17,6 @@ using RefillingStation.Application.DTOs.Employees;
 using RefillingStation.Application.DTOs.ExpenseCategories;
 using RefillingStation.Api.Features.Expenses;
 using RefillingStation.Application.DTOs.Expenses;
-using RefillingStation.Application.DTOs.MonthlyClosings;
 using RefillingStation.Api.Features.Payrolls;
 using RefillingStation.Application.DTOs.Payrolls;
 using RefillingStation.Api.Features.Trips;
@@ -25,6 +24,7 @@ using RefillingStation.Application.DTOs.Trips;
 using RefillingStation.Api.Features.Trips.validators;
 using System.Security.Claims;
 using System.Text;
+using RefillingStation.Application.DTOs.Reports.MonthlySummary;
 
 var builder = WebApplication.CreateBuilder(args);
 
