@@ -2,7 +2,7 @@
 using RefillingStation.Application.DTOs.Reports.Dashboard;
 using RefillingStation.Application.DTOs.Reports.MonthlySummary;
 
-namespace RefillingStation.Application.Interfaces
+namespace RefillingStation.Application.Interfaces.Services
 {
     public interface IReportsService
     {

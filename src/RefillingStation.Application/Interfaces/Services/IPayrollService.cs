@@ -1,6 +1,6 @@
 ﻿using RefillingStation.Application.DTOs.Payrolls;
 
-namespace RefillingStation.Application.Interfaces
+namespace RefillingStation.Application.Interfaces.Services
 {
     public interface IPayrollService
     {

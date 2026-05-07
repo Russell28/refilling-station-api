@@ -1,6 +1,6 @@
 ﻿using RefillingStation.Application.DTOs.Expenses;
 
-namespace RefillingStation.Application.Interfaces
+namespace RefillingStation.Application.Interfaces.Services
 {
     public interface IExpenseService
     {
