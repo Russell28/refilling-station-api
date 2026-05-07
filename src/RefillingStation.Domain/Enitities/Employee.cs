@@ -12,6 +12,7 @@ namespace RefillingStation.Domain.Entities
 
         // Relationships
         public ICollection<Trip> Trips { get; set; } = new List<Trip>();
+        public ICollection<PayrollEntry> PayrollEntries { get; set; } = new List<PayrollEntry>();
 
         // Computed properties
         public string FullName => $"{FirstName} {LastName}";
