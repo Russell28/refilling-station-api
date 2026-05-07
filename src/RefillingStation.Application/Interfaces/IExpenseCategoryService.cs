@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RefillingStation.Application.DTOs.ExpenseCategories;
 
 namespace RefillingStation.Application.Interfaces
 {
     public interface IExpenseCategoryService
     {
+        Task<IEnumerable<ExpenseCategoryListItemResponse>> GetAllAsync();
+        Task<ExpenseCategoryListItemResponse> GetByIdAsync(int id);
+        //Task<int> CreateAsync(ExpenseCategoryCreateRequest request);
+        //Task UpdateAsync(int id, ExpenseCategoryCreateRequest request);
+        //Task DeleteAsync(int id);
     }
 }
