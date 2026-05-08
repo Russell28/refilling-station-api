@@ -5,9 +5,9 @@ namespace RefillingStation.Application.Interfaces.Repositories
     public interface IPayrollRepository
     {
         Task<PayrollEntry?> GetByIdAsync(int id);
-        Task<IEnumerable<PayrollEntry>> GetAllAsync();
+        Task<List<PayrollEntry>> GetAllAsync();
         Task AddAsync(PayrollEntry entity);
-        Task UpdateAsync(PayrollEntry entity);
-        Task DeleteAsync(int id);
+        Task DeleteAsync(PayrollEntry entity);
+        Task SaveChangesAsync();
     }
 }

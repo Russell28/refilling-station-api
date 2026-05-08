@@ -4,7 +4,7 @@ namespace RefillingStation.Application.Interfaces.Services
 {
     public interface ICustomerService
     {
-        Task<IEnumerable<CustomerListItemResponse>> GetAllAsync();
+        Task<List<CustomerListItemResponse>> GetAllAsync();
         Task<CustomerListItemResponse> GetByIdAsync(int id);
         Task<int> CreateAsync(CustomerCreateRequest request);
         Task UpdateAsync(int id, CustomerCreateRequest request);
