@@ -16,6 +16,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
 
         public virtual async Task<List<T>> GetAllAsync()
             => await _context.Set<T>()
+                .AsNoTracking()
                 .Take(100)
                 .OrderByDescending(e => EF.Property<int>(e, "Id"))
                 .ToListAsync();

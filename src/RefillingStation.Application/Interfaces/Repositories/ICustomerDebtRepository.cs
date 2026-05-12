@@ -2,12 +2,8 @@
 
 namespace RefillingStation.Application.Interfaces.Repositories
 {
-    public interface ICustomerDebtRepository
+    public interface ICustomerDebtRepository : IBaseRepository<CustomerDebtEntry>
     {
-        Task<CustomerDebtEntry?> GetByIdAsync(int id);
-        Task<List<CustomerDebtEntry>> GetAllAsync();
-        Task AddAsync(CustomerDebtEntry entity);
-        Task DeleteAsync(CustomerDebtEntry entity);
-        Task SaveChangesAsync();
+        
     }
 }

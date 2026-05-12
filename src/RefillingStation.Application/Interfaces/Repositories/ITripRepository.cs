@@ -2,12 +2,8 @@
 
 namespace RefillingStation.Application.Interfaces.Repositories
 {
-    public interface ITripRepository
+    public interface ITripRepository : IBaseRepository<Trip>
     {
-        Task<Trip?> GetByIdAsync(int id);
-        Task<List<Trip>> GetAllAsync();
-        Task AddAsync(Trip entity);
-        Task DeleteAsync(Trip entity);
-        Task SaveChangesAsync();
+        
     }
 }

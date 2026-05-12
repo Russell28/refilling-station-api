@@ -2,12 +2,8 @@
 
 namespace RefillingStation.Application.Interfaces.Repositories
 {
-    public interface IEmployeeRepository
+    public interface IEmployeeRepository : IBaseRepository<Employee>
     {
-        Task<Employee?> GetByIdAsync(int id);
-        Task<List<Employee>> GetAllAsync();
-        Task AddAsync(Employee entity);
-        Task DeleteAsync(Employee entity);
-        Task SaveChangesAsync();
+        
     }
 }
