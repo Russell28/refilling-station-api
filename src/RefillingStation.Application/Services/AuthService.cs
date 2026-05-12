@@ -8,18 +8,18 @@ namespace RefillingStation.Application.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IAuthRepository _repository;
+        private readonly IUserRepository _userRepository;
         private readonly IValidator<LoginRequest> _validator;
         private readonly ITokenService _tokenService;
         private readonly IPasswordHasher _passwordHasher;
 
         public AuthService(
-            IAuthRepository repository, 
+            IUserRepository userRepository, 
             IValidator<LoginRequest> validator,
             ITokenService tokenService,
             IPasswordHasher passwordHasher)
         {
-            _repository = repository;
+            _userRepository = userRepository;
             _validator = validator;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
@@ -34,7 +34,7 @@ namespace RefillingStation.Application.Services
                 throw new ValidationException(validation.Errors);
 
             // 2. Get User
-            var user = await _repository.GetByUsernameAsync(request.Username);
+            var user = await _userRepository.GetByUsernameAsync(request.Username);
 
             if (user is null)
                 throw new UnauthorizedAccessException("Invalid Credentials");

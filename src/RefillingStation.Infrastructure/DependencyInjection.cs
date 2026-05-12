@@ -18,7 +18,6 @@ namespace RefillingStation.Infrastructure
                 options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
 
             // Repositories
-            services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<ICustomerDebtRepository, CustomerDebtRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -26,6 +25,7 @@ namespace RefillingStation.Infrastructure
             services.AddScoped<IExpenseRepository, ExpenseRepository>();
             services.AddScoped<IPayrollRepository, PayrollRepository>();
             services.AddScoped<ITripRepository, TripRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             // Services
             services.AddScoped<ITokenService, TokenService>();
