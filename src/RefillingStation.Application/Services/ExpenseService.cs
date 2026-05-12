@@ -8,19 +8,22 @@ namespace RefillingStation.Application.Services
 {
     public class ExpenseService : IExpenseService
     {
-        private readonly IExpenseRepository _repository;
+        private readonly IExpenseRepository _expenseRepository;
+        private readonly IExpenseCategoryRepository _expenseCategoryRepository;
         private readonly IValidator<ExpenseCreateRequest> _validator;
 
         public ExpenseService(
-            IExpenseRepository repository,
+            IExpenseRepository expenseRepository,
+            IExpenseCategoryRepository expenseCategoryRepository,
             IValidator<ExpenseCreateRequest> validator)
         {
-            _repository = repository;
+            _expenseRepository = expenseRepository;
+            _expenseCategoryRepository = expenseCategoryRepository;
             _validator = validator;
         }
         public async Task<List<ExpenseDetailResponse>> GetAllAsync()
         {
-            var expenses = await _repository.GetAllAsync();
+            var expenses = await _expenseRepository.GetAllAsync();
 
             return expenses
                 .Select(x => new ExpenseDetailResponse
@@ -37,7 +40,7 @@ namespace RefillingStation.Application.Services
 
         public async Task<ExpenseDetailResponse> GetByIdAsync(int id)
         {
-            var expense = await _repository.GetByIdAsync(id);
+            var expense = await _expenseRepository.GetByIdAsync(id);
 
             if (expense is null)
                 throw new Exception("Expense not found.");
@@ -59,6 +62,11 @@ namespace RefillingStation.Application.Services
             if (!validation.IsValid)
                 throw new ValidationException(validation.Errors);
 
+            var expenseCategoryExists = await _expenseCategoryRepository.ExistsAsync(e => e.Id == request.ExpenseCategoryId);
+
+            if (!expenseCategoryExists)
+                throw new Exception("Category not found.");
+
             var expense = new Expense
             {
                 Date = request.Date,
@@ -67,8 +75,8 @@ namespace RefillingStation.Application.Services
                 Notes = request.Notes
             };
 
-            await _repository.AddAsync(expense);
-            await _repository.SaveChangesAsync();
+            await _expenseRepository.AddAsync(expense);
+            await _expenseRepository.SaveChangesAsync();
 
             return expense.Id;
         }
@@ -80,7 +88,12 @@ namespace RefillingStation.Application.Services
             if (!validation.IsValid)
                 throw new ValidationException(validation.Errors);
 
-            var expense = await _repository.GetByIdAsync(id);
+            var expenseCategoryExists = await _expenseCategoryRepository.ExistsAsync(e => e.Id == request.ExpenseCategoryId);
+
+            if (!expenseCategoryExists)
+                throw new Exception("Category not found.");
+
+            var expense = await _expenseRepository.GetByIdAsync(id);
 
             if (expense is null)
                 throw new Exception("Expense not found.");
@@ -90,19 +103,19 @@ namespace RefillingStation.Application.Services
             expense.Amount = request.Amount;
             expense.Notes = request.Notes;
 
-            await _repository.SaveChangesAsync();
+            await _expenseRepository.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var expense = await _repository.GetByIdAsync(id);
+            var expense = await _expenseRepository.GetByIdAsync(id);
 
             if (expense is null)
                 throw new Exception("Expense not found.");
 
-            _repository.Remove(expense);
+            _expenseRepository.Remove(expense);
 
-            await _repository.SaveChangesAsync();
+            await _expenseRepository.SaveChangesAsync();
         }
     }
 }

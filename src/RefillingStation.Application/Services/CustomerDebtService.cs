@@ -8,19 +8,22 @@ namespace RefillingStation.Application.Services
 {
     public class CustomerDebtService : ICustomerDebtService
     {
-        private readonly ICustomerDebtRepository _repository;
+        private readonly ICustomerDebtRepository _customerDebtRepository;
+        private readonly ICustomerRepository _customerRepository;
         private readonly IValidator<CustomerDebtCreateRequest> _validator;
 
         public CustomerDebtService(
-            ICustomerDebtRepository repository,
+            ICustomerDebtRepository customerDebtRepository,
+            ICustomerRepository customerRepository,
             IValidator<CustomerDebtCreateRequest> validator)
         {
-            _repository = repository;
+            _customerDebtRepository = customerDebtRepository;
+            _customerRepository = customerRepository;
             _validator = validator;
         }
         public async Task<List<CustomerDebtResponse>> GetAllAsync()
         {
-            var debts = await _repository.GetAllAsync();
+            var debts = await _customerDebtRepository.GetAllAsync();
 
             return debts
                 .Select(x => new CustomerDebtResponse
@@ -37,7 +40,7 @@ namespace RefillingStation.Application.Services
 
         public async Task<CustomerDebtResponse> GetByIdAsync(int id)
         {
-            var debt = await _repository.GetByIdAsync(id);
+            var debt = await _customerDebtRepository.GetByIdAsync(id);
 
             if (debt is null)
                 throw new Exception("Debt not found.");
@@ -59,6 +62,11 @@ namespace RefillingStation.Application.Services
             if (!validation.IsValid)
                 throw new ValidationException(validation.Errors);
 
+            var customerExists = await _customerRepository.ExistsAsync(e => e.Id == request.CustomerId);
+
+            if (!customerExists)
+                throw new Exception("Customer not found.");
+
             var debt = new CustomerDebtEntry
             {
                 Date = request.Date,
@@ -67,8 +75,8 @@ namespace RefillingStation.Application.Services
                 Notes = request.Notes
             };
 
-            await _repository.AddAsync(debt);
-            await _repository.SaveChangesAsync();
+            await _customerDebtRepository.AddAsync(debt);
+            await _customerDebtRepository.SaveChangesAsync();
 
             return debt.Id;
         }
@@ -80,7 +88,12 @@ namespace RefillingStation.Application.Services
             if (!validation.IsValid)
                 throw new ValidationException(validation.Errors);
 
-            var debt = await _repository.GetByIdAsync(id);
+            var customerExists = await _customerRepository.ExistsAsync(e => e.Id == request.CustomerId);
+
+            if (!customerExists)
+                throw new Exception("Customer not found.");
+
+            var debt = await _customerDebtRepository.GetByIdAsync(id);
 
             if (debt is null)
                 throw new Exception("Debt not found.");
@@ -90,19 +103,19 @@ namespace RefillingStation.Application.Services
             debt.CustomerId = request.CustomerId;
             debt.Notes = request.Notes;
 
-            await _repository.SaveChangesAsync();
+            await _customerDebtRepository.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var debt = await _repository.GetByIdAsync(id);
+            var debt = await _customerDebtRepository.GetByIdAsync(id);
 
             if (debt is null)
                 throw new Exception("Debt not found.");
 
-            _repository.Remove(debt);
+            _customerDebtRepository.Remove(debt);
 
-            await _repository.SaveChangesAsync();
+            await _customerDebtRepository.SaveChangesAsync();
         }
 
     }

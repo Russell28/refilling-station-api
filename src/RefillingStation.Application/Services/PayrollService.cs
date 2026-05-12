@@ -8,19 +8,22 @@ namespace RefillingStation.Application.Services
 {
     public class PayrollService : IPayrollService
     {
-        private readonly IPayrollRepository _repository;
+        private readonly IPayrollRepository _payrollRepository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly IValidator<PayrollCreateRequest> _validator;
 
         public PayrollService(
-            IPayrollRepository repository,
+            IPayrollRepository payrollRepository,
+            IEmployeeRepository employeeRepository,
             IValidator<PayrollCreateRequest> validator)
         {
-            _repository = repository;
+            _payrollRepository = payrollRepository;
+            _employeeRepository = employeeRepository;
             _validator = validator;
         }
         public async Task<List<PayrollDetailResponse>> GetAllAsync()
         {
-            var payrolls = await _repository.GetAllAsync();
+            var payrolls = await _payrollRepository.GetAllAsync();
 
             return payrolls
                 .Select(x => new PayrollDetailResponse
@@ -39,7 +42,7 @@ namespace RefillingStation.Application.Services
 
         public async Task<PayrollDetailResponse> GetByIdAsync(int id)
         {
-            var payroll = await _repository.GetByIdAsync(id);
+            var payroll = await _payrollRepository.GetByIdAsync(id);
 
             if (payroll is null)
                 throw new Exception("Payroll not found.");
@@ -63,6 +66,11 @@ namespace RefillingStation.Application.Services
             if (!validation.IsValid)
                 throw new ValidationException(validation.Errors);
 
+            var employeeExists = await _employeeRepository.ExistsAsync(e => e.Id == request.EmployeeId);
+
+            if (!employeeExists)
+                throw new Exception("Employee not found.");
+
             var payroll = new PayrollEntry
             {
                 EarnedDate = request.EarnedDate,
@@ -73,8 +81,8 @@ namespace RefillingStation.Application.Services
                 Notes = request.Notes
             };
 
-            await _repository.AddAsync(payroll);
-            await _repository.SaveChangesAsync();
+            await _payrollRepository.AddAsync(payroll);
+            await _payrollRepository.SaveChangesAsync();
 
             return payroll.Id;
         }
@@ -86,7 +94,12 @@ namespace RefillingStation.Application.Services
             if (!validation.IsValid)
                 throw new ValidationException(validation.Errors);
 
-            var payroll = await _repository.GetByIdAsync(id);
+            var employeeExists = await _employeeRepository.ExistsAsync(e => e.Id == request.EmployeeId);
+
+            if (!employeeExists)
+                throw new Exception("Employee not found.");
+
+            var payroll = await _payrollRepository.GetByIdAsync(id);
 
             if (payroll is null)
                 throw new Exception("Payroll not found.");
@@ -98,19 +111,19 @@ namespace RefillingStation.Application.Services
             payroll.CashPaid = request.CashPaid;
             payroll.Notes = request.Notes;
 
-            await _repository.SaveChangesAsync();
+            await _payrollRepository.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var payroll = await _repository.GetByIdAsync(id);
+            var payroll = await _payrollRepository.GetByIdAsync(id);
 
             if (payroll is null)
                 throw new Exception("Payroll not found.");
 
-            _repository.Remove(payroll);
+            _payrollRepository.Remove(payroll);
 
-            await _repository.SaveChangesAsync();
+            await _payrollRepository.SaveChangesAsync();
         }
     }
 }
