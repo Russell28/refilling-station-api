@@ -4,9 +4,9 @@ using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Infrastructure.Persistence.Repositories
 {
-    public class PayrollEntryRepository : BaseRepository<PayrollEntry>, IPayrollRepository
+    public class PayrollRepository : BaseRepository<PayrollEntry>, IPayrollRepository
     {
-        public PayrollEntryRepository(AppDbContext context) : base(context) { }
+        public PayrollRepository(AppDbContext context) : base(context) { }
 
         public override async Task<List<PayrollEntry>> GetAllAsync()
         {
