@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RefillingStation.Application.Interfaces.Repositories;
+using System.Linq.Expressions;
 
 namespace RefillingStation.Infrastructure.Persistence.Repositories
 {
@@ -33,6 +34,11 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
             _context.Set<T>().Remove(entity);
+        }
+
+        public virtual async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().AnyAsync(predicate);
         }
 
         public virtual async Task<int> SaveChangesAsync()
