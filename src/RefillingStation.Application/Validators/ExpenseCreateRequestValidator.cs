@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using RefillingStation.Application.DTOs.Expenses;
 
-namespace RefillingStation.Api.Features.Expenses.Validators
+namespace RefillingStation.Application.Validators
 {
     public class ExpenseCreateRequestValidator : AbstractValidator<ExpenseCreateRequest>
     {

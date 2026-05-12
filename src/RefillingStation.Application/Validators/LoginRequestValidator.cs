@@ -3,7 +3,7 @@ using RefillingStation.Application.DTOs.Auth;
 
 namespace RefillingStation.Application.Validators
 {
-    internal class LoginRequestValidator : AbstractValidator<LoginRequest>
+    public class LoginRequestValidator : AbstractValidator<LoginRequest>
     {
         public LoginRequestValidator() 
         { 

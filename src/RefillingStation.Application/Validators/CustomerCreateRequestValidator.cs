@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using RefillingStation.Application.DTOs.Customers;
 
-namespace RefillingStation.Api.Features.Customers.Validators
+namespace RefillingStation.Application.Validators
 {
     public class CustomerCreateRequestValidator : AbstractValidator<CustomerCreateRequest>
     {

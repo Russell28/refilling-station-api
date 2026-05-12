@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using RefillingStation.Application.DTOs.Trips;
 
-namespace RefillingStation.Api.Features.Trips.Validators
+namespace RefillingStation.Application.Validators
 {
     public class TripUpdateRequestValidator : AbstractValidator<TripUpdateRequest>
     {

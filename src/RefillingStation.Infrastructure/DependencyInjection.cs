@@ -13,10 +13,11 @@ namespace RefillingStation.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
         {
-            // Repositories
+            // DB
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
 
+            // Repositories
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<ICustomerDebtRepository, CustomerDebtRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();

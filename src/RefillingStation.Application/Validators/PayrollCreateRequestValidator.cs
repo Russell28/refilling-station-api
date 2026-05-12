@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using RefillingStation.Application.DTOs.Payrolls;
 
-namespace RefillingStation.Api.Features.Payrolls.Validators
+namespace RefillingStation.Application.Validators
 {
     public class PayrollCreateRequestValidator : AbstractValidator<PayrollCreateRequest>
     {

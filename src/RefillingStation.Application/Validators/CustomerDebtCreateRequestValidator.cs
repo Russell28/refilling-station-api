@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using RefillingStation.Application.DTOs.CustomerDebts;
 
-namespace RefillingStation.Api.Features.CustomerDebts.Validators
+namespace RefillingStation.Application.Validators
 {
     public class CustomerDebtCreateRequestValidator : AbstractValidator<CustomerDebtCreateRequest>
     {
