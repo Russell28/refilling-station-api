@@ -18,7 +18,6 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
 
         public override async Task<CustomerDebtEntry?> GetByIdAsync(int id)
             => await _context.CustomerDebtEntries
-                .AsNoTracking()
                 .Include(x => x.Customer)
                 .FirstOrDefaultAsync(x => x.Id == id);
     }

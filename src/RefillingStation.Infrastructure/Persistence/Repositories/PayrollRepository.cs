@@ -21,7 +21,6 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
         public override async Task<PayrollEntry?> GetByIdAsync(int id)
         {
             return await _context.PayrollEntries
-                .AsNoTracking()
                 .Include(e => e.Employee)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }

@@ -24,7 +24,6 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
         public override async Task<Trip?> GetByIdAsync(int id)
         {
             return await _context.Trips
-                .AsNoTracking()
                 .Include(t => t.Employee)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }

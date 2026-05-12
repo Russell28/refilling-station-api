@@ -11,7 +11,6 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
         public override async Task<List<ExpenseCategory>> GetAllAsync()
         {
             return await _context.ExpenseCategories
-                .AsNoTracking()
                 .OrderBy(x => x.SortOrder)
                 .ThenBy(x => x.Name)
                 .ToListAsync();

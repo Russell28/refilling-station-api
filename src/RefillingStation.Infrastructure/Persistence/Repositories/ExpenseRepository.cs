@@ -22,7 +22,6 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
         public override async Task<Expense?> GetByIdAsync(int id)
         {
             return await _context.Expenses
-                .AsNoTracking()
                 .Include(x => x.Category)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
