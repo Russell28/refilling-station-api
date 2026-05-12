@@ -4,6 +4,8 @@ using RefillingStation.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Infrastructure.Persistence.Repositories;
+using RefillingStation.Application.Interfaces.Services;
+using RefillingStation.Infrastructure.Authentication;
 
 namespace RefillingStation.Infrastructure
 {
@@ -11,7 +13,7 @@ namespace RefillingStation.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
         {
-            // Register your infrastructure services here
+            // Repositories
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
 
@@ -23,6 +25,10 @@ namespace RefillingStation.Infrastructure
             services.AddScoped<IExpenseRepository, ExpenseRepository>();
             services.AddScoped<IPayrollRepository, PayrollRepository>();
             services.AddScoped<ITripRepository, TripRepository>();
+
+            // Services
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 
             return services;
         }
