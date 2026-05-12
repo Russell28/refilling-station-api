@@ -1,12 +1,12 @@
 ﻿namespace RefillingStation.Application.DTOs.CustomerDebts
 {
-    public class CustomerDebtResponse
-    {
-        public int Id { get; set; }
-        public DateTime Date { get; set; }
-        public int CustomerId { get; set; }
-        public string CustomerName { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public string? Notes { get; set; }
-    }
+    public sealed record CustomerDebtResponse
+    (
+        int Id,
+        DateTime Date,
+        int CustomerId,
+        string CustomerName,
+        decimal Amount,
+        string? Notes
+    );
 }

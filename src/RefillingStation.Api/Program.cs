@@ -542,14 +542,14 @@ api.MapGet("/debt-entries", async (AppDbContext db) =>
         .OrderByDescending(x => x.Date)
         .Take(50)
         .Select(c => new CustomerDebtResponse
-        {
-            Id = c.Id,
-            CustomerId = c.CustomerId,
-            Date = c.Date,
-            CustomerName = c.Customer.Name,
-            Amount = c.Amount,
-            Notes = c.Notes
-        })
+        (
+            c.Id,
+            c.Date,
+            c.CustomerId,
+            c.Customer.Name,
+            c.Amount,
+            c.Notes
+        ))
         .ToListAsync();
 
     return Results.Ok(debts);
