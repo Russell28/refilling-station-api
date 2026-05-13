@@ -1,30 +1,9 @@
-using BCrypt.Net;
-using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
-using RefillingStation.Api.Data;
-using RefillingStation.Domain.Entities;
-using RefillingStation.Api.Features.Auth;
-using RefillingStation.Application.DTOs.Auth;
-using RefillingStation.Api.Features.CustomerDebts;
-using RefillingStation.Application.DTOs.CustomerDebts;
-using RefillingStation.Application.DTOs.Customers;
-using RefillingStation.Application.DTOs.Employees;
-using RefillingStation.Application.DTOs.ExpenseCategories;
-using RefillingStation.Api.Features.Expenses;
-using RefillingStation.Application.DTOs.Expenses;
-using RefillingStation.Api.Features.Payrolls;
-using RefillingStation.Application.DTOs.Payrolls;
-using RefillingStation.Api.Features.Trips;
-using RefillingStation.Application.DTOs.Trips;
-using RefillingStation.Api.Features.Trips.validators;
-using System.Security.Claims;
 using System.Text;
-using RefillingStation.Application.DTOs.Reports.MonthlySummary;
 using RefillingStation.Infrastructure;
 using RefillingStation.Application;
 
@@ -290,7 +269,7 @@ app.UseAuthorization();
 //        .OrderByDescending(x => x.latestTransactionDate)
 //        .ToList();
 
-    
+
 
 //    var result = new
 //    {
@@ -746,5 +725,5 @@ app.UseAuthorization();
 //    if (!adminExists || !employeeExists)
 //        await db.SaveChangesAsync();
 //}
-
+app.MapControllers();
 app.Run();
