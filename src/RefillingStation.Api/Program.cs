@@ -25,24 +25,31 @@ using RefillingStation.Api.Features.Trips.validators;
 using System.Security.Claims;
 using System.Text;
 using RefillingStation.Application.DTOs.Reports.MonthlySummary;
+using RefillingStation.Infrastructure;
+using RefillingStation.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// DB
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// DI
+builder.Services.AddControllers();
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
-// Fluent Validation
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateTripRequestValidator>();
+//// Add services to the container.
+//// DB
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Services
-builder.Services.AddScoped<TokenService>();
-builder.Services.AddScoped<TripImportService>();
-builder.Services.AddScoped<ExpenseImportService>();
-builder.Services.AddScoped<PayrollEntryImportService>();
-builder.Services.AddScoped<CustomerDebtImportService>();
+//// Fluent Validation
+//builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+//builder.Services.AddValidatorsFromAssemblyContaining<CreateTripRequestValidator>();
+
+//// Services
+//builder.Services.AddScoped<TokenService>();
+//builder.Services.AddScoped<TripImportService>();
+//builder.Services.AddScoped<ExpenseImportService>();
+//builder.Services.AddScoped<PayrollEntryImportService>();
+//builder.Services.AddScoped<CustomerDebtImportService>();
 
 // Enable Swagger
 builder.Services.AddEndpointsApiExplorer(); // minimal API explorer for Swagger
