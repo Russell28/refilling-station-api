@@ -7,7 +7,7 @@ namespace RefillingStation.Application.Interfaces.Services
     public interface IReportsService
     {
         // Daily Summary
-        Task<DailySummaryResponse> GetDailySummaryAsync(DateOnly date);
+        Task<DailySummaryResponse> GetDailySummaryAsync(DateTime date);
         // Dashboard
         Task<DashboardResponse> GetDashboardAsync(DateTime startDate, DateTime endDate);
         // Monthly Summary

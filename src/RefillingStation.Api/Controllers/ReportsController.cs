@@ -22,5 +22,13 @@ namespace RefillingStation.Api.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("daily-summary/{date:datetime}")]
+        public async Task<IActionResult> GetDailySummary(DateTime date)
+        {
+            var result = await _reportsService.GetDailySummaryAsync(date);
+
+            return Ok(result);
+        }
     }
 }

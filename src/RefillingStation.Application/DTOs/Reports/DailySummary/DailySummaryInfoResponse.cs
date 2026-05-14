@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RefillingStation.Application.DTOs.Reports.DailySummary
+﻿namespace RefillingStation.Application.DTOs.Reports.DailySummary
 {
     public record DailySummaryInfoResponse(
         DateOnly Date,
-        int TripCount,
 
         decimal BacklogStartQty,
+        decimal BacklogEndQty,
+
+        int TripCount,
         decimal TotalCollectedQty,
         decimal TotalLoadedQty,
         decimal TotalDeliveredQty,
-        decimal BacklogEndQty,
-
         decimal TotalFreeQty,
         decimal TotalReturnedQty,
         decimal TotalReplacementQty,

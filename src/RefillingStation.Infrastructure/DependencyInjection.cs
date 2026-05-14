@@ -29,6 +29,7 @@ namespace RefillingStation.Infrastructure
             services.AddScoped<ITripRepository, TripRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
+            services.AddScoped<IDailySummaryRepository, DailySummaryRepository>();
 
             // Services
             services.AddScoped<ITokenService, TokenService>();
