@@ -1,9 +1,9 @@
 ﻿namespace RefillingStation.Application.DTOs.Reports.Breakdowns
 {
     public sealed record PayrollBreakdownResponse(
-        decimal TotalPayrollEarned,
-        decimal TotalPayrollPaid,
-        decimal PayrollOwed,
+        decimal TotalEarned,
+        decimal TotalPaid,
+        decimal TotalOwed,
         IReadOnlyList<PayrollBreakdownItemResponse> Items
     );
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RefillingStation.Application.DTOs.Reports.Dashboard
+﻿namespace RefillingStation.Application.DTOs.Reports.Dashboard
 {
     public sealed record DashboardSummaryResponse(
         decimal TotalTrips,
@@ -16,6 +10,7 @@ namespace RefillingStation.Application.DTOs.Reports.Dashboard
 
         decimal TotalCashCollected,
         decimal TotalExpenses,
+        decimal NetBeforePayroll,
         decimal TotalPayrollPaid,
         decimal NetCashFlow,
 
@@ -24,8 +19,7 @@ namespace RefillingStation.Application.DTOs.Reports.Dashboard
         decimal OutstandingDebt,
 
         decimal TotalSalaryEarned,
-        decimal PayrollPaid,
-        decimal PayrollOwed,
+        decimal TotalPayrollOwed,
         decimal OutstandingPayroll
     );
 }

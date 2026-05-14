@@ -1,0 +1,26 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using RefillingStation.Application.Interfaces.Services;
+
+namespace RefillingStation.Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ReportsController : ControllerBase
+    {
+        private readonly IReportsService _reportsService;
+
+        public ReportsController(IReportsService reportsService)
+        {
+            _reportsService = reportsService;
+        }
+
+        [HttpGet("dashboard")]
+        public async Task<IActionResult> GetDashboard(DateTime startDate, DateTime endDate)
+        {
+            var result = await _reportsService.GetDashboardAsync(startDate, endDate);
+
+            return Ok(result);
+        }
+    }
+}

@@ -21,12 +21,12 @@ namespace RefillingStation.Application.Services
             _customerRepository = customerRepository;
             _validator = validator;
         }
-        public async Task<List<CustomerDebtResponse>> GetAllAsync()
+        public async Task<List<CustomerDebtDetailResponse>> GetAllAsync()
         {
             var debts = await _customerDebtRepository.GetAllAsync();
 
             return debts
-                .Select(x => new CustomerDebtResponse
+                .Select(x => new CustomerDebtDetailResponse
                 (
                     x.Id,
                     x.Date,
@@ -38,14 +38,14 @@ namespace RefillingStation.Application.Services
                 .ToList();
         }
 
-        public async Task<CustomerDebtResponse> GetByIdAsync(int id)
+        public async Task<CustomerDebtDetailResponse> GetByIdAsync(int id)
         {
             var debt = await _customerDebtRepository.GetByIdAsync(id);
 
             if (debt is null)
                 throw new Exception("Debt not found.");
 
-            return new CustomerDebtResponse(
+            return new CustomerDebtDetailResponse(
                 debt.Id,
                 debt.Date,
                 debt.CustomerId,

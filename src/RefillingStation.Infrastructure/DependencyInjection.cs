@@ -6,6 +6,8 @@ using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Infrastructure.Persistence.Repositories;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Infrastructure.Authentication;
+using RefillingStation.Application.Interfaces.Repositories.Reports;
+using RefillingStation.Infrastructure.Persistence.Repositories.Reports;
 
 namespace RefillingStation.Infrastructure
 {
@@ -26,6 +28,7 @@ namespace RefillingStation.Infrastructure
             services.AddScoped<IPayrollRepository, PayrollRepository>();
             services.AddScoped<ITripRepository, TripRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IDashboardRepository, DashboardRepository>();
 
             // Services
             services.AddScoped<ITokenService, TokenService>();

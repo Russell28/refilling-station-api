@@ -1,7 +1,8 @@
 ﻿namespace RefillingStation.Application.DTOs.Reports.Breakdowns
 {
     public sealed record ExpenseBreakdownItemResponse(
-        string Category,
+        int ExpenseCategoryId,
+        string CategoryName,
         decimal Amount
     );
 }

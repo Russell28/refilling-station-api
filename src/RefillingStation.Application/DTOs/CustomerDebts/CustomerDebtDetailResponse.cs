@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.CustomerDebts
 {
-    public sealed record CustomerDebtResponse
+    public sealed record CustomerDebtDetailResponse
     (
         int Id,
         DateTime Date,

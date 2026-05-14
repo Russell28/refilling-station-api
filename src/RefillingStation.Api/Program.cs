@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using RefillingStation.Infrastructure;
 using RefillingStation.Application;
+using RefillingStation.Application.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.Configure<BacklogSettings>(
+    builder.Configuration.GetSection("BacklogSettings"));
 
 //// Add services to the container.
 //// DB
@@ -306,8 +310,8 @@ app.UseAuthorization();
 //});
 
 //api.MapGet("/dashboard", async (
-//    DateTime startDate, 
-//    DateTime endDate, 
+//    DateTime startDate,
+//    DateTime endDate,
 //    AppDbContext db,
 //    IConfiguration config) =>
 //{
@@ -316,7 +320,7 @@ app.UseAuthorization();
 
 //    // Within start and end dates
 //    var trips = await db.Trips
-//        .Where(x => 
+//        .Where(x =>
 //            x.Date >= dateOnlyStart
 //            && x.Date <= dateOnlyEnd)
 //        .ToListAsync();

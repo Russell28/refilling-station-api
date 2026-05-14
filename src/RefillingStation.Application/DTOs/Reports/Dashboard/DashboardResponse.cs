@@ -4,7 +4,7 @@ namespace RefillingStation.Application.DTOs.Reports.Dashboard
 {
     public sealed record DashboardResponse(
         DashboardSummaryResponse Summary,
-        IReadOnlyList<DailyReportItemResponse> DailyReports,
+        IReadOnlyList<DailyReportItem> DailyReports,
         ExpenseBreakdownResponse ExpenseBreakdown,
         DebtBreakdownResponse DebtBreakdown,
         PayrollBreakdownResponse PayrollBreakdown

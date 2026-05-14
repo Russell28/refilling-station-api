@@ -1,7 +1,7 @@
 ﻿namespace RefillingStation.Application.DTOs.Reports.Breakdowns
 {
     public sealed record ExpenseBreakdownResponse(
-        decimal TotalExpenses,
+        decimal TotalExpense,
         IReadOnlyList<ExpenseBreakdownItemResponse> Items
     );
 }
