@@ -55,5 +55,13 @@ namespace RefillingStation.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("next-trip-number/{date}")]
+        public async Task<IActionResult> GetNextTripNumber(DateOnly date)
+        {
+            var result = await _service.GetNextTripNumberAsync(date);
+
+            return Ok(result);
+        }
     }
 }

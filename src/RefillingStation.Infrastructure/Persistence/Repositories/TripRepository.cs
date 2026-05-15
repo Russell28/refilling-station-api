@@ -27,5 +27,13 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
                 .Include(t => t.Employee)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
+
+        public async Task<int?> GetMaxTripNumberByDateAsync(DateOnly date)
+        {
+            return await _context.Trips
+                .Where(x => x.Date == date)
+                .MaxAsync(x => (int?)x.TripNumber);
+             
+        }
     }
 }

@@ -180,5 +180,13 @@ namespace RefillingStation.Application.Services
 
             await _tripRepository.SaveChangesAsync();
         }
+
+        public async Task<NextTripNumberResponse> GetNextTripNumberAsync(DateOnly date)
+        {
+            var max = await _tripRepository.GetMaxTripNumberByDateAsync(date);
+            var nextTripNo = (max ?? 0) + 1; // if max == null (0) + 1
+
+            return new NextTripNumberResponse(date, nextTripNo);
+        }
     }
 }

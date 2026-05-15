@@ -9,5 +9,6 @@ namespace RefillingStation.Application.Interfaces.Services
         Task<int> CreateAsync(TripCreateRequest request);
         Task UpdateAsync(int id, TripUpdateRequest request);
         Task DeleteAsync(int id);
+        Task<NextTripNumberResponse> GetNextTripNumberAsync(DateOnly date);
     }
 }
