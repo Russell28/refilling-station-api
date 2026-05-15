@@ -12,6 +12,15 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
         {
             return await _context.Employees
                 .AsNoTracking()
+                //.Where(x => x.IsActive)
+                .OrderBy(e => e.FirstName)
+                .ToListAsync();
+        }
+
+        public async Task<List<Employee>> GetAllActiveAsync()
+        {
+            return await _context.Employees
+                .AsNoTracking()
                 .Where(x => x.IsActive)
                 .OrderBy(e => e.FirstName)
                 .ToListAsync();

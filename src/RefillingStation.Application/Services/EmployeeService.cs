@@ -13,6 +13,7 @@ namespace RefillingStation.Application.Services
         {
             _repository = repository;
         }
+
         public async Task<List<EmployeeListItemResponse>> GetAllAsync()
         {
             var employees = await _repository.GetAllAsync();
@@ -37,6 +38,19 @@ namespace RefillingStation.Application.Services
                 employee.Id,
                 employee.FullName
             );
+        }
+
+        public async Task<List<EmployeeListItemResponse>> GetActiveEmployeesAsync()
+        {
+            var employees = await _repository.GetAllActiveAsync();
+
+            return employees
+                .Select(x => new EmployeeListItemResponse
+                (
+                    x.Id,
+                    x.FullName
+                ))
+                .ToList();
         }
     }
 }

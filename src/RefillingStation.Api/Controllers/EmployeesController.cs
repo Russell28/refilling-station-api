@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using RefillingStation.Application.DTOs.Employees;
+﻿using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.Interfaces.Services;
 
 namespace RefillingStation.Api.Controllers
@@ -28,6 +26,14 @@ namespace RefillingStation.Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _service.GetByIdAsync(id);
+
+            return Ok(result);
+        }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActive()
+        {
+            var result = await _service.GetActiveEmployeesAsync();
 
             return Ok(result);
         }
