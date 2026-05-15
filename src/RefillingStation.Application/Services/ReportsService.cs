@@ -14,15 +14,18 @@ namespace RefillingStation.Application.Services
     {
         private readonly IDashboardRepository _dashboardRepository; 
         private readonly IDailySummaryRepository _dailySummaryRepository;
+        private readonly IMonthlySummaryRepository _monthlySummaryRepository;
         private readonly BacklogSettings _backlogSettings;
 
         public ReportsService(
             IDashboardRepository dashboardRepository,
             IDailySummaryRepository dailySummaryRepository,
+            IMonthlySummaryRepository monthlySummaryRepository,
             IOptions<BacklogSettings> options)
         {
             _dashboardRepository = dashboardRepository;
             _dailySummaryRepository = dailySummaryRepository;
+            _monthlySummaryRepository = monthlySummaryRepository;
             _backlogSettings = options.Value;
         }
         public async Task<DashboardResponse> GetDashboardAsync(DateTime startDate, DateTime endDate)
@@ -391,14 +394,50 @@ namespace RefillingStation.Application.Services
             );
         }
 
-        public Task<MonthlySummaryResponse> GetMonthlySummaryAsync(string monthYear)
+        public async Task<MonthlySummaryResponse> GetMonthlySummaryAsync(string monthYear)
         {
-            throw new NotImplementedException();
+            var (firstDay, lastDay) = ParseMonthYear(monthYear);
+
+            var rawData = await _monthlySummaryRepository.GetMonthlySummaryAsync(firstDay, lastDay);
+
+            var grossTotal = rawData.GrossTotal;
+            var debtTotal = rawData.DebtTotal;
+            var expenseTotal = rawData.ExpenseTotal;
+            var payrollEarnedTotal = rawData.PayrollEarnedTotal;
+            var payrollPaidTotal = rawData.PayrollPaidTotal;
+            var savedClosing = rawData.SavedClosing;
+
+            var netBeforePayroll = grossTotal - expenseTotal;
+            var netAfterPayroll = grossTotal - expenseTotal - payrollEarnedTotal;
+            var netCashFlow = grossTotal - expenseTotal - payrollPaidTotal;
+
+            var summaryTotals = new MonthlySummaryTotals(
+                grossTotal,
+                debtTotal,
+                expenseTotal,
+                payrollEarnedTotal,
+                payrollPaidTotal,
+
+                netBeforePayroll,
+                netAfterPayroll,
+                netCashFlow
+            );
+
+            return new MonthlySummaryResponse(
+                monthYear,
+                summaryTotals,
+                rawData.SavedClosing
+            );
+
         }
 
-        public Task<MonthlySavedClosingResponse> SaveMonthlySummaryAsync(MonthlyClosingRequest request)
+        private (DateOnly FirstDay, DateOnly LastDay) ParseMonthYear(string monthYear)
         {
-            throw new NotImplementedException();
+            if (!DateOnly.TryParse($"{monthYear}-01", out var firstDay))
+                throw new ArgumentException("Invalid format. Use yyyy-MM.");
+
+            var lastDay = firstDay.AddMonths(1).AddDays(-1);
+            return (firstDay, lastDay);
         }
     }
 }

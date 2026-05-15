@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Application.DTOs.Reports.MonthlySummary
+﻿namespace RefillingStation.Application.DTOs.MonthlyClosing
 {
     public class MonthlyClosingRequest
     {

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.Interfaces.Services;
 
 namespace RefillingStation.Api.Controllers
@@ -27,6 +26,14 @@ namespace RefillingStation.Api.Controllers
         public async Task<IActionResult> GetDailySummary(DateTime date)
         {
             var result = await _reportsService.GetDailySummaryAsync(date);
+
+            return Ok(result);
+        }
+
+        [HttpGet("monthly-summary/{monthYear}")]
+        public async Task<IActionResult> GetMonthlySummary(string monthYear)
+        {
+            var result = await _reportsService.GetMonthlySummaryAsync(monthYear);
 
             return Ok(result);
         }
