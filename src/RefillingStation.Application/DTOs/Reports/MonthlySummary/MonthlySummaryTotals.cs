@@ -7,6 +7,7 @@
         decimal ExpenseTotal,
         decimal PayrollEarnedTotal,
         decimal PayrollPaidTotal,
+        decimal PayrollOwedTotal,
 
         decimal netBeforePayroll,
         decimal netAfterPayroll,

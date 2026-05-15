@@ -80,7 +80,7 @@ namespace RefillingStation.Application.Services
             // Cashflow
             var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
             var netBeforePayroll = totalCashCollected - totalExpenses;
-            var netCashFlow = totalCashCollected - totalExpenses - totalSalaryEarned;
+            var netCashFlow = totalCashCollected - totalExpenses - totalPayrollPaid;
             #endregion
 
             // ---------------------------------------------------------
@@ -405,6 +405,7 @@ namespace RefillingStation.Application.Services
             var expenseTotal = rawData.ExpenseTotal;
             var payrollEarnedTotal = rawData.PayrollEarnedTotal;
             var payrollPaidTotal = rawData.PayrollPaidTotal;
+            var payrollOwedTotal = payrollEarnedTotal - payrollPaidTotal;
             var savedClosing = rawData.SavedClosing;
 
             var netBeforePayroll = grossTotal - expenseTotal;
@@ -417,6 +418,7 @@ namespace RefillingStation.Application.Services
                 expenseTotal,
                 payrollEarnedTotal,
                 payrollPaidTotal,
+                payrollOwedTotal,
 
                 netBeforePayroll,
                 netAfterPayroll,
