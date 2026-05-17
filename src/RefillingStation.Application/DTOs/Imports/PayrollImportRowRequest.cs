@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Application.DTOs.Payrolls
+﻿namespace RefillingStation.Application.DTOs.Imports
 {
     public class PayrollImportRowRequest
     {

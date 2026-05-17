@@ -1,4 +1,4 @@
-namespace RefillingStation.Application.DTOs.Trips
+namespace RefillingStation.Application.DTOs.Imports
 {
     public class TripImportRowRequest
     {

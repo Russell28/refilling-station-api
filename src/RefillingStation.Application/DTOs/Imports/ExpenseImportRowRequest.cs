@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Application.DTOs.Expenses
+﻿namespace RefillingStation.Application.DTOs.Imports
 {
     public class ExpenseImportRowRequest
     {

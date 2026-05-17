@@ -1,4 +1,4 @@
-﻿namespace RefillingStation.Application.DTOs.CustomerDebts
+﻿namespace RefillingStation.Application.DTOs.Imports
 {
     public class CustomerDebtImportRowRequest
     {
