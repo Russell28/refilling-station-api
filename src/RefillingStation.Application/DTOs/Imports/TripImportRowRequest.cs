@@ -21,18 +21,4 @@ namespace RefillingStation.Application.DTOs.Imports
         public string IsRemitted { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
     }
-
-    public class TripImportError
-    {
-        public int RowNumber { get; set; }
-        public string Message { get; set; } = string.Empty;
-    }
-
-    public class TripImportResult
-    {
-        public int TotalRows { get; set; }
-        public int InsertedRows { get; set; }
-        public int FailedRows { get; set; }
-        public List<TripImportError> Errors { get; set; } = new();
-    }
 }

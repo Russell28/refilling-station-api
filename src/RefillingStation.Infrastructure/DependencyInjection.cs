@@ -8,6 +8,8 @@ using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Infrastructure.Authentication;
 using RefillingStation.Application.Interfaces.Repositories.Reports;
 using RefillingStation.Infrastructure.Persistence.Repositories.Reports;
+using RefillingStation.Application.Interfaces.Services.Imports;
+using RefillingStation.Infrastructure.Imports;
 
 namespace RefillingStation.Infrastructure
 {
@@ -36,6 +38,11 @@ namespace RefillingStation.Infrastructure
             // Services
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
+
+            services.AddScoped<IExpenseImportService, ExpenseImportService>();
+            services.AddScoped<ICustomerDebtImportService, CustomerDebtImportService>();
+            services.AddScoped<IPayrollImportService, PayrollImportService>();
+            services.AddScoped<ITripImportService, TripImportService>();
 
             return services;
         }
