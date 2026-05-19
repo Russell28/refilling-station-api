@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using RefillingStation.Infrastructure;
 using RefillingStation.Application;
 using RefillingStation.Application.Settings;
+using RefillingStation.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,12 +95,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Initialize DB
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DbInitializer.InitializeAsync(db);
+}
+
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 // Middleware Pipeline - End
 
-app.MapControllers();
 app.Run();
