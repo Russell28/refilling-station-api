@@ -55,5 +55,13 @@ namespace RefillingStation.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("list")]
+        public async Task<IActionResult> GetCustomerList()
+        {
+            var result = await _service.GetAllAsync();
+
+            return Ok(result);
+        }
     }
 }
