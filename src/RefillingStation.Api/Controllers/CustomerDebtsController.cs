@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.DTOs.CustomerDebts;
 using RefillingStation.Application.Interfaces.Services;
@@ -7,6 +7,7 @@ namespace RefillingStation.Api.Controllers
 {
     [Route("api/customer-debts")]
     [ApiController]
+    [Authorize]
     public class CustomerDebtsController : ControllerBase
     {
         private readonly ICustomerDebtService _service;

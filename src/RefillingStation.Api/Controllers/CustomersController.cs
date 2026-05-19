@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.DTOs.Customers;
 using RefillingStation.Application.Interfaces.Services;
@@ -7,6 +7,7 @@ namespace RefillingStation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _service;

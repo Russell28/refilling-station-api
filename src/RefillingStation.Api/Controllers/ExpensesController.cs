@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.DTOs.Expenses;
 using RefillingStation.Application.Interfaces.Services;
 
@@ -6,6 +7,7 @@ namespace RefillingStation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ExpensesController : ControllerBase
     {
         private readonly IExpenseService _service;

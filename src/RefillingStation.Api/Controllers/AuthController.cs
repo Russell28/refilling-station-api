@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using RefillingStation.Application.DTOs.Auth;
 using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.Interfaces;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RefillingStation.Api.Controllers
 {
@@ -27,6 +27,7 @@ namespace RefillingStation.Api.Controllers
         }
 
         [HttpGet("Me")]
+        [Authorize]
         public async Task<IActionResult> Me()
         {
             var userId = User.FindFirstValue(

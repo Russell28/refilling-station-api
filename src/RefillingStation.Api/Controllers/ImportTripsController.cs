@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.Interfaces.Services.Imports;
 
@@ -6,6 +6,7 @@ namespace RefillingStation.Api.Controllers
 {
     [Route("api/trips")]
     [ApiController]
+    [Authorize(Policy = "AdminOnly")]
     public class ImportTripsController : ControllerBase
     {
         private readonly ITripImportService _service;

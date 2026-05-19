@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.Interfaces.Services.Imports;
 
 namespace RefillingStation.Api.Controllers
 {
     [Route("api/customer-debts")]
     [ApiController]
+    [Authorize(Policy = "AdminOnly")]
     public class ImportCustomerDebtsController : ControllerBase
     {
         private readonly ICustomerDebtImportService _service;

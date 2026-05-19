@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.Interfaces.Services;
 
 namespace RefillingStation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "AdminOnly")]
     public class EmployeesController : ControllerBase
     {
         private readonly IEmployeeService _service;
@@ -31,6 +33,8 @@ namespace RefillingStation.Api.Controllers
         }
 
         [HttpGet("active")]
+        [AllowAnonymous] // removes AdminOnly
+        [Authorize]      // requires authentication only
         public async Task<IActionResult> GetActive()
         {
             var result = await _service.GetActiveEmployeesAsync();

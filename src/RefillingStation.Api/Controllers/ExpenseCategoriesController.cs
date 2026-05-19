@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.Interfaces.Services;
 
@@ -6,6 +6,7 @@ namespace RefillingStation.Api.Controllers
 {
     [Route("api/expense-categories")]
     [ApiController]
+    [Authorize]
     public class ExpenseCategoriesController : ControllerBase
     {
         private readonly IExpenseCategoryService _service;

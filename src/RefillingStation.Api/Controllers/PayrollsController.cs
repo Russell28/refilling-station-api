@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.DTOs.Payrolls;
 using RefillingStation.Application.Interfaces.Services;
@@ -7,6 +7,7 @@ namespace RefillingStation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "AdminOnly")]
     public class PayrollsController : ControllerBase
     {
         private readonly IPayrollService _service;

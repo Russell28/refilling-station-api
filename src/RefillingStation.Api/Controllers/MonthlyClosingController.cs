@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.DTOs.MonthlyClosing;
 using RefillingStation.Application.Interfaces.Services;
@@ -7,6 +7,7 @@ namespace RefillingStation.Api.Controllers
 {
     [Route("api/monthly-closings")]
     [ApiController]
+    [Authorize(Policy = "AdminOnly")]
     public class MonthlyClosingController : ControllerBase
     {
         private readonly IMonthlyClosingService _service;

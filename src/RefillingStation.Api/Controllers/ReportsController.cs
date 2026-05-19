@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.Interfaces.Services;
 
 namespace RefillingStation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ReportsController : ControllerBase
     {
         private readonly IReportsService _reportsService;
@@ -15,6 +17,7 @@ namespace RefillingStation.Api.Controllers
         }
 
         [HttpGet("dashboard")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetDashboard(DateTime startDate, DateTime endDate)
         {
             var result = await _reportsService.GetDashboardAsync(startDate, endDate);
@@ -31,6 +34,7 @@ namespace RefillingStation.Api.Controllers
         }
 
         [HttpGet("monthly-summary/{monthYear}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetMonthlySummary(string monthYear)
         {
             var result = await _reportsService.GetMonthlySummaryAsync(monthYear);
