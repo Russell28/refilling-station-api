@@ -1,4 +1,5 @@
-﻿using RefillingStation.Application.DTOs.MonthlyClosing;
+﻿using FluentValidation;
+using RefillingStation.Application.DTOs.MonthlyClosing;
 using RefillingStation.Application.DTOs.Reports.MonthlySummary;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Repositories.Reports;
@@ -11,17 +12,25 @@ namespace RefillingStation.Application.Services
     {
         private readonly IMonthlyClosingRepository _closingRepository;
         private readonly IMonthlySummaryRepository _summaryRepository;
+        private readonly IValidator<MonthlyClosingRequest> _validator;
 
         public MonthlyClosingService(
             IMonthlyClosingRepository closingRepository,
-            IMonthlySummaryRepository summaryRepository)
+            IMonthlySummaryRepository summaryRepository,
+            IValidator<MonthlyClosingRequest> validator)
         {
             _closingRepository = closingRepository;
             _summaryRepository = summaryRepository;
+            _validator = validator;
         }
 
         public async Task<MonthlySummaryResponse> CreateOrUpdateAsync(MonthlyClosingRequest request)
         {
+            var validation = await _validator.ValidateAsync(request);
+
+            if (!validation.IsValid)
+                throw new ValidationException(validation.Errors);
+
             var (firstDay, lastDay) = ParseMonthYear(request.MonthYear);
 
             #region Summary
