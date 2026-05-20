@@ -5,7 +5,6 @@ namespace RefillingStation.Application.DTOs.Reports.DailySummary
     public sealed record DailySummaryResponse(
         DailySummaryInfoResponse Summary,
         ExpenseBreakdownResponse ExpenseBreakdown,
-        DebtBreakdownResponse DebtBreakdown,
-        PayrollBreakdownResponse PayrollBreakdown
+        DebtBreakdownResponse DebtBreakdown
     );
 }

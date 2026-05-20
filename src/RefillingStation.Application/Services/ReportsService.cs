@@ -243,7 +243,7 @@ namespace RefillingStation.Application.Services
         }
 
 
-        public async Task<DailySummaryResponse> GetDailySummaryAsync(DateTime date)
+        public async Task<object> GetDailySummaryAsync(DateTime date, bool isAdmin)
         {
             var rawData = await _dailySummaryRepository.GetDailySummaryAsync(date);
 
@@ -283,21 +283,12 @@ namespace RefillingStation.Application.Services
             var totalDebtPayments = debts.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount));
             var outstandingDebt = debtsRunning.Sum(x => x.Amount);
 
-            // Payroll
-            var totalPayrollEarned = payrolls.Sum(x => x.SalaryAmount);
-            var totalPayrollPaid = payrolls.Sum(x => x.CashPaid);
-            var totalPayrollOwed = totalPayrollEarned - totalPayrollPaid;
-
-            var outstandingPayroll =
-                payrollsRunning.Sum(x => x.SalaryAmount) -
-                payrollsRunning.Sum(x => x.CashPaid);
-
             // Expenses
             var totalExpenses = expenses.Sum(x => x.Amount);
 
             // Cashflow
             var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
-            var netCashFlow = totalCashCollected - totalExpenses - totalPayrollPaid;
+            var cashAfterExpense = totalCashCollected - totalExpenses;
             #endregion
 
             // ---------------------------------------------------------
@@ -318,7 +309,7 @@ namespace RefillingStation.Application.Services
                 Items: expenseBreakdown
             );
 
-            var debtBreakdown = debts
+            var debtBreakdown = debtsRunning
                 .GroupBy(x => x.CustomerId)
                 .Select(g => new DebtBreakdownItemResponse(
                     g.Key,
@@ -332,32 +323,79 @@ namespace RefillingStation.Application.Services
                 .ToList();
 
             var debtBreakdownResponse = new DebtBreakdownResponse(
-                TotalDebt: debtBreakdown.Sum(x => x.Balance),
+                TotalDebt: debtBreakdown
+                    .Where(x => x.Balance > 0)
+                    .Sum(x => x.Balance),
                 Items: debtBreakdown
             );
 
-            var payrollBreakdown = payrolls
-                .GroupBy(x => x.EmployeeId)
-                .Select(g => new PayrollBreakdownItemResponse(
-                    g.Key,
-                    g.First().EmployeeName,
-                    g.Sum(x => x.SalaryAmount),
-                    g.Sum(x => x.CashPaid),
-                    g.Sum(x => x.SalaryAmount) - g.Sum(x => x.CashPaid)
-                ))
-                .ToList();
+            // Payroll - Admin Only
+            if (isAdmin)
+            {
+                var totalPayrollEarned = payrolls.Sum(x => x.SalaryAmount);
+                var totalPayrollPaid = payrolls.Sum(x => x.CashPaid);
+                var totalPayrollOwed = totalPayrollEarned - totalPayrollPaid;
 
-            var payrollBreakdownResponse = new PayrollBreakdownResponse(
-                TotalEarned: payrollBreakdown.Sum(x => x.Earned),
-                TotalPaid: payrollBreakdown.Sum(x => x.Paid),
-                TotalOwed: payrollBreakdown.Sum(x => x.Owed),
-                Items: payrollBreakdown
-            );
+                var outstandingPayroll =
+                    payrollsRunning.Sum(x => x.SalaryAmount) -
+                    payrollsRunning.Sum(x => x.CashPaid);
+
+                var cashAfterPayroll = cashAfterExpense - totalPayrollEarned;
+
+                var payrollBreakdown = payrollsRunning
+                    .GroupBy(x => x.EmployeeId)
+                    .Select(g => new PayrollBreakdownItemResponse(
+                        g.Key,
+                        g.First().EmployeeName,
+                        g.Sum(x => x.SalaryAmount),
+                        g.Sum(x => x.CashPaid),
+                        g.Sum(x => x.SalaryAmount) - g.Sum(x => x.CashPaid)
+                    ))
+                    .Where(x => x.Owed != 0)
+                    .ToList();
+
+                var payrollBreakdownResponse = new PayrollBreakdownResponse(
+                    TotalEarned: payrollBreakdown.Sum(x => x.Earned),
+                    TotalPaid: payrollBreakdown.Sum(x => x.Paid),
+                    TotalOwed: payrollBreakdown.Sum(x => x.Owed),
+                    Items: payrollBreakdown
+                );
+
+                var adminSummary = new DailySummaryInfoAdminResponse(
+                    DateOnly.FromDateTime(date),
+
+                    backlogStartQty,
+                    backlogEndQty,
+
+                    totalTrips,
+                    totalCollectedQty,
+                    totalLoadedQty,
+                    totalDeliveredQty,
+                    totalFreeQty,
+                    totalReturnedQty,
+                    totalReplacementQty,
+
+                    totalCashCollected,
+                    totalExpenses,
+                    totalPayrollEarned,
+                    totalPayrollPaid,
+
+                    totalDebtCreated,
+                    totalDebtPayments,
+                    outstandingDebt,
+
+                    cashAfterExpense,
+                    cashAfterPayroll
+                );
+
+                return new DailySummaryAdminResponse(
+                    adminSummary,
+                    expenseBreakdownResponse,
+                    debtBreakdownResponse,
+                    payrollBreakdownResponse
+                );
+            }
             #endregion
-
-            // ---------------------------------------------------------
-            // FINAL RESPONSE
-            // ---------------------------------------------------------
 
             var summary = new DailySummaryInfoResponse(
                 DateOnly.FromDateTime(date),
@@ -375,22 +413,18 @@ namespace RefillingStation.Application.Services
 
                 totalCashCollected,
                 totalExpenses,
-                totalPayrollEarned,
-                totalPayrollPaid,
 
                 totalDebtCreated,
                 totalDebtPayments,
                 outstandingDebt,
 
-                netCashFlow
-
+                cashAfterExpense
             );
 
             return new DailySummaryResponse(
                 summary,
                 expenseBreakdownResponse,
-                debtBreakdownResponse,
-                payrollBreakdownResponse
+                debtBreakdownResponse
             );
         }
 

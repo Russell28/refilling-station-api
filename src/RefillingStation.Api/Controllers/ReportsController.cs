@@ -28,7 +28,9 @@ namespace RefillingStation.Api.Controllers
         [HttpGet("daily-summary/{date:datetime}")]
         public async Task<IActionResult> GetDailySummary(DateTime date)
         {
-            var result = await _reportsService.GetDailySummaryAsync(date);
+            bool isAdmin = User.IsInRole("Admin");
+
+            var result = await _reportsService.GetDailySummaryAsync(date, isAdmin);
 
             return Ok(result);
         }

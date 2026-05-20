@@ -1,6 +1,4 @@
-﻿using RefillingStation.Application.DTOs.MonthlyClosing;
-using RefillingStation.Application.DTOs.Reports.DailySummary;
-using RefillingStation.Application.DTOs.Reports.Dashboard;
+﻿using RefillingStation.Application.DTOs.Reports.Dashboard;
 using RefillingStation.Application.DTOs.Reports.MonthlySummary;
 
 namespace RefillingStation.Application.Interfaces.Services
@@ -8,7 +6,7 @@ namespace RefillingStation.Application.Interfaces.Services
     public interface IReportsService
     {
         // Daily Summary
-        Task<DailySummaryResponse> GetDailySummaryAsync(DateTime date);
+        Task<object> GetDailySummaryAsync(DateTime date, bool isAdmin);
         // Dashboard
         Task<DashboardResponse> GetDashboardAsync(DateTime startDate, DateTime endDate);
         // Monthly Summary
