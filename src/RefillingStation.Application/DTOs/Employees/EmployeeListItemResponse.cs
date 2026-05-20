@@ -1,8 +1,6 @@
-﻿using RefillingStation.Domain.Enums;
-
-namespace RefillingStation.Application.DTOs.Employees
+﻿namespace RefillingStation.Application.DTOs.Employees
 {
-    public record EmployeeListItemResponse(
+    public sealed record EmployeeListItemResponse(
         int Id,
         string Name
     );

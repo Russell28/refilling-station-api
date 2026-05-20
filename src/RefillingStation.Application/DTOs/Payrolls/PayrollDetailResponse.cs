@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Payrolls
 {
-    public record PayrollDetailResponse(
+    public sealed record PayrollDetailResponse(
         int Id,
         DateTime EarnedDate,
         DateTime? PaidDate,

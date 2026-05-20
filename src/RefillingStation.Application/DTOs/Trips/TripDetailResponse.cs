@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Trips
 {
-    public record TripDetailResponse(
+    public sealed record TripDetailResponse(
         int Id,
         DateOnly Date,
         int TripNumber,

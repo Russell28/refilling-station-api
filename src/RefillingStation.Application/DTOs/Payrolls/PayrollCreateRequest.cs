@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Payrolls
 {
-    public class PayrollCreateRequest
+    public sealed class PayrollCreateRequest
     {
         public DateTime EarnedDate { get; set; }
         public DateTime? PaidDate { get; set; } 

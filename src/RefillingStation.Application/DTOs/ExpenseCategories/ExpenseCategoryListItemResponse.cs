@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.ExpenseCategories
 {
-    public record ExpenseCategoryListItemResponse(
+    public sealed record ExpenseCategoryListItemResponse(
         int Id,
         string Name
     );

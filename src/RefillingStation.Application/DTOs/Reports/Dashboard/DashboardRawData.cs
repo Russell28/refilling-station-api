@@ -2,7 +2,7 @@
 
 namespace RefillingStation.Application.DTOs.Reports.Dashboard
 {
-    public class DashboardRawData
+    public sealed class DashboardRawData
     {
         public List<CustomerDebtReportItem> Debts { get; set; } = [];
         public List<CustomerDebtReportItem> DebtsRunning { get; set; } = [];

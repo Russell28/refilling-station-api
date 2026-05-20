@@ -1,5 +1,4 @@
 ﻿
-using BCrypt.Net;
 using RefillingStation.Application.Interfaces.Services;
 
 namespace RefillingStation.Infrastructure.Authentication

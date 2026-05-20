@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Trips
 {
-    public class TripCreateRequest
+    public sealed class TripCreateRequest
     {
         public DateTime Date { get; set; }
         public int TripNumber { get; set; }

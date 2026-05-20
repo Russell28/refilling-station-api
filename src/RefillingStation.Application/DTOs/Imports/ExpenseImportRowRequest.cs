@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Imports
 {
-    public class ExpenseImportRowRequest
+    public sealed class ExpenseImportRowRequest
     {
         public string Date { get; set; } = string.Empty;
         public string ExpenseCategory { get; set; } = string.Empty;

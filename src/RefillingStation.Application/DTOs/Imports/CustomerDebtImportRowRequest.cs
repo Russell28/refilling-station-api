@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Imports
 {
-    public class CustomerDebtImportRowRequest
+    public sealed class CustomerDebtImportRowRequest
     {
         public string Date { get; set; } = string.Empty;
         public string CustomerName { get; set; } = string.Empty;

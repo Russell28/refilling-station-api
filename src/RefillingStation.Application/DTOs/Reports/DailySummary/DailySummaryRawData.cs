@@ -1,7 +1,7 @@
 ﻿
 namespace RefillingStation.Application.DTOs.Reports.DailySummary
 {
-    public class DailySummaryRawData
+    public sealed class DailySummaryRawData
     {
         public List<CustomerDebtReportItem> Debts { get; set; } = [];
         public List<CustomerDebtReportItem> DebtsRunning { get; set; } = [];

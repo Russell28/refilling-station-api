@@ -9,16 +9,25 @@ using RefillingStation.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services and repositories to DI container
+//
+// ------------------------------------------------------------
+// 1. Configure Services (Dependency Injection)
+// ------------------------------------------------------------
+//
+
+// Controllers
 builder.Services.AddControllers();
+
+// Application + Infrastructure layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// App settings
 builder.Services.Configure<BacklogSettings>(
     builder.Configuration.GetSection("BacklogSettings"));
 
-// Enable Swagger
-builder.Services.AddEndpointsApiExplorer(); // minimal API explorer for Swagger
+// Swagger / OpenAPI
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -33,14 +42,18 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy
-            .WithOrigins("http://localhost:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
-// Authentication & Authorization
+//
+// ------------------------------------------------------------
+// 2. Authentication & Authorization
+// ------------------------------------------------------------
+//
+
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
@@ -70,8 +83,7 @@ builder.Services
             ValidAudience = jwtAudience,
 
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
 
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
@@ -86,28 +98,40 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-// Middleware Pipeline - Start
-// Configure the HTTP request pipeline.
+//
+// ------------------------------------------------------------
+// 3. Middleware Pipeline
+// ------------------------------------------------------------
+//
+
+// Development-only tools
 if (app.Environment.IsDevelopment())
 {
-    //api.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Initialize DB
+// Database initialization (runs once at startup)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await DbInitializer.InitializeAsync(db);
 }
 
+// Security + Routing middleware
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Controllers
 app.MapControllers();
-// Middleware Pipeline - End
+
+//
+// ------------------------------------------------------------
+// 4. Run Application
+// ------------------------------------------------------------
+//
 
 app.Run();

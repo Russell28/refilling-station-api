@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.MonthlyClosing
 {
-    public class MonthlyClosingRequest
+    public sealed class MonthlyClosingRequest
     {
         public string MonthYear { get; set; } = string.Empty;
         public decimal ManagerShare { get; set; }

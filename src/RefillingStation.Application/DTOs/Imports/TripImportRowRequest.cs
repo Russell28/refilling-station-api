@@ -1,6 +1,6 @@
 namespace RefillingStation.Application.DTOs.Imports
 {
-    public class TripImportRowRequest
+    public sealed class TripImportRowRequest
     {
         public string Date { get; set; } = string.Empty;
         public string TripNo { get; set; } = string.Empty;

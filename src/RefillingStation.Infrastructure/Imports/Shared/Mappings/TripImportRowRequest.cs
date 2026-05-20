@@ -45,8 +45,6 @@ namespace RefillingStation.Infrastructure.Imports.Shared.Mappings
             Map(m => m.ReplacementQty)
                 .Name("Replacement Qty");
 
-            // CSV has this column but your DTO does not
-            // We ignore it to avoid errors
             Map(m => m.FreeQty)
                 .Name("Free Qty");
 

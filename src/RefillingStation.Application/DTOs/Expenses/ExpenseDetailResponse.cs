@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.Expenses
 {
-    public record ExpenseDetailResponse(
+    public sealed record ExpenseDetailResponse(
         int Id,
         DateTime Date,
         int ExpenseCategoryId,

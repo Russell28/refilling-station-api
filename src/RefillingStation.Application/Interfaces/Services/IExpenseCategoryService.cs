@@ -6,8 +6,5 @@ namespace RefillingStation.Application.Interfaces.Services
     {
         Task<List<ExpenseCategoryListItemResponse>> GetAllAsync();
         Task<ExpenseCategoryListItemResponse> GetByIdAsync(int id);
-        //Task<int> CreateAsync(ExpenseCategoryCreateRequest request);
-        //Task UpdateAsync(int id, ExpenseCategoryCreateRequest request);
-        //Task DeleteAsync(int id);
     }
 }

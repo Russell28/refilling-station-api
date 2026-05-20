@@ -1,6 +1,4 @@
-﻿using RefillingStation.Application.DTOs.MonthlyClosing;
-using RefillingStation.Application.DTOs.Reports.MonthlySummary;
-using RefillingStation.Domain.Entities;
+﻿using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Application.Interfaces.Repositories
 {

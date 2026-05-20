@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Application.DTOs.CustomerDebts
 {
-    public class CustomerDebtCreateRequest
+    public sealed class CustomerDebtCreateRequest
     {
         public DateTime Date { get; set; }
         public int CustomerId { get; set; }

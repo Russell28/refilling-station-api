@@ -3,11 +3,6 @@ using RefillingStation.Application.DTOs.MonthlyClosing;
 using RefillingStation.Application.DTOs.Reports.MonthlySummary;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RefillingStation.Infrastructure.Persistence.Repositories
 {

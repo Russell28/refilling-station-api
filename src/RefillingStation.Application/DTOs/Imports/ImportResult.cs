@@ -1,7 +1,7 @@
 ﻿
 namespace RefillingStation.Application.DTOs.Imports
 {
-    public class ImportResult
+    public sealed class ImportResult
     {
         public int TotalRows { get; set; }
         public int InsertedRows { get; set; }
