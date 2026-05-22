@@ -1,4 +1,5 @@
-﻿using RefillingStation.Api.Contracts;
+﻿using FluentValidation;
+using RefillingStation.Api.Contracts;
 using System.Net;
 using System.Text.Json;
 
@@ -65,6 +66,7 @@ namespace RefillingStation.Api.Middleware
         private static int GetStatusCode(Exception ex) =>
             ex switch
             {
+                ValidationException => (int)HttpStatusCode.BadRequest,
                 // Validation errors (e.g., FluentValidation, DataAnnotations)
                 ArgumentException => (int)HttpStatusCode.BadRequest,
 
@@ -87,6 +89,7 @@ namespace RefillingStation.Api.Middleware
         private static string GetMessage(Exception ex) =>
             ex switch
             {
+                ValidationException => "Validation failed.",
                 ArgumentException => "Validation failed.",
                 UnauthorizedAccessException => "Unauthorized request.",
                 KeyNotFoundException => "Resource not found.",
@@ -100,7 +103,13 @@ namespace RefillingStation.Api.Middleware
         /// </summary>
         private static List<string>? GetErrors(Exception ex)
         {
-            // Example: FluentValidation or custom validation exceptions
+            if (ex is ValidationException validationEx)
+            {
+                return validationEx.Errors
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+            }
+
             if (ex is ArgumentException argEx)
             {
                 return new List<string> { argEx.Message };
