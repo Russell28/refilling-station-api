@@ -6,6 +6,7 @@ using RefillingStation.Infrastructure;
 using RefillingStation.Application;
 using RefillingStation.Application.Settings;
 using RefillingStation.Infrastructure.Persistence;
+using RefillingStation.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -119,6 +120,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Security + Routing middleware
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
 
