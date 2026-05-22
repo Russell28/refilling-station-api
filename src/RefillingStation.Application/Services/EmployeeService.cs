@@ -1,6 +1,7 @@
 ﻿using RefillingStation.Application.DTOs.Employees;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
+using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
 {
@@ -32,7 +33,7 @@ namespace RefillingStation.Application.Services
             var employee = await _repository.GetByIdAsync(id);
 
             if (employee is null)
-                throw new Exception("Employee not found.");
+                throw new NotFoundException("Employee", id);
 
             return new EmployeeListItemResponse(
                 employee.Id,

@@ -4,6 +4,7 @@ using RefillingStation.Application.DTOs.Customers;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Domain.Entities;
+using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
 {
@@ -37,7 +38,7 @@ namespace RefillingStation.Application.Services
             var customer = await _repository.GetByIdAsync(id);
 
             if (customer is null)
-                throw new Exception("Customer not found.");
+                throw new NotFoundException("Customer", id);
 
             return new CustomerListItemResponse(
                 customer.Id,
@@ -73,7 +74,7 @@ namespace RefillingStation.Application.Services
             var customer = await _repository.GetByIdAsync(id);
 
             if (customer is null)
-                throw new Exception("Customer not found.");
+                throw new NotFoundException("Customer", id);
 
             customer.Name = request.Name;
 
@@ -85,7 +86,7 @@ namespace RefillingStation.Application.Services
             var customer = await _repository.GetByIdAsync(id);
 
             if (customer is null)
-                throw new Exception("Customer not found.");
+                throw new NotFoundException("Customer", id);
 
             _repository.Remove(customer);
 

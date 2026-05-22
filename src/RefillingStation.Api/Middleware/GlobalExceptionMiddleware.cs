@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using RefillingStation.Api.Contracts;
+using RefillingStation.Domain.Exceptions;
 using System.Net;
 using System.Text.Json;
 
@@ -66,9 +67,11 @@ namespace RefillingStation.Api.Middleware
         private static int GetStatusCode(Exception ex) =>
             ex switch
             {
-                ValidationException => (int)HttpStatusCode.BadRequest,
                 // Validation errors (e.g., FluentValidation, DataAnnotations)
-                ArgumentException => (int)HttpStatusCode.BadRequest,
+                ValidationException => (int)HttpStatusCode.BadRequest,
+                NotFoundException => (int)HttpStatusCode.NotFound,
+                ConflictException => (int)HttpStatusCode.Conflict,
+                DomainException => (int)HttpStatusCode.UnprocessableEntity,
 
                 // Unauthorized access
                 UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
@@ -90,7 +93,9 @@ namespace RefillingStation.Api.Middleware
             ex switch
             {
                 ValidationException => "Validation failed.",
-                ArgumentException => "Validation failed.",
+                NotFoundException => ex.Message,
+                ConflictException => ex.Message,
+                DomainException => ex.Message,
                 UnauthorizedAccessException => "Unauthorized request.",
                 KeyNotFoundException => "Resource not found.",
                 InvalidOperationException => "A business rule was violated.",

@@ -3,6 +3,7 @@ using RefillingStation.Application.DTOs.Payrolls;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Domain.Entities;
+using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
 {
@@ -45,7 +46,7 @@ namespace RefillingStation.Application.Services
             var payroll = await _payrollRepository.GetByIdAsync(id);
 
             if (payroll is null)
-                throw new Exception("Payroll not found.");
+                throw new NotFoundException("Payroll", id);
 
             return new PayrollDetailResponse(
                 payroll.Id,
@@ -69,7 +70,7 @@ namespace RefillingStation.Application.Services
             var employeeExists = await _employeeRepository.ExistsAsync(e => e.Id == request.EmployeeId);
 
             if (!employeeExists)
-                throw new Exception("Employee not found.");
+                throw new NotFoundException("Employee", request.EmployeeId);
 
             var payroll = new PayrollEntry
             {
@@ -97,12 +98,12 @@ namespace RefillingStation.Application.Services
             var employeeExists = await _employeeRepository.ExistsAsync(e => e.Id == request.EmployeeId);
 
             if (!employeeExists)
-                throw new Exception("Employee not found.");
+                throw new NotFoundException("Employee", request.EmployeeId);
 
             var payroll = await _payrollRepository.GetByIdAsync(id);
 
             if (payroll is null)
-                throw new Exception("Payroll not found.");
+                throw new NotFoundException("Payroll", id);
 
             payroll.EarnedDate = request.EarnedDate;
             payroll.PaidDate = request.PaidDate;
@@ -119,7 +120,7 @@ namespace RefillingStation.Application.Services
             var payroll = await _payrollRepository.GetByIdAsync(id);
 
             if (payroll is null)
-                throw new Exception("Payroll not found.");
+                throw new NotFoundException("Payroll", id);
 
             _payrollRepository.Remove(payroll);
 

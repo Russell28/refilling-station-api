@@ -3,6 +3,7 @@ using RefillingStation.Application.DTOs.Expenses;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Domain.Entities;
+using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
 {
@@ -43,7 +44,7 @@ namespace RefillingStation.Application.Services
             var expense = await _expenseRepository.GetByIdAsync(id);
 
             if (expense is null)
-                throw new Exception("Expense not found.");
+                throw new NotFoundException("Expense", id);
 
             return new ExpenseDetailResponse(
                 expense.Id,
@@ -65,7 +66,7 @@ namespace RefillingStation.Application.Services
             var expenseCategoryExists = await _expenseCategoryRepository.ExistsAsync(e => e.Id == request.ExpenseCategoryId);
 
             if (!expenseCategoryExists)
-                throw new Exception("Category not found.");
+                throw new NotFoundException("Category", request.ExpenseCategoryId);
 
             var expense = new Expense
             {
@@ -91,12 +92,12 @@ namespace RefillingStation.Application.Services
             var expenseCategoryExists = await _expenseCategoryRepository.ExistsAsync(e => e.Id == request.ExpenseCategoryId);
 
             if (!expenseCategoryExists)
-                throw new Exception("Category not found.");
+                throw new NotFoundException("Category", request.ExpenseCategoryId);
 
             var expense = await _expenseRepository.GetByIdAsync(id);
 
             if (expense is null)
-                throw new Exception("Expense not found.");
+                throw new NotFoundException("Expense", id);
 
             expense.Date = request.Date;
             expense.ExpenseCategoryId = request.ExpenseCategoryId;
@@ -111,7 +112,7 @@ namespace RefillingStation.Application.Services
             var expense = await _expenseRepository.GetByIdAsync(id);
 
             if (expense is null)
-                throw new Exception("Expense not found.");
+                throw new NotFoundException("Expense", id);
 
             _expenseRepository.Remove(expense);
 
