@@ -8,7 +8,13 @@
         public string Message { get; init; } = "An unexpected error occurred.";
 
         // Optional list of detailed validation or domain errors
-        public List<string>? Errors { get; init; }
+        //public List<string>? Errors { get; init; }
+
+        // Field-level or general errors
+        // Key = field name (or "general")
+        // Value = list of messages
+        public Dictionary<string, List<string>> Errors { get; init; }
+            = new();
 
         // HTTP status code returned by the API
         public int StatusCode { get; init; }

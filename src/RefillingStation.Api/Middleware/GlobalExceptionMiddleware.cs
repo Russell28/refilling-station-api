@@ -106,21 +106,50 @@ namespace RefillingStation.Api.Middleware
         /// Extracts detailed validation errors when available.
         /// For other exception types, returns null.
         /// </summary>
-        private static List<string>? GetErrors(Exception ex)
+        private static Dictionary<string, List<string>> GetErrors(Exception ex)
         {
+            // FluentValidation → field-level errors
             if (ex is ValidationException validationEx)
             {
                 return validationEx.Errors
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
+                    .GroupBy(e => string.IsNullOrWhiteSpace(e.PropertyName) ? "general" : ToCamelCase(e.PropertyName))
+                    .ToDictionary(
+                        g => ToCamelCase(g.Key),
+                        g => g.Select(e => e.ErrorMessage).ToList()
+                    );
             }
 
+            // ArgumentException → treat as general error
             if (ex is ArgumentException argEx)
             {
-                return new List<string> { argEx.Message };
+                return new Dictionary<string, List<string>>
+                {
+                    ["general"] = new() { argEx.Message }
+                };
             }
 
-            return null;
+            // Domain, Conflict, NotFound → general error
+            if (ex is DomainException or ConflictException or NotFoundException)
+            {
+                return new Dictionary<string, List<string>>
+                {
+                    ["general"] = new() { ex.Message }
+                };
+            }
+
+            // Fallback → general error
+            return new Dictionary<string, List<string>>
+            {
+                ["general"] = new() { "An unexpected error occurred." }
+            };
+        }
+
+        private static string ToCamelCase(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value) || value.Length < 2)
+                return value;
+
+            return char.ToLowerInvariant(value[0]) + value[1..];
         }
     }
 }
