@@ -3,6 +3,7 @@ using RefillingStation.Application.DTOs.CustomerDebts;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Domain.Entities;
+using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
 {
@@ -43,7 +44,7 @@ namespace RefillingStation.Application.Services
             var debt = await _customerDebtRepository.GetByIdAsync(id);
 
             if (debt is null)
-                throw new Exception("Debt not found.");
+                throw new NotFoundException("Debt", id);
 
             return new CustomerDebtDetailResponse(
                 debt.Id,
@@ -65,7 +66,7 @@ namespace RefillingStation.Application.Services
             var customerExists = await _customerRepository.ExistsAsync(e => e.Id == request.CustomerId);
 
             if (!customerExists)
-                throw new Exception("Customer not found.");
+                throw new NotFoundException("Customer", request.CustomerId);;
 
             var debt = new CustomerDebtEntry
             {
@@ -91,12 +92,12 @@ namespace RefillingStation.Application.Services
             var customerExists = await _customerRepository.ExistsAsync(e => e.Id == request.CustomerId);
 
             if (!customerExists)
-                throw new Exception("Customer not found.");
+                throw new NotFoundException("Customer", request.CustomerId);;
 
             var debt = await _customerDebtRepository.GetByIdAsync(id);
 
             if (debt is null)
-                throw new Exception("Debt not found.");
+                throw new NotFoundException("Debt", id);
 
             debt.Date = request.Date;
             debt.Amount = request.Amount;
@@ -111,7 +112,7 @@ namespace RefillingStation.Application.Services
             var debt = await _customerDebtRepository.GetByIdAsync(id);
 
             if (debt is null)
-                throw new Exception("Debt not found.");
+                throw new NotFoundException("Debt", id);
 
             _customerDebtRepository.Remove(debt);
 

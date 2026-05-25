@@ -1,6 +1,7 @@
 ﻿using RefillingStation.Application.DTOs.ExpenseCategories;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
+using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
 {
@@ -31,7 +32,7 @@ namespace RefillingStation.Application.Services
             var expenseCategory = await _repository.GetByIdAsync(id);
 
             if (expenseCategory is null)
-                throw new Exception("ExpenseCategory not found.");
+                throw new NotFoundException("ExpenseCategory", id);
 
             return new ExpenseCategoryListItemResponse(
                 expenseCategory.Id,

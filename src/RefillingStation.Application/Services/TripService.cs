@@ -3,6 +3,7 @@ using RefillingStation.Application.DTOs.Trips;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Domain.Entities;
+using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
 {
@@ -55,7 +56,7 @@ namespace RefillingStation.Application.Services
             var trip = await _tripRepository.GetByIdAsync(id);
 
             if (trip is null)
-                throw new Exception("Trip not found.");
+                throw new NotFoundException("Trip", id);
 
             return new TripDetailResponse(
                 trip.Id,
@@ -86,7 +87,7 @@ namespace RefillingStation.Application.Services
             var employeeExists = await _employeeRepository.ExistsAsync(e => e.Id == request.EmployeeId);
 
             if (!employeeExists)
-                throw new Exception("Employee not found.");
+                throw new NotFoundException("Employee", request.EmployeeId);
 
             // Check for duplicate
             var tripNoExists = await _tripRepository.ExistsAsync(x =>
@@ -94,7 +95,7 @@ namespace RefillingStation.Application.Services
                 && x.TripNumber == request.TripNumber);
 
             if (tripNoExists)
-                throw new Exception("Trip number already exists for this date.");
+                throw new ConflictException($"Trip number already exists for this date.");
 
             var trip = new Trip
             {
@@ -132,7 +133,7 @@ namespace RefillingStation.Application.Services
             var employeeExists = await _employeeRepository.ExistsAsync(e => e.Id == request.EmployeeId);
 
             if (!employeeExists)
-                throw new Exception("Employee not found.");
+                throw new NotFoundException("Employee", request.EmployeeId);
 
             // Check for duplicate
             var tripNoExists = await _tripRepository.ExistsAsync(x =>
@@ -141,12 +142,12 @@ namespace RefillingStation.Application.Services
                 && x.TripNumber == request.TripNumber);
 
             if (tripNoExists)
-                throw new Exception("Trip number already exists for this date.");
+                throw new ConflictException("Trip number already exists for this date.");
 
             var trip = await _tripRepository.GetByIdAsync(id);
 
             if (trip is null)
-                throw new Exception("Trip not found.");
+                throw new NotFoundException("Trip", id);
 
             trip.Date = DateOnly.FromDateTime(request.Date);
             trip.TripNumber = request.TripNumber;
@@ -174,7 +175,7 @@ namespace RefillingStation.Application.Services
             var trip = await _tripRepository.GetByIdAsync(id);
 
             if (trip is null)
-                throw new Exception("Trip not found.");
+                throw new NotFoundException("Trip", id);
 
             _tripRepository.Remove(trip);
 
