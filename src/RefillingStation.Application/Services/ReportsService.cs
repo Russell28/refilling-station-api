@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using RefillingStation.Application.DTOs.Reports;
 using RefillingStation.Application.DTOs.Reports.Breakdowns;
 using RefillingStation.Application.DTOs.Reports.DailySummary;
 using RefillingStation.Application.DTOs.Reports.Dashboard;
@@ -66,10 +65,8 @@ namespace RefillingStation.Application.Services
             var outstandingDebt = debtsRunning.Sum(x => x.Amount);
 
             // Payroll
-            var totalSalaryEarned = payrolls.Sum(x => x.SalaryAmount);
+            var totalPayrollEarned = payrolls.Sum(x => x.SalaryAmount);
             var totalPayrollPaid = payrolls.Sum(x => x.CashPaid);
-            var totalPayrollOwed = totalSalaryEarned - totalPayrollPaid;
-
             var outstandingPayroll =
                 payrollsRunning.Sum(x => x.SalaryAmount) -
                 payrollsRunning.Sum(x => x.CashPaid);
@@ -80,7 +77,7 @@ namespace RefillingStation.Application.Services
             // Cashflow
             var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
             var netBeforePayroll = totalCashCollected - totalExpenses;
-            var netCashFlow = totalCashCollected - totalExpenses - totalPayrollPaid;
+            var netAfterPayroll = totalCashCollected - totalExpenses - totalPayrollPaid;
             #endregion
 
             // ---------------------------------------------------------
@@ -120,33 +117,39 @@ namespace RefillingStation.Application.Services
                 // Trips
                 var tripCount = tripsPerDay.Count;
                 var cashCollected = tripsPerDay.Sum(x => x.ActualCashCollected);
-                var netCash = cashCollected - expensesTotal - payrollPaidTotal;
+                var cashAfterExpense = cashCollected - expensesTotal;
+                var cashAfterPayroll = cashCollected - expensesTotal - payrollEarnedTotal;
 
                 // Backlog
                 runningBacklogQty += collectedQty - deliveredQty;
 
+                //if (cashCollected == 0 || deliveredQty == 0) // skip day off
+                //    continue;
+
                 dailyReports.Add(new DailyReportItem(
                     DateOnly.FromDateTime(date),
 
+                    backlogStartOfDay,
+                    runningBacklogQty,
+
                     tripCount,
+
                     collectedQty,
-                    loadedQty,
                     deliveredQty,
                     freeQty,
                     returnedQty,
                     replacementQty,
 
-                    cashCollected,
                     expensesTotal,
                     payrollEarnedTotal,
                     payrollPaidTotal,
-                    netCash,
 
                     debtCreated,
                     debtPayments,
 
-                    backlogStartOfDay,
-                    runningBacklogQty
+                    cashCollected,
+                    cashAfterExpense,
+                    cashAfterPayroll
                 ));
             }
             #endregion
@@ -211,26 +214,26 @@ namespace RefillingStation.Application.Services
             // ---------------------------------------------------------
 
             var summary = new DashboardSummaryResponse(
-                totalTrips,
-                totalCollectedQty,
-                totalLoadedQty,
-                totalDeliveredQty,
                 backlogStartQty,
                 backlogEndQty,
 
-                totalCashCollected,
+                totalTrips,
+                totalCollectedQty,
+                totalDeliveredQty,
+
                 totalExpenses,
-                netBeforePayroll,
+
+                totalPayrollEarned,
                 totalPayrollPaid,
-                netCashFlow,
+                outstandingPayroll,
 
                 totalDebtCreated,
                 totalDebtPayments,
                 outstandingDebt,
 
-                totalSalaryEarned,
-                totalPayrollOwed,
-                outstandingPayroll
+                totalCashCollected,
+                netBeforePayroll,
+                netAfterPayroll
             );
 
             return new DashboardResponse(
