@@ -6,9 +6,9 @@ namespace RefillingStation.Application.Interfaces.Services
     public interface IReportsService
     {
         // Daily Summary
-        Task<object> GetDailySummaryAsync(DateTime date, bool isAdmin);
+        Task<object> GetDailySummaryAsync(DateOnly date, bool isAdmin);
         // Dashboard
-        Task<DashboardResponse> GetDashboardAsync(DateTime startDate, DateTime endDate);
+        Task<DashboardResponse> GetDashboardAsync(DateOnly startDate, DateOnly endDate);
         // Monthly Summary
         Task<MonthlySummaryResponse> GetMonthlySummaryAsync(string monthYear);
     }

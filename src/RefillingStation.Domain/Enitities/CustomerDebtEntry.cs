@@ -2,7 +2,7 @@
 {
     public class CustomerDebtEntry : BaseEntity
     {
-        public DateTime Date { get; set; }
+        public DateOnly Date { get; set; }
         public int CustomerId { get; set; }
         // Positive = debt created, Negative = payment received
         public decimal Amount { get; set; }

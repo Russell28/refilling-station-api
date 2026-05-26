@@ -22,7 +22,7 @@ namespace RefillingStation.Infrastructure.Imports
         // STEP 1: Parsed row (validated + typed, but still contains CategoryName)
         private sealed class ParsedExpenseRow
         {
-            public DateTime Date { get; set; }
+            public DateOnly Date { get; set; }
             public string CategoryName { get; set; } = string.Empty;
             public decimal Amount { get; set; }
             public string? Notes { get; set; }
@@ -31,7 +31,7 @@ namespace RefillingStation.Infrastructure.Imports
         // STEP 2: Normalized row (FK resolved, ready for domain)
         private sealed class NormalizedExpenseRow
         {
-            public DateTime Date { get; set; }
+            public DateOnly Date { get; set; }
             public int CategoryId { get; set; }
             public decimal Amount { get; set; }
             public string? Notes { get; set; }
@@ -109,7 +109,7 @@ namespace RefillingStation.Infrastructure.Imports
 
             return new ParsedExpenseRow
             {
-                Date = date.ToDateTime(TimeOnly.MinValue),
+                Date = date,
                 CategoryName = ImportParsingHelpers.ParseRequiredString(row.ExpenseCategory, "Category"),
                 Amount = ImportParsingHelpers.ParseNonNegativeDecimal(row.Amount, "Amount"),
                 Notes = ImportParsingHelpers.ParseOptionalString(row.Notes)

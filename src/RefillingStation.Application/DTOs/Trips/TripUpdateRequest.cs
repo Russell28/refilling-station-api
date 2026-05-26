@@ -2,7 +2,7 @@
 {
     public sealed class TripUpdateRequest
     {
-        public DateTime Date { get; set; }
+        public DateOnly Date { get; set; }
         public int TripNumber { get; set; }
         public DateTime? TimeStarted { get; set; }
         public DateTime? TimeEnded { get; set; }

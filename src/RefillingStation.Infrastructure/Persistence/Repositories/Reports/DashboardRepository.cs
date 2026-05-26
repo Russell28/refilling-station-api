@@ -13,7 +13,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
         {
             _context = context;
         }
-        public async Task<DashboardRawData> GetDashboardAsync(DateTime startDate, DateTime endDate)
+        public async Task<DashboardRawData> GetDashboardAsync(DateOnly startDate, DateOnly endDate)
         {
             var debts = await _context.CustomerDebtEntries
                 .AsNoTracking()
@@ -61,8 +61,8 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
             var trips = await _context.Trips
                 .AsNoTracking()
                 .Where(x => 
-                    x.Date >= DateOnly.FromDateTime(startDate)
-                    && x.Date <= DateOnly.FromDateTime(endDate))
+                    x.Date >= startDate
+                    && x.Date <= endDate)
                 .Select(x => new TripReportItem(
                     x.Id,
                     x.Date,
@@ -80,7 +80,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
             // Before start date
             var tripsBefore = await _context.Trips
                 .AsNoTracking()
-                .Where(x => x.Date < DateOnly.FromDateTime(startDate))
+                .Where(x => x.Date < startDate)
                 .Select(x => new TripReportItem(
                     x.Id,
                     x.Date,
@@ -97,7 +97,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
 
             var debtsRunning = await _context.CustomerDebtEntries
                 .AsNoTracking()
-                .Where(x => x.Date.Date <= endDate.Date)
+                .Where(x => x.Date <= endDate)
                 .Select(x => new CustomerDebtReportItem(
                     x.Id,
                     x.Date,
@@ -109,7 +109,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
 
             var payrollsRunning = await _context.PayrollEntries
                 .AsNoTracking()
-                .Where(x => x.EarnedDate.Date <= endDate.Date)
+                .Where(x => x.EarnedDate <= endDate)
                 .Select(x => new PayrollReportItem(
                         x.Id,
                         x.EarnedDate,

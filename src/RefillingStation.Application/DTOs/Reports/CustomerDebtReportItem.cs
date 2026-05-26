@@ -2,7 +2,7 @@
 {
     public sealed record CustomerDebtReportItem(
         int Id,
-        DateTime Date,
+        DateOnly Date,
         int CustomerId,
         string CustomerName,
         decimal Amount

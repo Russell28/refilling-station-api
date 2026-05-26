@@ -91,7 +91,7 @@ namespace RefillingStation.Application.Services
 
             // Check for duplicate
             var tripNoExists = await _tripRepository.ExistsAsync(x =>
-                x.Date == DateOnly.FromDateTime(request.Date)
+                x.Date == request.Date
                 && x.TripNumber == request.TripNumber);
 
             if (tripNoExists)
@@ -99,7 +99,7 @@ namespace RefillingStation.Application.Services
 
             var trip = new Trip
             {
-                Date = DateOnly.FromDateTime(request.Date),
+                Date = request.Date,
                 TripNumber = request.TripNumber,
                 TimeStarted = request.TimeStarted,
                 TimeEnded = request.TimeEnded,
@@ -138,7 +138,7 @@ namespace RefillingStation.Application.Services
             // Check for duplicate
             var tripNoExists = await _tripRepository.ExistsAsync(x =>
                 x.Id != id // exclude self
-                && x.Date == DateOnly.FromDateTime(request.Date)
+                && x.Date == request.Date
                 && x.TripNumber == request.TripNumber);
 
             if (tripNoExists)
@@ -149,7 +149,7 @@ namespace RefillingStation.Application.Services
             if (trip is null)
                 throw new NotFoundException("Trip", id);
 
-            trip.Date = DateOnly.FromDateTime(request.Date);
+            trip.Date = request.Date;
             trip.TripNumber = request.TripNumber;
             trip.TimeStarted = request.TimeStarted;
             trip.TimeEnded = request.TimeEnded;

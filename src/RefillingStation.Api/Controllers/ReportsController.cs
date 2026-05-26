@@ -18,7 +18,7 @@ namespace RefillingStation.Api.Controllers
 
         [HttpGet("dashboard")]
         [Authorize(Policy = "AdminOnly")]
-        public async Task<IActionResult> GetDashboard(DateTime startDate, DateTime endDate)
+        public async Task<IActionResult> GetDashboard(DateOnly startDate, DateOnly endDate)
         {
             var result = await _reportsService.GetDashboardAsync(startDate, endDate);
 
@@ -26,7 +26,7 @@ namespace RefillingStation.Api.Controllers
         }
 
         [HttpGet("daily-summary/{date:datetime}")]
-        public async Task<IActionResult> GetDailySummary(DateTime date)
+        public async Task<IActionResult> GetDailySummary(DateOnly date)
         {
             bool isAdmin = User.IsInRole("Admin");
 

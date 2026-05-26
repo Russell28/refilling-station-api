@@ -2,7 +2,7 @@
 {
     public sealed record PayrollReportItem(
         int Id,
-        DateTime EarnedDate,
+        DateOnly EarnedDate,
         int EmployeeId,
         string EmployeeName,
         decimal SalaryAmount,
