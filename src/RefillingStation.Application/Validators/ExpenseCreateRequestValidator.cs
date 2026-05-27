@@ -9,7 +9,7 @@ namespace RefillingStation.Application.Validators
         {
             RuleFor(x => x.Date)
                 .NotEmpty()
-                .Must(date => date.Date <= DateTime.Today)
+                .Must(date => date <= DateOnly.FromDateTime(DateTime.Today))
                 .WithMessage("Cannot select future date.");
 
             RuleFor(x => x.ExpenseCategoryId)

@@ -2,8 +2,8 @@
 {
     public sealed class PayrollCreateRequest
     {
-        public DateTime EarnedDate { get; set; }
-        public DateTime? PaidDate { get; set; } 
+        public DateOnly EarnedDate { get; set; }
+        public DateOnly? PaidDate { get; set; } 
         public int EmployeeId { get; set; }
         public decimal SalaryAmount { get; set; }
         public decimal CashPaid { get; set; }

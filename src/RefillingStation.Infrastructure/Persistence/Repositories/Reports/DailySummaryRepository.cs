@@ -14,7 +14,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
             _context = context;
         }
 
-        public async Task<DailySummaryRawData> GetDailySummaryAsync(DateTime date)
+        public async Task<DailySummaryRawData> GetDailySummaryAsync(DateOnly date)
         {
             var debts = await _context.CustomerDebtEntries
                 .AsNoTracking()
@@ -55,7 +55,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
 
             var trips = await _context.Trips
                 .AsNoTracking()
-                .Where(x => x.Date == DateOnly.FromDateTime(date))
+                .Where(x => x.Date == date)
                 .Select(x => new TripReportItem(
                     x.Id,
                     x.Date,
@@ -73,7 +73,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
             // Before start date
             var tripsBefore = await _context.Trips
                 .AsNoTracking()
-                .Where(x => x.Date < DateOnly.FromDateTime(date))
+                .Where(x => x.Date < date)
                 .Select(x => new TripReportItem(
                     x.Id,
                     x.Date,
@@ -90,7 +90,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
 
             var debtsRunning = await _context.CustomerDebtEntries
                 .AsNoTracking()
-                .Where(x => x.Date.Date <= date.Date)
+                .Where(x => x.Date <= date)
                 .Select(x => new CustomerDebtReportItem(
                     x.Id,
                     x.Date,
@@ -102,7 +102,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
 
             var payrollsRunning = await _context.PayrollEntries
                 .AsNoTracking()
-                .Where(x => x.EarnedDate.Date <= date.Date)
+                .Where(x => x.EarnedDate <= date)
                 .Select(x => new PayrollReportItem(
                         x.Id,
                         x.EarnedDate,

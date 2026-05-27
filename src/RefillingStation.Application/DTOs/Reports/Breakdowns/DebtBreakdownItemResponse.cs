@@ -6,6 +6,6 @@
         decimal DebtCreated,
         decimal DebtPayment,
         decimal Balance,
-        DateTime LatestTransactionDate
+        DateOnly LatestTransactionDate
     );
 }

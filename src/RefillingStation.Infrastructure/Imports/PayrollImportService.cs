@@ -21,8 +21,8 @@ namespace RefillingStation.Infrastructure.Imports
         // STEP 1: Parsed row (validated + typed, but still contains EmployeeName)
         private sealed class ParsedPayrollRow
         {
-            public DateTime EarnedDate { get; set; }
-            public DateTime? PaidDate { get; set; }
+            public DateOnly EarnedDate { get; set; }
+            public DateOnly? PaidDate { get; set; }
             public string EmployeeName { get; set; } = string.Empty;
             public decimal SalaryAmount { get; set; }
             public decimal CashPaid { get; set; }
@@ -32,8 +32,8 @@ namespace RefillingStation.Infrastructure.Imports
         // STEP 2: Normalized row (FK resolved, ready for domain)
         private sealed class NormalizedPayrollRow
         {
-            public DateTime EarnedDate { get; set; }
-            public DateTime? PaidDate { get; set; }
+            public DateOnly EarnedDate { get; set; }
+            public DateOnly? PaidDate { get; set; }
             public int EmployeeId { get; set; }
             public decimal SalaryAmount { get; set; }
             public decimal CashPaid { get; set; }
@@ -115,8 +115,8 @@ namespace RefillingStation.Infrastructure.Imports
 
             return new ParsedPayrollRow
             {
-                EarnedDate = earnedDate.ToDateTime(TimeOnly.MinValue), // Convert dateonly to datetime midnight
-                PaidDate = paidDate?.ToDateTime(TimeOnly.MinValue),
+                EarnedDate = earnedDate,
+                PaidDate = paidDate,
                 EmployeeName = ImportParsingHelpers.ParseRequiredString(row.EmployeeName, "Employee Name"),
                 SalaryAmount = ImportParsingHelpers.ParseNonNegativeDecimal(row.SalaryAmount, "Salary Amount"),
                 CashPaid = ImportParsingHelpers.ParseNonNegativeDecimal(row.CashPaid, "Cash Paid"),

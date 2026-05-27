@@ -27,7 +27,7 @@ namespace RefillingStation.Application.Services
             _monthlySummaryRepository = monthlySummaryRepository;
             _backlogSettings = options.Value;
         }
-        public async Task<DashboardResponse> GetDashboardAsync(DateTime startDate, DateTime endDate)
+        public async Task<DashboardResponse> GetDashboardAsync(DateOnly startDate, DateOnly endDate)
         {
             var rawData = await _dashboardRepository.GetDashboardAsync(startDate, endDate);
 
@@ -88,14 +88,14 @@ namespace RefillingStation.Application.Services
 
             var runningBacklogQty = backlogStartQty;
 
-            for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
             {
                 var backlogStartOfDay = runningBacklogQty;
 
-                var tripsPerDay = trips.Where(x => x.Date == DateOnly.FromDateTime(date)).ToList();
-                var expensesPerDay = expenses.Where(x => x.Date.Date == date).ToList();
-                var payrollsPerDay = payrolls.Where(x => x.EarnedDate.Date == date).ToList();
-                var debtsPerDay = debts.Where(x => x.Date.Date == date).ToList();
+                var tripsPerDay = trips.Where(x => x.Date == date).ToList();
+                var expensesPerDay = expenses.Where(x => x.Date == date).ToList();
+                var payrollsPerDay = payrolls.Where(x => x.EarnedDate == date).ToList();
+                var debtsPerDay = debts.Where(x => x.Date == date).ToList();
 
                 // Quantities
                 var collectedQty = tripsPerDay.Sum(x => x.CollectedQty);
@@ -127,7 +127,7 @@ namespace RefillingStation.Application.Services
                 //    continue;
 
                 dailyReports.Add(new DailyReportItem(
-                    DateOnly.FromDateTime(date),
+                    date,
 
                     backlogStartOfDay,
                     runningBacklogQty,
@@ -246,7 +246,7 @@ namespace RefillingStation.Application.Services
         }
 
 
-        public async Task<object> GetDailySummaryAsync(DateTime date, bool isAdmin)
+        public async Task<object> GetDailySummaryAsync(DateOnly date, bool isAdmin)
         {
             var rawData = await _dailySummaryRepository.GetDailySummaryAsync(date);
 
@@ -365,7 +365,7 @@ namespace RefillingStation.Application.Services
                 );
 
                 var adminSummary = new DailySummaryInfoAdminResponse(
-                    DateOnly.FromDateTime(date),
+                    date,
 
                     backlogStartQty,
                     backlogEndQty,
@@ -401,7 +401,7 @@ namespace RefillingStation.Application.Services
             #endregion
 
             var summary = new DailySummaryInfoResponse(
-                DateOnly.FromDateTime(date),
+                date,
 
                 backlogStartQty,
                 backlogEndQty,

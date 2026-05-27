@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using RefillingStation.Application.DTOs.Common;
+using RefillingStation.Application.DTOs.Payrolls;
 using RefillingStation.Application.DTOs.Trips;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
@@ -91,7 +93,7 @@ namespace RefillingStation.Application.Services
 
             // Check for duplicate
             var tripNoExists = await _tripRepository.ExistsAsync(x =>
-                x.Date == DateOnly.FromDateTime(request.Date)
+                x.Date == request.Date
                 && x.TripNumber == request.TripNumber);
 
             if (tripNoExists)
@@ -99,7 +101,7 @@ namespace RefillingStation.Application.Services
 
             var trip = new Trip
             {
-                Date = DateOnly.FromDateTime(request.Date),
+                Date = request.Date,
                 TripNumber = request.TripNumber,
                 TimeStarted = request.TimeStarted,
                 TimeEnded = request.TimeEnded,
@@ -138,7 +140,7 @@ namespace RefillingStation.Application.Services
             // Check for duplicate
             var tripNoExists = await _tripRepository.ExistsAsync(x =>
                 x.Id != id // exclude self
-                && x.Date == DateOnly.FromDateTime(request.Date)
+                && x.Date == request.Date
                 && x.TripNumber == request.TripNumber);
 
             if (tripNoExists)
@@ -149,7 +151,7 @@ namespace RefillingStation.Application.Services
             if (trip is null)
                 throw new NotFoundException("Trip", id);
 
-            trip.Date = DateOnly.FromDateTime(request.Date);
+            trip.Date = request.Date;
             trip.TripNumber = request.TripNumber;
             trip.TimeStarted = request.TimeStarted;
             trip.TimeEnded = request.TimeEnded;
@@ -188,6 +190,39 @@ namespace RefillingStation.Application.Services
             var nextTripNo = (max ?? 0) + 1; // if max == null (0) + 1
 
             return new NextTripNumberResponse(date, nextTripNo);
+        }
+
+        public async Task<List<TripDetailResponse>> SearchByDateRangeAsync(DateRangeRequest request)
+        {
+            var options = new DateRangeOptions
+            {
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                Page = request.Page
+            };
+
+            var trips = await _tripRepository.SearchByDateRangeAsync(options);
+
+            return trips
+                .Select(x => new TripDetailResponse
+                (
+                    x.Id,
+                    x.Date,
+                    x.TripNumber,
+                    x.EmployeeId,
+                    x.Employee.FullName,
+                    x.CustomerCategory,
+                    x.CollectedQty,
+                    x.LoadedQty,
+                    x.DeliveredQty,
+                    x.FreeQty,
+                    x.ReturnedQty,
+                    x.ReplacementQty,
+                    x.ActualCashCollected,
+                    x.IsRemitted,
+                    x.Notes
+                ))
+                .ToList();
         }
     }
 }

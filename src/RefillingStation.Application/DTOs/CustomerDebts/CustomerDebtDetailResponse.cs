@@ -3,7 +3,7 @@
     public sealed record CustomerDebtDetailResponse
     (
         int Id,
-        DateTime Date,
+        DateOnly Date,
         int CustomerId,
         string CustomerName,
         decimal Amount,

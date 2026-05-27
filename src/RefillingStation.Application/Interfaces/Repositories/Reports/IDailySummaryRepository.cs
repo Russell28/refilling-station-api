@@ -4,6 +4,6 @@ namespace RefillingStation.Application.Interfaces.Repositories.Reports
 {
     public interface IDailySummaryRepository
     {
-        Task<DailySummaryRawData> GetDailySummaryAsync(DateTime date);
+        Task<DailySummaryRawData> GetDailySummaryAsync(DateOnly date);
     }
 }

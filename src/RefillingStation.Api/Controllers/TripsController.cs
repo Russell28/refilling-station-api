@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RefillingStation.Application.DTOs.Common;
 using RefillingStation.Application.DTOs.Trips;
 using RefillingStation.Application.Interfaces.Services;
 
@@ -61,6 +62,14 @@ namespace RefillingStation.Api.Controllers
         public async Task<IActionResult> GetNextTripNumber(DateOnly date)
         {
             var result = await _service.GetNextTripNumberAsync(date);
+
+            return Ok(result);
+        }
+
+        [HttpPost("search")]
+        public async Task<IActionResult> Search(DateRangeRequest request)
+        {
+            var result = await _service.SearchByDateRangeAsync(request);
 
             return Ok(result);
         }

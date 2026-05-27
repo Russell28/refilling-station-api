@@ -2,8 +2,8 @@
 {
     public sealed record PayrollDetailResponse(
         int Id,
-        DateTime EarnedDate,
-        DateTime? PaidDate,
+        DateOnly EarnedDate,
+        DateOnly? PaidDate,
         int EmployeeId,
         string EmployeeName,
         decimal SalaryAmount,

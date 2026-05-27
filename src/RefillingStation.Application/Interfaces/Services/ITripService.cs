@@ -1,4 +1,5 @@
-﻿using RefillingStation.Application.DTOs.Trips;
+﻿using RefillingStation.Application.DTOs.Common;
+using RefillingStation.Application.DTOs.Trips;
 
 namespace RefillingStation.Application.Interfaces.Services
 {
@@ -10,5 +11,7 @@ namespace RefillingStation.Application.Interfaces.Services
         Task UpdateAsync(int id, TripUpdateRequest request);
         Task DeleteAsync(int id);
         Task<NextTripNumberResponse> GetNextTripNumberAsync(DateOnly date);
+        Task<List<TripDetailResponse>> SearchByDateRangeAsync(DateRangeRequest request);
+
     }
 }

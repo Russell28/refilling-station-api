@@ -16,32 +16,30 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
 
         public async Task<MonthlySummaryRawData> GetMonthlySummaryAsync(DateOnly start, DateOnly end)
         {
-            var startDt = start.ToDateTime(TimeOnly.MinValue);
-            var endDt = end.ToDateTime(TimeOnly.MaxValue);
             var monthYear = start.ToString("yyyy-MM");
 
             var debtTotal = await _context.CustomerDebtEntries
                 .Where(x =>
-                    x.Date >= startDt
-                    && x.Date <= endDt)
+                    x.Date >= start
+                    && x.Date <= end)
                 .SumAsync(x => x.Amount);
 
             var expenseTotal = await _context.Expenses
                 .Where(x =>
-                    x.Date >= startDt
-                    && x.Date <= endDt)
+                    x.Date >= start
+                    && x.Date <= end)
                 .SumAsync (x => x.Amount);
 
             var payrollEarnedTotal = await _context.PayrollEntries
                 .Where(x =>
-                    x.EarnedDate >= startDt
-                    && x.EarnedDate <= endDt)
+                    x.EarnedDate >= start
+                    && x.EarnedDate <= end)
                 .SumAsync(x => x.SalaryAmount);
 
             var payrollPaidTotal = await _context.PayrollEntries
                 .Where(x =>
-                    x.EarnedDate >= startDt
-                    && x.EarnedDate <= endDt)
+                    x.EarnedDate >= start
+                    && x.EarnedDate <= end)
                 .SumAsync(x => x.CashPaid);
 
             var grossTotal = await _context.Trips
