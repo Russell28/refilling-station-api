@@ -1,4 +1,5 @@
-﻿using RefillingStation.Application.DTOs.CustomerDebts;
+﻿using RefillingStation.Application.DTOs.Common;
+using RefillingStation.Application.DTOs.CustomerDebts;
 
 namespace RefillingStation.Application.Interfaces.Services
 {
@@ -9,5 +10,6 @@ namespace RefillingStation.Application.Interfaces.Services
         Task<int> CreateAsync(CustomerDebtCreateRequest request);
         Task UpdateAsync(int id, CustomerDebtCreateRequest request);
         Task DeleteAsync(int id);
+        Task<List<CustomerDebtDetailResponse>> SearchByDateRangeAsync(DateRangeRequest request);
     }
 }

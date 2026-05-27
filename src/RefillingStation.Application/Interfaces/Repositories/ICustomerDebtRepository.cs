@@ -2,7 +2,7 @@
 
 namespace RefillingStation.Application.Interfaces.Repositories
 {
-    public interface ICustomerDebtRepository : IBaseRepository<CustomerDebtEntry>
+    public interface ICustomerDebtRepository : IBaseRepository<CustomerDebtEntry>, IDateRangeSearchableRepository<CustomerDebtEntry>
     {
         
     }

@@ -1,4 +1,5 @@
-﻿using RefillingStation.Application.DTOs.Expenses;
+﻿using RefillingStation.Application.DTOs.Common;
+using RefillingStation.Application.DTOs.Expenses;
 
 namespace RefillingStation.Application.Interfaces.Services
 {
@@ -9,5 +10,7 @@ namespace RefillingStation.Application.Interfaces.Services
         Task<int> CreateAsync(ExpenseCreateRequest request);
         Task UpdateAsync(int id, ExpenseCreateRequest request);
         Task DeleteAsync(int id);
+        Task<List<ExpenseDetailResponse>> SearchByDateRangeAsync(DateRangeRequest request);
+
     }
 }

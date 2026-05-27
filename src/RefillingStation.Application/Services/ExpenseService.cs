@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using RefillingStation.Application.DTOs.Common;
+using RefillingStation.Application.DTOs.CustomerDebts;
 using RefillingStation.Application.DTOs.Expenses;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
@@ -117,6 +119,30 @@ namespace RefillingStation.Application.Services
             _expenseRepository.Remove(expense);
 
             await _expenseRepository.SaveChangesAsync();
+        }
+
+        public async Task<List<ExpenseDetailResponse>> SearchByDateRangeAsync(DateRangeRequest request)
+        {
+            var options = new DateRangeOptions
+            {
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                Page = request.Page
+            };
+
+            var expenses = await _expenseRepository.SearchByDateRangeAsync(options);
+
+            return expenses
+                .Select(x => new ExpenseDetailResponse
+                (
+                    x.Id,
+                    x.Date,
+                    x.ExpenseCategoryId,
+                    x.Category.Name,
+                    x.Amount,
+                    x.Notes
+                ))
+                .ToList();
         }
     }
 }

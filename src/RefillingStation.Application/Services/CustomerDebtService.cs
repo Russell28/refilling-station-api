@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using RefillingStation.Application.DTOs.Common;
 using RefillingStation.Application.DTOs.CustomerDebts;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
@@ -117,6 +118,30 @@ namespace RefillingStation.Application.Services
             _customerDebtRepository.Remove(debt);
 
             await _customerDebtRepository.SaveChangesAsync();
+        }
+
+        public async Task<List<CustomerDebtDetailResponse>> SearchByDateRangeAsync(DateRangeRequest request)
+        {
+            var options = new DateRangeOptions
+            {
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                Page = request.Page
+            };
+
+            var debts = await _customerDebtRepository.SearchByDateRangeAsync(options);
+
+            return debts
+                .Select(x => new CustomerDebtDetailResponse
+                (
+                    x.Id,
+                    x.Date,
+                    x.CustomerId,
+                    x.Customer.Name,
+                    x.Amount,
+                    x.Notes
+                ))
+                .ToList();
         }
 
     }

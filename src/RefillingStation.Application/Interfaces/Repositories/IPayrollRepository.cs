@@ -2,7 +2,7 @@
 
 namespace RefillingStation.Application.Interfaces.Repositories
 {
-    public interface IPayrollRepository : IBaseRepository<PayrollEntry>
+    public interface IPayrollRepository : IBaseRepository<PayrollEntry>, IDateRangeSearchableRepository<PayrollEntry>
     {
         
     }

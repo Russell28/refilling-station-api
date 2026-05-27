@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RefillingStation.Application.DTOs.Common;
 using RefillingStation.Application.DTOs.CustomerDebts;
 using RefillingStation.Application.Interfaces.Services;
 
@@ -55,6 +56,14 @@ namespace RefillingStation.Api.Controllers
             await _service.DeleteAsync(id);
 
             return NoContent();
+        }
+
+        [HttpPost("search")]
+        public async Task<IActionResult> Search(DateRangeRequest request)
+        {
+            var result = await _service.SearchByDateRangeAsync(request);
+
+            return Ok(result);
         }
     }
 }
