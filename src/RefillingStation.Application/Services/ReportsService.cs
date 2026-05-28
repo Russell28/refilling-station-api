@@ -77,7 +77,7 @@ namespace RefillingStation.Application.Services
             // Cashflow
             var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
             var netBeforePayroll = totalCashCollected - totalExpenses;
-            var netAfterPayroll = totalCashCollected - totalExpenses - totalPayrollPaid;
+            var netAfterPayroll = totalCashCollected - totalExpenses - totalPayrollEarned;
             #endregion
 
             // ---------------------------------------------------------
@@ -123,8 +123,8 @@ namespace RefillingStation.Application.Services
                 // Backlog
                 runningBacklogQty += collectedQty - deliveredQty;
 
-                //if (cashCollected == 0 || deliveredQty == 0) // skip day off
-                //    continue;
+                if (cashCollected == 0 || deliveredQty == 0) // skip day off
+                    continue;
 
                 dailyReports.Add(new DailyReportItem(
                     date,
@@ -210,6 +210,13 @@ namespace RefillingStation.Application.Services
             #endregion
 
             // ---------------------------------------------------------
+            // Cost, Price, Profit per gallon sold
+            // ---------------------------------------------------------
+            var costPerGal = (totalExpenses + totalPayrollEarned) / totalDeliveredQty;
+            var retailPerGal = totalCashCollected / totalDeliveredQty;
+            var profitPerGal = netAfterPayroll / totalDeliveredQty;
+
+            // ---------------------------------------------------------
             // FINAL RESPONSE
             // ---------------------------------------------------------
 
@@ -233,7 +240,11 @@ namespace RefillingStation.Application.Services
 
                 totalCashCollected,
                 netBeforePayroll,
-                netAfterPayroll
+                netAfterPayroll,
+
+                costPerGal,
+                retailPerGal,
+                profitPerGal
             );
 
             return new DashboardResponse(

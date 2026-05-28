@@ -20,6 +20,10 @@
 
         decimal TotalCashCollected,
         decimal NetAfterExpense,
-        decimal NetAfterPayroll
+        decimal NetAfterPayroll,
+
+        decimal CostPerGallon,
+        decimal RetailPerGallon,
+        decimal ProfitPerGallon
     );
 }
