@@ -5,6 +5,7 @@ using RefillingStation.Application.DTOs.Trips;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Domain.Entities;
+using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services

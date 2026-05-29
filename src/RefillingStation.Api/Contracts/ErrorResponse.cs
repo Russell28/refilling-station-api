@@ -4,6 +4,9 @@
     {
         public bool Success { get; init; } = false;
 
+        // Machine-readable
+        public string? ErrorCode { get; init; }
+
         // High-level human-readable message
         public string Message { get; init; } = "An unexpected error occurred.";
 
