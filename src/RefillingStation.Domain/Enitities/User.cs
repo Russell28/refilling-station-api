@@ -1,9 +1,15 @@
 ﻿namespace RefillingStation.Domain.Entities
 {
-    public class User : BaseEntity
+    public class User
     {
-        public string Username { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty;
-        public string Role { get; set; } = "Employee"; // or Admin
+        public int Id { get; set; }
+        public string Username { get; set; } = null!;
+        public string PasswordHash { get; set; } = null!;
+        public string Role { get; set; } = null!;
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
+        
     }
 }

@@ -16,7 +16,8 @@ namespace RefillingStation.Infrastructure.Persistence
                 {
                     Username = "admin",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
-                    Role = "Admin"
+                    Role = "Admin",
+                    IsActive = true
                 });
             }
 
@@ -27,7 +28,8 @@ namespace RefillingStation.Infrastructure.Persistence
                 {
                     Username = "employee",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    Role = "Employee"
+                    Role = "Employee",
+                    IsActive = true
                 });
             }
 
