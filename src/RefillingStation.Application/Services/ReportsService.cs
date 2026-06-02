@@ -212,9 +212,9 @@ namespace RefillingStation.Application.Services
             // ---------------------------------------------------------
             // Cost, Price, Profit per gallon sold
             // ---------------------------------------------------------
-            var costPerGal = (totalExpenses + totalPayrollEarned) / totalDeliveredQty;
-            var retailPerGal = totalCashCollected / totalDeliveredQty;
-            var profitPerGal = netAfterPayroll / totalDeliveredQty;
+            var costPerGal = SafePerGal(totalExpenses + totalPayrollEarned, totalDeliveredQty);
+            var retailPerGal = SafePerGal(totalCashCollected, totalDeliveredQty);
+            var profitPerGal = SafePerGal(netAfterPayroll, totalDeliveredQty);
 
             // ---------------------------------------------------------
             // FINAL RESPONSE
@@ -256,6 +256,10 @@ namespace RefillingStation.Application.Services
             );
         }
 
+        private decimal SafePerGal(decimal numerator, decimal denominator)
+        {
+            return denominator == 0 ? 0 : numerator / denominator;
+        }
 
         public async Task<object> GetDailySummaryAsync(DateOnly date, bool isAdmin)
         {
