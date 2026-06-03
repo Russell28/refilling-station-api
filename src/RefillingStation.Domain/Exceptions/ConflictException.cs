@@ -5,7 +5,7 @@ namespace RefillingStation.Domain.Exceptions
     public sealed class ConflictException : DomainException
     {
         public ConflictException(string message) 
-            : base(DomainErrorCodes.Common.Conflict, message)
+            : base(DomainErrorCodes.CommonCode.Conflict, message)
         {
         }
     }

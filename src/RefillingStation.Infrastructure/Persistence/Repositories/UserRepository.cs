@@ -4,15 +4,25 @@ using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Infrastructure.Persistence.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : ReadRepository<User>, IUserRepository
     {
-        private readonly AppDbContext _context; // Dependency injection of the database context
+        public UserRepository(AppDbContext context) : base(context) {}
 
-        public UserRepository(AppDbContext context)
+        public async Task AddAsync(User user)
         {
-            _context = context;
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            await _context.AddAsync(user);
         }
+
         public async Task<User?> GetByUsernameAsync(string username)
             => await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+        public void Remove(User user)
+            => _context.Users.Remove(user);
+
+        public async Task<int> SaveChangesAsync()
+            => await _context.SaveChangesAsync();
     }
 }
