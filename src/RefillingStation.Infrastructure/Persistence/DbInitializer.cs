@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RefillingStation.Domain.Entities;
+using RefillingStation.Domain.Enums;
 
 namespace RefillingStation.Infrastructure.Persistence
 {
@@ -13,22 +14,22 @@ namespace RefillingStation.Infrastructure.Persistence
             if (!await db.Users.AnyAsync(u => u.Username == "admin"))
             {
                 db.Users.Add(new User
-                {
-                    Username = "admin",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
-                    Role = "Admin"
-                });
+                (
+                    "admin",
+                    BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                    UserRole.Admin
+                ));
             }
 
             // Employee
             if (!await db.Users.AnyAsync(u => u.Username == "employee"))
             {
                 db.Users.Add(new User
-                {
-                    Username = "employee",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    Role = "Employee"
-                });
+                (
+                    "employee",
+                    BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    UserRole.Employee
+                ));
             }
 
             await db.SaveChangesAsync();

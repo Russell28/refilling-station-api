@@ -18,8 +18,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
         public virtual async Task<List<T>> GetAllAsync()
             => await _context.Set<T>()
                 .AsNoTracking()
-                .Take(100)
-                .OrderByDescending(e => EF.Property<int>(e, "Id"))
+                .OrderBy(e => EF.Property<int>(e, "Id"))
                 .ToListAsync();
 
         public virtual async Task AddAsync(T entity)

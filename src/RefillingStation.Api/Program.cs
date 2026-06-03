@@ -7,6 +7,7 @@ using RefillingStation.Application;
 using RefillingStation.Application.Settings;
 using RefillingStation.Infrastructure.Persistence;
 using RefillingStation.Api.Middleware;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,12 @@ var builder = WebApplication.CreateBuilder(args);
 //
 
 // Controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // This converter makes enums serialize/deserialize as strings
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // Application + Infrastructure layers
 builder.Services.AddApplication();

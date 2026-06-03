@@ -1,9 +1,11 @@
 ﻿namespace RefillingStation.Domain.Exceptions
 {
-    public abstract class DomainException : Exception
+    public class DomainException : Exception
     {
-        protected DomainException(string message) : base (message)
+        public string Code { get; }
+        public DomainException(string code, string message) : base (message)
         {
+            Code = code;
         }
     }
 }

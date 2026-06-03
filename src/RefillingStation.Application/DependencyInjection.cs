@@ -22,6 +22,7 @@ namespace RefillingStation.Application
             services.AddScoped<ITripService, TripService>();
             services.AddScoped<IReportsService, ReportsService>();
             services.AddScoped<IMonthlyClosingService, MonthlyClosingService>();
+            services.AddScoped<IUserService, UserService>();
 
             // Validators
             services.AddValidatorsFromAssembly(

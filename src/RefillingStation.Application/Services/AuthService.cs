@@ -52,7 +52,7 @@ namespace RefillingStation.Application.Services
             (
                 token,
                 user.Username,
-                user.Role
+                user.Role.ToString()
             );
         }
     }

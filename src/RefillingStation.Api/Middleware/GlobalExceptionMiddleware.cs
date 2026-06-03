@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using RefillingStation.Api.Contracts;
+using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
 using System.Net;
 using System.Text.Json;
@@ -44,10 +45,12 @@ namespace RefillingStation.Api.Middleware
             var statusCode = GetStatusCode(exception);
             var message = GetMessage(exception);
             var errors = GetErrors(exception);
+            var code = GetCode(exception);
 
             var response = new ErrorResponse
             {
                 Message = message,
+                ErrorCode = code,
                 Errors = errors,
                 StatusCode = statusCode,
                 Path = context.Request.Path
@@ -60,6 +63,16 @@ namespace RefillingStation.Api.Middleware
 
             await context.Response.WriteAsync(json);
         }
+
+        /// <summary>
+        /// Provides a clean, user-friendly message based on the exception type.
+        /// </summary>
+        private static string? GetCode(Exception ex) =>
+            ex switch
+            {
+                DomainException domainEx => domainEx.Code, // Code may vary
+                _ => null
+            };
 
         /// <summary>
         /// Determines the correct HTTP status code based on the exception type.
