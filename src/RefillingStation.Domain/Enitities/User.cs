@@ -1,4 +1,5 @@
-﻿using RefillingStation.Domain.Enums;
+﻿using RefillingStation.Domain.Enitities;
+using RefillingStation.Domain.Enums;
 using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
 
@@ -13,6 +14,9 @@ namespace RefillingStation.Domain.Entities
         public bool IsActive { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
+
+        // Relationships
+        public ICollection<RefreshToken> RefreshTokens { get; private set; } = new List<RefreshToken>();
 
         public User(
             string username,
