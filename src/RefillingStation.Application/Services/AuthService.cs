@@ -45,7 +45,11 @@ namespace RefillingStation.Application.Services
             if (!valid)
                 throw new UnauthorizedAccessException("Invalid Credentials");
 
-            // 4. Generate token
+            // 4. Check if user is active
+            if (!user.IsActive)
+                throw new UnauthorizedAccessException("User account is inactive.");
+
+            // 5. Generate token
             var token = _tokenService.GenerateAccessToken(user);
 
             return new LoginResponse

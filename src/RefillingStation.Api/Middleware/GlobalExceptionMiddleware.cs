@@ -109,7 +109,7 @@ namespace RefillingStation.Api.Middleware
                 NotFoundException => ex.Message,
                 ConflictException => ex.Message,
                 DomainException => ex.Message,
-                UnauthorizedAccessException => "Unauthorized request.",
+                UnauthorizedAccessException => ex.Message ?? "Unauthorized request.",
                 KeyNotFoundException => "Resource not found.",
                 InvalidOperationException => "A business rule was violated.",
                 _ => "An unexpected error occurred."
@@ -153,7 +153,7 @@ namespace RefillingStation.Api.Middleware
             // Fallback → general error
             return new Dictionary<string, List<string>>
             {
-                ["general"] = new() { "An unexpected error occurred." }
+                ["general"] = new() { ex.Message ?? "An unexpected error occurred." }
             };
         }
 
