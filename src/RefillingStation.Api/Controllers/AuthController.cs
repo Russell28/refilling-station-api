@@ -18,7 +18,7 @@ namespace RefillingStation.Api.Controllers
             _service = service;
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var result = await _service.LoginAsync(request);
@@ -26,7 +26,7 @@ namespace RefillingStation.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("Me")]
+        [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> Me()
         {
@@ -58,6 +58,23 @@ namespace RefillingStation.Api.Controllers
             var result = await _service.RefreshTokenAsync(request);
 
             return Ok(result);
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Unauthorized("User ID claim is missing.");
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized("Invalid user ID claim.");
+
+            await _service.LogoutAsync(userId);
+
+            return Ok();
         }
     }
 }

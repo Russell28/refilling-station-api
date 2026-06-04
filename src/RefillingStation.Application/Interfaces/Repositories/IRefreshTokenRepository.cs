@@ -6,6 +6,7 @@ namespace RefillingStation.Application.Interfaces.Repositories
     {
         Task AddAsync(RefreshToken refreshToken);
         Task<RefreshToken?> GetByTokenAsync(string token);
+        Task DeleteAllByUserIdAsync(int  userId);
         Task<int> SaveChangesAsync();
     }
 }

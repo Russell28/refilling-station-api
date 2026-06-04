@@ -20,6 +20,15 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
                 .Include(x => x.User)
                 .FirstOrDefaultAsync(x => x.Token == token);
 
+        public async Task DeleteAllByUserIdAsync(int userId)
+        {
+            var tokens = await _context.RefreshTokens
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+
+            _context.RefreshTokens.RemoveRange(tokens);
+        }
+            
         public async Task<int> SaveChangesAsync()
             => await _context.SaveChangesAsync();
     }

@@ -107,9 +107,15 @@ namespace RefillingStation.Application.Services
             await _refreshTokenRepository.SaveChangesAsync();
 
             return new LoginResponse(
-                    newAccessToken,
-                    newRefreshToken
-                );
+                newAccessToken,
+                newRefreshToken
+            );
+        }
+
+        public async Task LogoutAsync(int userId)
+        {
+            await _refreshTokenRepository.DeleteAllByUserIdAsync(userId);
+            await _refreshTokenRepository.SaveChangesAsync();
         }
     }
 }
