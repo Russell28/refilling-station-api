@@ -4,6 +4,7 @@ using RefillingStation.Application.Interfaces;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Domain.Enitities;
+using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
 {
@@ -70,10 +71,45 @@ namespace RefillingStation.Application.Services
             return new LoginResponse
             (
                 accessToken,
-                refreshToken,
-                user.Username,
-                user.Role.ToString()
+                refreshToken
+                //user.Username,
+                //user.Role.ToString()
             );
+        }
+
+        public async Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest request)
+        {
+            var refreshTokenEntity = await _refreshTokenRepository.GetByTokenAsync(request.Token);
+
+            // 1. Validate RefreshToken
+            if (refreshTokenEntity == null || refreshTokenEntity.IsRevoked || refreshTokenEntity.IsExpired())
+                throw new UnauthorizedAccessException("Login is required.");
+
+            // 2. Validate User
+            var user = refreshTokenEntity.User;
+            if (user is null)
+                throw new UnauthorizedAccessException("Login is required.");
+
+            // 3. Revoke old token
+            refreshTokenEntity.Revoke();
+
+            // 4. Issue new Access and Refresh Token
+            var newAccessToken = _tokenService.GenerateAccessToken(user);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+            var newRefreshTokenEntity = new RefreshToken(
+                    user.Id,
+                    newRefreshToken,
+                    DateTime.UtcNow.AddDays(7)
+                );
+
+            await _refreshTokenRepository.AddAsync(newRefreshTokenEntity);
+            await _refreshTokenRepository.SaveChangesAsync();
+
+            return new LoginResponse(
+                    newAccessToken,
+                    newRefreshToken
+                );
         }
     }
 }

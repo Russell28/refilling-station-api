@@ -36,5 +36,7 @@ namespace RefillingStation.Domain.Enitities
         }
 
         public bool IsExpired() => DateTime.UtcNow >= ExpiresAt;
+
+        public bool IsTokenRevoked() => IsRevoked;
     }
 }

@@ -1,4 +1,5 @@
-﻿using RefillingStation.Application.Interfaces.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Domain.Enitities;
 
 namespace RefillingStation.Infrastructure.Persistence.Repositories
@@ -13,6 +14,11 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
         }
         public async Task AddAsync(RefreshToken refreshToken)
             => await _context.RefreshTokens.AddAsync(refreshToken);
+
+        public async Task<RefreshToken?> GetByTokenAsync(string token)
+            => await _context.RefreshTokens
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.Token == token);
 
         public async Task<int> SaveChangesAsync()
             => await _context.SaveChangesAsync();

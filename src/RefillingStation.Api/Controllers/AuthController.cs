@@ -51,5 +51,13 @@ namespace RefillingStation.Api.Controllers
                 role
             ));
         }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
+        {
+            var result = await _service.RefreshTokenAsync(request);
+
+            return Ok(result);
+        }
     }
 }
