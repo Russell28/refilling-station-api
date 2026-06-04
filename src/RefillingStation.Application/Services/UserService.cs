@@ -14,16 +14,19 @@ namespace RefillingStation.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IValidator<UserCreateRequest> _validator;
 
 
         public UserService(
             IUserRepository userRepository,
             IPasswordHasher passwordHasher,
+            IRefreshTokenRepository refreshTokenRepository,
             IValidator<UserCreateRequest> validator)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _refreshTokenRepository = refreshTokenRepository;
             _validator = validator;
         }
 
@@ -131,6 +134,8 @@ namespace RefillingStation.Application.Services
 
             user.Deactivate();
 
+            // Delete tokens after deactivate
+            await _refreshTokenRepository.DeleteAllByUserIdAsync(user.Id);
             await _userRepository.SaveChangesAsync();
         }
 
