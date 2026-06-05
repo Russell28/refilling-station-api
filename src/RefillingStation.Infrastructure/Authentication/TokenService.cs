@@ -44,7 +44,7 @@ namespace RefillingStation.Infrastructure.Authentication
                 issuer: jwtIssuer,
                 audience: jwtAudience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(15), // short-lived
+                expires: DateTime.UtcNow.AddMinutes(30), // short-lived
                 signingCredentials: credentials
             );
 

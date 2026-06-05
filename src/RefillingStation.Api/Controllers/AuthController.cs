@@ -58,9 +58,12 @@ namespace RefillingStation.Api.Controllers
         }
 
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
+        public async Task<IActionResult> RefreshToken()
         {
-            var result = await _service.RefreshTokenAsync(request);
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken == null) return Unauthorized();
+
+            var result = await _service.RefreshTokenAsync(refreshToken);
 
             SetRefreshTokenCookie(result.RefreshToken);
 
@@ -100,6 +103,7 @@ namespace RefillingStation.Api.Controllers
                     Secure = true,              // use true in production (requires HTTPS)
                     SameSite = SameSiteMode.None, // allow cross‑origin requests
                     Expires = DateTimeOffset.UtcNow.AddDays(7),
+                    Path = "/" // Cookie is included in requests to any path on this domain
                 });
         }
     }

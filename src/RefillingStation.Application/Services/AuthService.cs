@@ -75,9 +75,9 @@ namespace RefillingStation.Application.Services
             );
         }
 
-        public async Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest request)
+        public async Task<LoginResponse> RefreshTokenAsync(string refreshToken)
         {
-            var refreshTokenEntity = await _refreshTokenRepository.GetByTokenAsync(request.Token);
+            var refreshTokenEntity = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
 
             // 1. Validate RefreshToken
             if (refreshTokenEntity == null || refreshTokenEntity.IsRevoked || refreshTokenEntity.IsExpired())
