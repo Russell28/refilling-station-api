@@ -18,15 +18,20 @@ namespace RefillingStation.Api.Controllers
             _service = service;
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var result = await _service.LoginAsync(request);
 
-            return Ok(result);
+            SetRefreshTokenCookie(result.RefreshToken);
+
+            return Ok(new
+            {
+                accessToken = result.AccessToken
+            });
         }
 
-        [HttpGet("Me")]
+        [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> Me()
         {
@@ -50,6 +55,56 @@ namespace RefillingStation.Api.Controllers
                 username,
                 role
             ));
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken == null) return Unauthorized();
+
+            var result = await _service.RefreshTokenAsync(refreshToken);
+
+            SetRefreshTokenCookie(result.RefreshToken);
+
+            return Ok(new
+            {
+                accessToken = result.AccessToken
+            });
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Unauthorized("User ID claim is missing.");
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized("Invalid user ID claim.");
+
+            await _service.LogoutAsync(userId);
+
+            HttpContext.Response.Cookies.Delete("refreshToken");
+
+            return Ok();
+        }
+
+        private void SetRefreshTokenCookie(string refreshToken)
+        {
+            HttpContext.Response.Cookies.Append(
+                "refreshToken",
+                refreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,              // use true in production (requires HTTPS)
+                    SameSite = SameSiteMode.None, // allow cross‑origin requests
+                    Expires = DateTimeOffset.UtcNow.AddDays(7),
+                    Path = "/" // Cookie is included in requests to any path on this domain
+                });
         }
     }
 }

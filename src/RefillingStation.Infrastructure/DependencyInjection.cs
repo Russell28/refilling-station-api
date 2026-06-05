@@ -34,6 +34,7 @@ namespace RefillingStation.Infrastructure
             services.AddScoped<IDailySummaryRepository, DailySummaryRepository>();
             services.AddScoped<IMonthlySummaryRepository, MonthlySummaryRepository>();
             services.AddScoped<IMonthlyClosingRepository, MonthlyClosingRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             // Services
             services.AddScoped<ITokenService, TokenService>();

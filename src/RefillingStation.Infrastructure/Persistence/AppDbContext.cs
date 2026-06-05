@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using RefillingStation.Domain.Enitities;
 using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Infrastructure.Persistence
@@ -16,6 +17,7 @@ namespace RefillingStation.Infrastructure.Persistence
         public DbSet<MonthlyClosing> MonthlyClosings => Set<MonthlyClosing>();
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<ExpenseCategory> ExpenseCategories => Set<ExpenseCategory>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using RefillingStation.Infrastructure;
+using RefillingStation.Api.Middleware;
 using RefillingStation.Application;
 using RefillingStation.Application.Settings;
+using RefillingStation.Infrastructure;
 using RefillingStation.Infrastructure.Persistence;
-using RefillingStation.Api.Middleware;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,7 +50,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins("https://localhost:5173")
+              .AllowCredentials() // critical — without it, cookies won’t be accepted.
               .AllowAnyHeader()
               .AllowAnyMethod();
     });

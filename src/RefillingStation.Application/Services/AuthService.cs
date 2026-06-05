@@ -3,23 +3,28 @@ using RefillingStation.Application.DTOs.Auth;
 using RefillingStation.Application.Interfaces;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
+using RefillingStation.Domain.Enitities;
+using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
 {
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IValidator<LoginRequest> _validator;
         private readonly ITokenService _tokenService;
         private readonly IPasswordHasher _passwordHasher;
 
         public AuthService(
-            IUserRepository userRepository, 
+            IUserRepository userRepository,
+            IRefreshTokenRepository refreshTokenRepository,
             IValidator<LoginRequest> validator,
             ITokenService tokenService,
             IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
+            _refreshTokenRepository = refreshTokenRepository;
             _validator = validator;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
@@ -45,15 +50,70 @@ namespace RefillingStation.Application.Services
             if (!valid)
                 throw new UnauthorizedAccessException("Invalid Credentials");
 
-            // 4. Generate token
-            var token = _tokenService.GenerateAccessToken(user);
+            // 4. Check if user is active
+            if (!user.IsActive)
+                throw new UnauthorizedAccessException("User account is inactive.");
+
+            // 5. Generate token
+            var accessToken = _tokenService.GenerateAccessToken(user);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+
+            var refreshTokenEntity = new RefreshToken(
+                    user.Id,
+                    refreshToken,
+                    DateTime.UtcNow.AddDays(7)
+                );
+
+            // 6. Save RefreshToken to DB
+            await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+            await _refreshTokenRepository.SaveChangesAsync();
 
             return new LoginResponse
             (
-                token,
-                user.Username,
-                user.Role.ToString()
+                accessToken,
+                refreshToken
             );
+        }
+
+        public async Task<LoginResponse> RefreshTokenAsync(string refreshToken)
+        {
+            var refreshTokenEntity = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+
+            // 1. Validate RefreshToken
+            if (refreshTokenEntity == null || refreshTokenEntity.IsRevoked || refreshTokenEntity.IsExpired())
+                throw new UnauthorizedAccessException("Login is required.");
+
+            // 2. Validate User
+            var user = refreshTokenEntity.User;
+            if (user is null)
+                throw new UnauthorizedAccessException("Login is required.");
+
+            // 3. Revoke old token
+            refreshTokenEntity.Revoke();
+
+            // 4. Issue new Access and Refresh Token
+            var newAccessToken = _tokenService.GenerateAccessToken(user);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+            var newRefreshTokenEntity = new RefreshToken(
+                    user.Id,
+                    newRefreshToken,
+                    DateTime.UtcNow.AddDays(7)
+                );
+
+            await _refreshTokenRepository.AddAsync(newRefreshTokenEntity);
+            await _refreshTokenRepository.SaveChangesAsync();
+
+            return new LoginResponse(
+                newAccessToken,
+                newRefreshToken
+            );
+        }
+
+        public async Task LogoutAsync(int userId)
+        {
+            await _refreshTokenRepository.DeleteAllByUserIdAsync(userId);
+            await _refreshTokenRepository.SaveChangesAsync();
         }
     }
 }
