@@ -23,7 +23,12 @@ namespace RefillingStation.Api.Controllers
         {
             var result = await _service.LoginAsync(request);
 
-            return Ok(result);
+            SetRefreshTokenCookie(result.RefreshToken);
+
+            return Ok(new
+            {
+                accessToken = result.AccessToken
+            });
         }
 
         [HttpGet("me")]
@@ -57,7 +62,12 @@ namespace RefillingStation.Api.Controllers
         {
             var result = await _service.RefreshTokenAsync(request);
 
-            return Ok(result);
+            SetRefreshTokenCookie(result.RefreshToken);
+
+            return Ok(new
+            {
+                accessToken = result.AccessToken
+            });
         }
 
         [HttpPost("logout")]
@@ -74,7 +84,23 @@ namespace RefillingStation.Api.Controllers
 
             await _service.LogoutAsync(userId);
 
+            HttpContext.Response.Cookies.Delete("refreshToken");
+
             return Ok();
+        }
+
+        private void SetRefreshTokenCookie(string refreshToken)
+        {
+            HttpContext.Response.Cookies.Append(
+                "refreshToken",
+                refreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,              // use true in production (requires HTTPS)
+                    SameSite = SameSiteMode.None, // allow cross‑origin requests
+                    Expires = DateTimeOffset.UtcNow.AddDays(7),
+                });
         }
     }
 }

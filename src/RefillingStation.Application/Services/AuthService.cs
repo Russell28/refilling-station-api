@@ -72,8 +72,6 @@ namespace RefillingStation.Application.Services
             (
                 accessToken,
                 refreshToken
-                //user.Username,
-                //user.Role.ToString()
             );
         }
 
