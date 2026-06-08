@@ -57,6 +57,10 @@ builder.Services.AddCors(options =>
     });
 });
 
+
+// Caching
+builder.Services.AddMemoryCache();
+
 //
 // ------------------------------------------------------------
 // 2. Authentication & Authorization
