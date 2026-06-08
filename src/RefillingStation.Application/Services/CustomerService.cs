@@ -1,5 +1,5 @@
-﻿
-using FluentValidation;
+﻿using FluentValidation;
+using Microsoft.Extensions.Caching.Memory;
 using RefillingStation.Application.DTOs.Customers;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
@@ -12,26 +12,32 @@ namespace RefillingStation.Application.Services
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _repository;
+        private readonly IMemoryCache _cache;
         private readonly IValidator<CustomerCreateRequest> _validator;
 
         public CustomerService(
             ICustomerRepository repository,
+            IMemoryCache cache,
             IValidator<CustomerCreateRequest> validator)
         {
             _repository = repository;
+            _cache = cache;
             _validator = validator;
         }
         public async Task<List<CustomerListItemResponse>> GetAllAsync()
         {
-            var customers = await _repository.GetAllAsync();
+            if (!_cache.TryGetValue("CustomerList", out List<CustomerListItemResponse>? cachedList) || cachedList is null)
+            {
+                var customers = await _repository.GetAllAsync();
 
-            return customers
-                .Select(x => new CustomerListItemResponse
-                (
-                    x.Id,
-                    x.Name
-                ))
-                .ToList();
+                cachedList = customers
+                    .Select(x => new CustomerListItemResponse(x.Id, x.Name))
+                    .ToList();
+
+                _cache.Set("CustomerList", cachedList, TimeSpan.FromDays(7));
+            }
+
+            return cachedList;
         }
 
         public async Task<CustomerListItemResponse> GetByIdAsync(int id)
@@ -61,6 +67,9 @@ namespace RefillingStation.Application.Services
 
             await _repository.AddAsync(customer);
             await _repository.SaveChangesAsync();
+
+            // Invalidate cache so next call reloads fresh
+            _cache.Remove("CustomerList");
 
             return customer.Id;
         }
@@ -92,6 +101,9 @@ namespace RefillingStation.Application.Services
             _repository.Remove(customer);
 
             await _repository.SaveChangesAsync();
+
+            // Invalidate cache so next call reloads fresh
+            _cache.Remove("CustomerList");
         }
     }
 }
