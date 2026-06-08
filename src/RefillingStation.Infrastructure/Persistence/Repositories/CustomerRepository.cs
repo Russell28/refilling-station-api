@@ -9,14 +9,11 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories
         public CustomerRepository(AppDbContext context) : base(context) { }
 
         public override async Task<List<Customer>> GetAllAsync()
-        { 
-            Console.WriteLine("DB HIT: Fetching customers from database...");
-            return await _context.Customers
+            => await _context.Customers
                 .AsNoTracking()
                 .OrderBy(x => x.Name.Contains("Other")) // Push "Other" to the end of the list
                 .ThenBy(x => x.Name)
                 .Take(100)
                 .ToListAsync();
-        }
     }
 }
