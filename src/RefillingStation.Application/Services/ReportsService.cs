@@ -215,6 +215,7 @@ namespace RefillingStation.Application.Services
             var costPerGal = SafePerGal(totalExpenses + totalPayrollEarned, totalDeliveredQty);
             var retailPerGal = SafePerGal(totalCashCollected, totalDeliveredQty);
             var profitPerGal = SafePerGal(netAfterPayroll, totalDeliveredQty);
+            var salaryPaidPerGal = SafePerGal(totalPayrollEarned, totalDeliveredQty);
 
             // ---------------------------------------------------------
             // FINAL RESPONSE
@@ -244,7 +245,8 @@ namespace RefillingStation.Application.Services
 
                 costPerGal,
                 retailPerGal,
-                profitPerGal
+                profitPerGal,
+                salaryPaidPerGal
             );
 
             return new DashboardResponse(
