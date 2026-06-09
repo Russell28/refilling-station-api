@@ -24,6 +24,7 @@
 
         decimal CostPerGallon,
         decimal RetailPerGallon,
-        decimal ProfitPerGallon
+        decimal ProfitPerGallon,
+        decimal SalaryPaidPerGallon
     );
 }
