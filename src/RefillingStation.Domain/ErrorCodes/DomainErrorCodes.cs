@@ -20,5 +20,12 @@
             public const string InvalidUserRole = "USER_INVALID_ROLE";
             public const string CannotDeleteSelf = "USER_INVALID_SELF_DELETE";
         }
+
+        public static class RefreshTokenCode
+        {
+            public const string InvalidToken = "REFRESHTOKEN_INVALID_TOKEN";
+            public const string InvalidTimestamp = "REFRESHTOKEN_INVALID_TIMESTAMP";
+            public const string AlreadyRevoked = "REFRESHTOKEN_ALREADY_REVOKED";
+        }
     }
 }

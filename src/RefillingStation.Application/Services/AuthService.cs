@@ -79,7 +79,7 @@ namespace RefillingStation.Application.Services
             var refreshTokenEntity = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
 
             // 1. Validate RefreshToken
-            if (refreshTokenEntity == null || refreshTokenEntity.IsRevoked || refreshTokenEntity.IsExpired())
+            if (refreshTokenEntity == null || !refreshTokenEntity.IsActive())
                 throw new UnauthorizedAccessException("Login is required.");
 
             // 2. Validate User
