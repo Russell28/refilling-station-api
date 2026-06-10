@@ -1,6 +1,4 @@
-﻿using RefillingStation.Domain.Entities;
-
-namespace RefillingStation.Domain.Enitities
+﻿namespace RefillingStation.Domain.Entities
 {
     public class RefreshToken
     {

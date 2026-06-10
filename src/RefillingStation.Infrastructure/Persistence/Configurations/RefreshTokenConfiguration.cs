@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RefillingStation.Domain.Enitities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Infrastructure.Persistence.Configurations
 {

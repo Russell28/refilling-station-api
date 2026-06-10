@@ -3,8 +3,7 @@ using RefillingStation.Application.DTOs.Auth;
 using RefillingStation.Application.Interfaces;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
-using RefillingStation.Domain.Enitities;
-using RefillingStation.Domain.Exceptions;
+using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Application.Services
 {
