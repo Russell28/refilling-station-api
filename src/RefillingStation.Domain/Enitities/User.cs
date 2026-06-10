@@ -73,9 +73,11 @@ namespace RefillingStation.Domain.Entities
         public void Deactivate()
         {
             if (!IsActive)
-                throw new DomainException(DomainErrorCodes.UserCode.AlreadyActive, "User is already inactive.");
+                throw new DomainException(DomainErrorCodes.UserCode.AlreadyInactive, "User is already inactive.");
 
             IsActive = false;
+
+            MarkAsUpdated();
         }
 
         private void MarkAsUpdated()
@@ -102,7 +104,7 @@ namespace RefillingStation.Domain.Entities
         private void GuardAgainstInvalidRole(UserRole role)
         {
             if (role == default(UserRole) || !Enum.IsDefined(typeof(UserRole), role))
-                throw new DomainException(DomainErrorCodes.CommonCode.RequiredField, "Role is required.");
+                throw new DomainException(DomainErrorCodes.UserCode.InvalidUserRole, "Role is invalid.");
         }
     }
 }
