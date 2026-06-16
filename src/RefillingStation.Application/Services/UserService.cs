@@ -2,11 +2,10 @@
 using RefillingStation.Application.DTOs.Users;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
+using RefillingStation.Application.Validators;
 using RefillingStation.Domain.Entities;
-using RefillingStation.Domain.Enums;
 using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
-using static RefillingStation.Domain.ErrorCodes.DomainErrorCodes;
 
 namespace RefillingStation.Application.Services
 {
@@ -15,19 +14,26 @@ namespace RefillingStation.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
-        private readonly IValidator<UserCreateRequest> _validator;
+        private readonly IValidator<UserCreateRequest> _createValidator;
+        private readonly IValidator<ChangePasswordRequest> _changePasswordValidator;
+        private readonly IValidator<ChangeUserRoleRequest> _changeRoleValidator;
+        
 
 
         public UserService(
             IUserRepository userRepository,
             IPasswordHasher passwordHasher,
             IRefreshTokenRepository refreshTokenRepository,
-            IValidator<UserCreateRequest> validator)
+            IValidator<UserCreateRequest> createValidator,
+            IValidator<ChangePasswordRequest> changePasswordValidator,
+            IValidator<ChangeUserRoleRequest> changeRoleValidator)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _refreshTokenRepository = refreshTokenRepository;
-            _validator = validator;
+            _createValidator = createValidator;
+            _changePasswordValidator = changePasswordValidator;
+            _changeRoleValidator = changeRoleValidator;
         }
 
         public async Task<List<UserDetailResponse>> GetAllAsync()
@@ -63,7 +69,7 @@ namespace RefillingStation.Application.Services
 
         public async Task<int> CreateAsync(UserCreateRequest request)
         {
-            var validation = await _validator.ValidateAsync(request);
+            var validation = await _createValidator.ValidateAsync(request);
 
             if (!validation.IsValid)
                 throw new ValidationException(validation.Errors);
@@ -87,8 +93,13 @@ namespace RefillingStation.Application.Services
             return user.Id;
         }
 
-        public async Task ChangePassword(int id, ChangePasswordRequest request)
+        public async Task ChangePasswordAsync(int id, ChangePasswordRequest request)
         {
+            var validation = await _changePasswordValidator.ValidateAsync(request);
+
+            if (!validation.IsValid)
+                throw new ValidationException(validation.Errors);
+
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null)
                 throw new NotFoundException("User", id);
@@ -100,8 +111,13 @@ namespace RefillingStation.Application.Services
             await _userRepository.SaveChangesAsync();
         }
 
-        public async Task ChangeRole(int id, ChangeUserRoleRequest request)
+        public async Task ChangeRoleAsync(int id, ChangeUserRoleRequest request)
         {
+            var validation = await _changeRoleValidator.ValidateAsync(request);
+
+            if (!validation.IsValid)
+                throw new ValidationException(validation.Errors);
+
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null)
                 throw new NotFoundException("User", id);

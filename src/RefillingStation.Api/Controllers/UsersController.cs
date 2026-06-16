@@ -46,14 +46,14 @@ namespace RefillingStation.Api.Controllers
         [HttpPost("{id:int}/change-password")]
         public async Task<IActionResult> ChangePassword(int id, ChangePasswordRequest request)
         {
-            await _userService.ChangePassword(id, request);
+            await _userService.ChangePasswordAsync(id, request);
             return NoContent();
         }
 
         [HttpPost("{id:int}/change-role")]
         public async Task<IActionResult> ChangeRole(int id, ChangeUserRoleRequest request)
         {
-            await _userService.ChangeRole(id, request);
+            await _userService.ChangeRoleAsync(id, request);
             return NoContent();
         }
 
