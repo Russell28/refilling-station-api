@@ -1,7 +1,7 @@
 ﻿using RefillingStation.Domain.Entities;
 using System.Security.Cryptography;
 
-namespace RefillingStation.Tests.Domain.RefreshTokens
+namespace RefillingStation.Tests.Domain.Builders
 {
     /// <summary>
     /// Creates valid RefreshToken instances for tests.

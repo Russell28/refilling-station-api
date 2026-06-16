@@ -2,9 +2,10 @@
 using RefillingStation.Domain.Entities;
 using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
+using RefillingStation.Tests.Domain.Builders;
 using System.Security.Cryptography;
 
-namespace RefillingStation.Tests.Domain.RefreshTokens
+namespace RefillingStation.Tests.Domain
 {
     public class RefreshTokenTests
     {

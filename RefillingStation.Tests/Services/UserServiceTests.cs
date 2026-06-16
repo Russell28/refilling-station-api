@@ -10,7 +10,7 @@ using RefillingStation.Domain.Entities;
 using RefillingStation.Domain.Enums;
 using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
-using RefillingStation.Tests.Domain.Users;
+using RefillingStation.Tests.Domain.Builders;
 
 namespace RefillingStation.Tests.Services
 {

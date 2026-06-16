@@ -3,8 +3,9 @@ using RefillingStation.Domain.Entities;
 using RefillingStation.Domain.Enums;
 using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
+using RefillingStation.Tests.Domain.Builders;
 
-namespace RefillingStation.Tests.Domain.Users
+namespace RefillingStation.Tests.Domain
 {
     public class UserTests
     {

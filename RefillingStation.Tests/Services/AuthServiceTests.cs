@@ -9,7 +9,7 @@ using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Application.Services;
 using RefillingStation.Domain.Entities;
-using RefillingStation.Tests.Domain.Users;
+using RefillingStation.Tests.Domain.Builders;
 
 namespace RefillingStation.Tests.Services
 {

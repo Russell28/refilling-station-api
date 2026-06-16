@@ -1,7 +1,7 @@
 ﻿using RefillingStation.Domain.Entities;
 using RefillingStation.Domain.Enums;
 
-namespace RefillingStation.Tests.Domain.Users
+namespace RefillingStation.Tests.Domain.Builders
 {
     public class UserBuilder
     {
