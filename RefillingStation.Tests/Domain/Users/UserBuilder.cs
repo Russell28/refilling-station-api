@@ -10,6 +10,9 @@ namespace RefillingStation.Tests.Domain.Users
         private string _passwordHash = "$2a$12$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234";
         private UserRole _role = UserRole.Admin;
 
+        private int _id = 1;
+        private bool _isActive = true;
+
         public UserBuilder WithUsername(string username)
         {
             _username = username;
@@ -28,9 +31,30 @@ namespace RefillingStation.Tests.Domain.Users
             return this;
         }
 
+        public UserBuilder WithId(int id)
+        {
+            _id = id;
+            return this;
+        }
+
+        public UserBuilder WithIsActive(bool isActive)
+        {
+            _isActive = isActive;
+            return this;
+        }
+
         public User Build()
         {
-            return new User(_username, _passwordHash, _role);
+            // Use the public constructor for required fields
+            var user = new User(_username, _passwordHash, _role);
+
+            // Set private properties via reflection
+            typeof(User).GetProperty(nameof(User.Id))!
+                .SetValue(user, _id);
+            typeof(User).GetProperty(nameof(User.IsActive))!
+                .SetValue(user, _isActive);
+
+            return user;
         }
     }
 }
