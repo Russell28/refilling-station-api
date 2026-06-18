@@ -7,10 +7,17 @@ namespace RefillingStation.Tests.Domain.Builders
     {
         private Employee _employee = new Employee
         {
+            Id = 1,
             FirstName = "First",
             LastName = "Last",
             Role = Role.DeliveryRider
         };
+
+        public EmployeeBuilder WithId(int id)
+        {
+            _employee.Id = id;
+            return this;
+        }
 
         public EmployeeBuilder WithFirstName(string firstName)
         {
