@@ -109,7 +109,7 @@ namespace RefillingStation.Application.Services
             await _repository.AddAsync(employee);
             await _repository.SaveChangesAsync();
 
-            RemoveCachedLists();
+            ClearCache();
 
             return employee.Id;
         }
@@ -134,7 +134,7 @@ namespace RefillingStation.Application.Services
 
             await _repository.SaveChangesAsync();
 
-            RemoveCachedLists();
+            ClearCache();
         }
 
         public async Task DeleteAsync(int id)
@@ -148,7 +148,7 @@ namespace RefillingStation.Application.Services
 
             await _repository.SaveChangesAsync();
 
-            RemoveCachedLists();
+            ClearCache();
         }
 
         public async Task ActivateAsync(int id)
@@ -162,7 +162,7 @@ namespace RefillingStation.Application.Services
 
             await _repository.SaveChangesAsync();
 
-            RemoveCachedLists();
+            ClearCache();
         }
 
         public async Task DeactivateAsync(int id)
@@ -176,10 +176,10 @@ namespace RefillingStation.Application.Services
 
             await _repository.SaveChangesAsync();
 
-            RemoveCachedLists();
+            ClearCache();
         }
 
-        private void RemoveCachedLists()
+        private void ClearCache()
         {
             // Invalidate cache so next call reloads fresh
             _cache.Remove("EmployeeList");

@@ -3,6 +3,6 @@
     public enum EmploymentType
     {
         Permanent = 1,  
-        Oncall = 2
+        OnCall = 2
     }
 }

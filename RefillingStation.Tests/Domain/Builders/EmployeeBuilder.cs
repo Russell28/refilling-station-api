@@ -10,7 +10,9 @@ namespace RefillingStation.Tests.Domain.Builders
             Id = 1,
             FirstName = "First",
             LastName = "Last",
-            Role = Role.DeliveryRider
+            PhoneNumber = "1234567890",
+            Role = EmployeeRole.DeliveryRider,
+            EmploymentType = EmploymentType.Permanent
         };
 
         public EmployeeBuilder WithId(int id)
@@ -31,9 +33,21 @@ namespace RefillingStation.Tests.Domain.Builders
             return this;
         }
 
-        public EmployeeBuilder WithRole(Role role)
+        public EmployeeBuilder WithPhoneNumber(string phoneNumber)
+        {
+            _employee.PhoneNumber = phoneNumber;
+            return this;
+        }
+
+        public EmployeeBuilder WithRole(EmployeeRole role)
         {
             _employee.Role = role;
+            return this;
+        }
+
+        public EmployeeBuilder WithEmploymentType(EmploymentType employmentType)
+        {
+            _employee.EmploymentType = employmentType;
             return this;
         }
 
