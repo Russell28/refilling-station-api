@@ -27,5 +27,11 @@
             public const string InvalidTimestamp = "REFRESHTOKEN_INVALID_TIMESTAMP";
             public const string AlreadyRevoked = "REFRESHTOKEN_ALREADY_REVOKED";
         }
+
+        public static class EmployeeCode
+        {
+            public const string AlreadyInactive = "EMPLOYEE_ALREADY_INACTIVE";
+            public const string AlreadyActive = "EMPLOYEE_ALREADY_ACTIVE";
+        }
     }
 }
