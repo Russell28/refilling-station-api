@@ -27,7 +27,7 @@ jobs:
         run: dotnet restore RefillingStation.slnx
 
       - name: Build solution
-        run: dotnet build RefillingStation.sln --configuration Release --no-restore
+        run: dotnet build RefillingStation.slnx --configuration Release --no-restore
 
       - name: Run tests
         run: dotnet test src/RefillingStation.Tests/RefillingStation.Tests.csproj --configuration Release --no-build --verbosity normal
