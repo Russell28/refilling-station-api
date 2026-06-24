@@ -1,7 +1,7 @@
 <Solution>
-  <Project Path="RefillingStation.Tests/RefillingStation.Tests.csproj" Id="e223ec30-f382-4d40-be14-f5043536af88" />
   <Project Path="src/RefillingStation.Api/RefillingStation.Api.csproj" Id="d19e31cb-dfd5-47e7-8857-8f9d0ca9712c" />
   <Project Path="src/RefillingStation.Application/RefillingStation.Application.csproj" Id="3844d34a-94e3-40e0-af02-4dafb22e7556" />
   <Project Path="src/RefillingStation.Domain/RefillingStation.Domain.csproj" Id="d7c84ca3-bc1e-454b-95ed-fa009c32e2f4" />
   <Project Path="src/RefillingStation.Infrastructure/RefillingStation.Infrastructure.csproj" Id="22178b65-1175-492d-b5c9-b894d95d03ba" />
+  <Project Path="src/RefillingStation.Tests/RefillingStation.Tests.csproj" />
 </Solution>
