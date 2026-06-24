@@ -51,33 +51,34 @@ namespace RefillingStation.Application.Services
             var backlogStartQty = openingBacklogQty + previousCollectedQty - previousDeliveredQty;
 
             // Trip Metrics
-            var totalTrips = trips.Count;
-            var totalCollectedQty = trips.Sum(x => x.CollectedQty);
-            var totalDeliveredQty = trips.Sum(x => x.DeliveredQty);
-            var totalLoadedQty = trips.Sum(x => x.LoadedQty);
+            var tripCount = trips.Count;
+            var collectedQtyTotal = trips.Sum(x => x.CollectedQty);
+            var deliveredQtyTotal = trips.Sum(x => x.DeliveredQty);
+            var loadedQtyTotal = trips.Sum(x => x.LoadedQty);
 
             // Backlog End
-            var backlogEndQty = backlogStartQty + totalCollectedQty - totalDeliveredQty;
+            var backlogEndQty = backlogStartQty + collectedQtyTotal - deliveredQtyTotal;
 
             // Debt
-            var totalDebtCreated = debts.Where(x => x.Amount > 0).Sum(x => x.Amount);
-            var totalDebtPayments = debts.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount));
+            var debtCreatedTotal = debts.Where(x => x.Amount > 0).Sum(x => x.Amount);
+            var debtPaymentsTotal = debts.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount));
             var outstandingDebt = debtsRunning.Sum(x => x.Amount);
 
             // Payroll
-            var totalPayrollEarned = payrolls.Sum(x => x.SalaryAmount);
-            var totalPayrollPaid = payrolls.Sum(x => x.CashPaid);
+            var payrollEarnedTotal = payrolls.Sum(x => x.SalaryAmount);
+            var payrollPaidTotal = payrolls.Sum(x => x.CashPaid);
             var outstandingPayroll =
                 payrollsRunning.Sum(x => x.SalaryAmount) -
                 payrollsRunning.Sum(x => x.CashPaid);
 
             // Expenses
-            var totalExpenses = expenses.Sum(x => x.Amount);
+            var expensesTotal = expenses.Sum(x => x.Amount);
 
             // Cashflow
-            var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
-            var netBeforePayroll = totalCashCollected - totalExpenses;
-            var netAfterPayroll = totalCashCollected - totalExpenses - totalPayrollEarned;
+            var cashCollectedTotal = trips.Sum(x => x.ActualCashCollected);
+            var netBeforePayroll = CalculateNetBeforePayroll(cashCollectedTotal, expensesTotal);
+            var netAfterPayroll = CalculateNetAfterPayroll(cashCollectedTotal, expensesTotal, payrollEarnedTotal);
+            var netCashFlow = CalculateNetCashFlow(cashCollectedTotal, expensesTotal, payrollPaidTotal);
             #endregion
 
             // ---------------------------------------------------------
@@ -98,32 +99,32 @@ namespace RefillingStation.Application.Services
                 var debtsPerDay = debts.Where(x => x.Date == date).ToList();
 
                 // Quantities
-                var collectedQty = tripsPerDay.Sum(x => x.CollectedQty);
-                var loadedQty = tripsPerDay.Sum(x => x.LoadedQty);
-                var deliveredQty = tripsPerDay.Sum(x => x.DeliveredQty);
-                var freeQty = tripsPerDay.Sum(x => x.FreeQty);
-                var returnedQty = tripsPerDay.Sum(x => x.ReturnedQty);
-                var replacementQty = tripsPerDay.Sum(x => x.ReplacementQty);
+                var collectedQtyPerDay = tripsPerDay.Sum(x => x.CollectedQty);
+                var loadedQtyPerDay = tripsPerDay.Sum(x => x.LoadedQty);
+                var deliveredQtyPerDay = tripsPerDay.Sum(x => x.DeliveredQty);
+                var freeQtyPerDay = tripsPerDay.Sum(x => x.FreeQty);
+                var returnedQtyPerDay = tripsPerDay.Sum(x => x.ReturnedQty);
+                var replacementQtyPerDay = tripsPerDay.Sum(x => x.ReplacementQty);
 
                 // Debt
-                var debtCreated = debtsPerDay.Where(x => x.Amount > 0).Sum(x => x.Amount);
-                var debtPayments = debtsPerDay.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount));
+                var debtCreatedPerDay = debtsPerDay.Where(x => x.Amount > 0).Sum(x => x.Amount);
+                var debtPaymentsPerDay = debtsPerDay.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount));
 
                 // Expenses & Payroll
-                var expensesTotal = expensesPerDay.Sum(x => x.Amount);
-                var payrollEarnedTotal = payrollsPerDay.Sum(x => x.SalaryAmount);
-                var payrollPaidTotal = payrollsPerDay.Sum(x => x.CashPaid);
+                var expensesTotalPerDay = expensesPerDay.Sum(x => x.Amount);
+                var payrollEarnedTotalPerDay = payrollsPerDay.Sum(x => x.SalaryAmount);
+                var payrollPaidTotalPerDay = payrollsPerDay.Sum(x => x.CashPaid);
 
                 // Trips
-                var tripCount = tripsPerDay.Count;
-                var cashCollected = tripsPerDay.Sum(x => x.ActualCashCollected);
-                var cashAfterExpense = cashCollected - expensesTotal;
-                var cashAfterPayroll = cashCollected - expensesTotal - payrollEarnedTotal;
+                var tripCountPerDay = tripsPerDay.Count;
+                var cashCollectedTotalPerDay = tripsPerDay.Sum(x => x.ActualCashCollected);
+                var netBeforePayrollPerDay = CalculateNetBeforePayroll(cashCollectedTotalPerDay, expensesTotalPerDay);
+                var netAfterPayrollPerDay = CalculateNetAfterPayroll(cashCollectedTotalPerDay, expensesTotalPerDay, payrollEarnedTotalPerDay);
 
                 // Backlog
-                runningBacklogQty += collectedQty - deliveredQty;
+                runningBacklogQty += collectedQtyPerDay - deliveredQtyPerDay;
 
-                if (cashCollected == 0 || deliveredQty == 0) // skip day off
+                if (cashCollectedTotalPerDay == 0 && deliveredQtyPerDay == 0 && collectedQtyPerDay == 0) // skip day off
                     continue;
 
                 dailyReports.Add(new DailyReportItem(
@@ -132,24 +133,24 @@ namespace RefillingStation.Application.Services
                     backlogStartOfDay,
                     runningBacklogQty,
 
-                    tripCount,
+                    tripCountPerDay,
 
-                    collectedQty,
-                    deliveredQty,
-                    freeQty,
-                    returnedQty,
-                    replacementQty,
+                    collectedQtyPerDay,
+                    deliveredQtyPerDay,
+                    freeQtyPerDay,
+                    returnedQtyPerDay,
+                    replacementQtyPerDay,
 
-                    expensesTotal,
-                    payrollEarnedTotal,
-                    payrollPaidTotal,
+                    expensesTotalPerDay,
+                    payrollEarnedTotalPerDay,
+                    payrollPaidTotalPerDay,
 
-                    debtCreated,
-                    debtPayments,
+                    debtCreatedPerDay,
+                    debtPaymentsPerDay,
 
-                    cashCollected,
-                    cashAfterExpense,
-                    cashAfterPayroll
+                    cashCollectedTotalPerDay,
+                    netBeforePayrollPerDay,
+                    netAfterPayrollPerDay
                 ));
             }
             #endregion
@@ -212,10 +213,10 @@ namespace RefillingStation.Application.Services
             // ---------------------------------------------------------
             // Cost, Price, Profit per gallon sold
             // ---------------------------------------------------------
-            var costPerGal = SafePerGal(totalExpenses + totalPayrollEarned, totalDeliveredQty);
-            var retailPerGal = SafePerGal(totalCashCollected, totalDeliveredQty);
-            var profitPerGal = SafePerGal(netAfterPayroll, totalDeliveredQty);
-            var salaryPaidPerGal = SafePerGal(totalPayrollEarned, totalDeliveredQty);
+            var costPerGal = SafePerGal(expensesTotal + payrollEarnedTotal, deliveredQtyTotal);
+            var retailPerGal = SafePerGal(cashCollectedTotal, deliveredQtyTotal);
+            var profitPerGal = SafePerGal(netAfterPayroll, deliveredQtyTotal);
+            var salaryPaidPerGal = SafePerGal(payrollEarnedTotal, deliveredQtyTotal);
 
             // ---------------------------------------------------------
             // FINAL RESPONSE
@@ -225,23 +226,24 @@ namespace RefillingStation.Application.Services
                 backlogStartQty,
                 backlogEndQty,
 
-                totalTrips,
-                totalCollectedQty,
-                totalDeliveredQty,
+                tripCount,
+                collectedQtyTotal,
+                deliveredQtyTotal,
 
-                totalExpenses,
+                expensesTotal,
 
-                totalPayrollEarned,
-                totalPayrollPaid,
+                payrollEarnedTotal,
+                payrollPaidTotal,
                 outstandingPayroll,
 
-                totalDebtCreated,
-                totalDebtPayments,
+                debtCreatedTotal,
+                debtPaymentsTotal,
                 outstandingDebt,
 
-                totalCashCollected,
+                cashCollectedTotal,
                 netBeforePayroll,
                 netAfterPayroll,
+                netCashFlow,
 
                 costPerGal,
                 retailPerGal,
@@ -287,28 +289,28 @@ namespace RefillingStation.Application.Services
             var backlogStartQty = openingBacklogQty + previousCollectedQty - previousDeliveredQty;
 
             // Trip Metrics
-            var totalTrips = trips.Count;
-            var totalCollectedQty = trips.Sum(x => x.CollectedQty);
-            var totalDeliveredQty = trips.Sum(x => x.DeliveredQty);
-            var totalLoadedQty = trips.Sum(x => x.LoadedQty);
-            var totalFreeQty = trips.Sum(x => x.FreeQty);
-            var totalReturnedQty = trips.Sum(x => x.ReturnedQty);
-            var totalReplacementQty = trips.Sum(x => x.ReplacementQty);
+            var tripCount = trips.Count;
+            var collectedQtyTotal = trips.Sum(x => x.CollectedQty);
+            var deliveredQtyTotal = trips.Sum(x => x.DeliveredQty);
+            var LoadedQtyTotal = trips.Sum(x => x.LoadedQty);
+            var FreeQtyTotal = trips.Sum(x => x.FreeQty);
+            var returnedQtyTotal = trips.Sum(x => x.ReturnedQty);
+            var replacementQtyTotal = trips.Sum(x => x.ReplacementQty);
 
             // Backlog End
-            var backlogEndQty = backlogStartQty + totalCollectedQty - totalDeliveredQty;
+            var backlogEndQty = backlogStartQty + collectedQtyTotal - deliveredQtyTotal;
 
             // Debt
-            var totalDebtCreated = debts.Where(x => x.Amount > 0).Sum(x => x.Amount);
-            var totalDebtPayments = debts.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount));
+            var debtCreatedTotal = debts.Where(x => x.Amount > 0).Sum(x => x.Amount);
+            var debtPaymentsTotal = debts.Where(x => x.Amount < 0).Sum(x => Math.Abs(x.Amount));
             var outstandingDebt = debtsRunning.Sum(x => x.Amount);
 
             // Expenses
-            var totalExpenses = expenses.Sum(x => x.Amount);
+            var expensesTotal = expenses.Sum(x => x.Amount);
 
             // Cashflow
-            var totalCashCollected = trips.Sum(x => x.ActualCashCollected);
-            var cashAfterExpense = totalCashCollected - totalExpenses;
+            var cashCollectedTotal = trips.Sum(x => x.ActualCashCollected);
+            var netBeforePayroll = CalculateNetBeforePayroll(cashCollectedTotal, expensesTotal);
             #endregion
 
             // ---------------------------------------------------------
@@ -352,15 +354,15 @@ namespace RefillingStation.Application.Services
             // Payroll - Admin Only
             if (isAdmin)
             {
-                var totalPayrollEarned = payrolls.Sum(x => x.SalaryAmount);
-                var totalPayrollPaid = payrolls.Sum(x => x.CashPaid);
-                var totalPayrollOwed = totalPayrollEarned - totalPayrollPaid;
+                var payrollEarnedTotal = payrolls.Sum(x => x.SalaryAmount);
+                var payrollPaidTotal = payrolls.Sum(x => x.CashPaid);
+                var payrollOwedTotal = payrollEarnedTotal - payrollPaidTotal;
 
                 var outstandingPayroll =
                     payrollsRunning.Sum(x => x.SalaryAmount) -
                     payrollsRunning.Sum(x => x.CashPaid);
 
-                var cashAfterPayroll = cashAfterExpense - totalPayrollEarned;
+                var netAfterPayroll = CalculateNetAfterPayroll(cashCollectedTotal, expensesTotal, payrollEarnedTotal);
 
                 var payrollBreakdown = payrollsRunning
                     .GroupBy(x => x.EmployeeId)
@@ -387,25 +389,25 @@ namespace RefillingStation.Application.Services
                     backlogStartQty,
                     backlogEndQty,
 
-                    totalTrips,
-                    totalCollectedQty,
-                    totalLoadedQty,
-                    totalDeliveredQty,
-                    totalFreeQty,
-                    totalReturnedQty,
-                    totalReplacementQty,
+                    tripCount,
+                    collectedQtyTotal,
+                    LoadedQtyTotal,
+                    deliveredQtyTotal,
+                    FreeQtyTotal,
+                    returnedQtyTotal,
+                    replacementQtyTotal,
 
-                    totalCashCollected,
-                    totalExpenses,
-                    totalPayrollEarned,
-                    totalPayrollPaid,
+                    cashCollectedTotal,
+                    expensesTotal,
+                    payrollEarnedTotal,
+                    payrollPaidTotal,
 
-                    totalDebtCreated,
-                    totalDebtPayments,
+                    debtCreatedTotal,
+                    debtPaymentsTotal,
                     outstandingDebt,
 
-                    cashAfterExpense,
-                    cashAfterPayroll
+                    netBeforePayroll,
+                    netAfterPayroll
                 );
 
                 return new DailySummaryAdminResponse(
@@ -423,22 +425,22 @@ namespace RefillingStation.Application.Services
                 backlogStartQty,
                 backlogEndQty,
 
-                totalTrips,
-                totalCollectedQty,
-                totalLoadedQty,
-                totalDeliveredQty,
-                totalFreeQty,
-                totalReturnedQty,
-                totalReplacementQty,
+                tripCount,
+                collectedQtyTotal,
+                LoadedQtyTotal,
+                deliveredQtyTotal,
+                FreeQtyTotal,
+                returnedQtyTotal,
+                replacementQtyTotal,
 
-                totalCashCollected,
-                totalExpenses,
+                cashCollectedTotal,
+                expensesTotal,
 
-                totalDebtCreated,
-                totalDebtPayments,
+                debtCreatedTotal,
+                debtPaymentsTotal,
                 outstandingDebt,
 
-                cashAfterExpense
+                netBeforePayroll
             );
 
             return new DailySummaryResponse(
@@ -454,7 +456,7 @@ namespace RefillingStation.Application.Services
 
             var rawData = await _monthlySummaryRepository.GetMonthlySummaryAsync(firstDay, lastDay);
 
-            var grossTotal = rawData.GrossTotal;
+            var cashCollected = rawData.GrossTotal;
             var debtTotal = rawData.DebtTotal;
             var expenseTotal = rawData.ExpenseTotal;
             var payrollEarnedTotal = rawData.PayrollEarnedTotal;
@@ -462,12 +464,12 @@ namespace RefillingStation.Application.Services
             var payrollOwedTotal = payrollEarnedTotal - payrollPaidTotal;
             var savedClosing = rawData.SavedClosing;
 
-            var netBeforePayroll = grossTotal - expenseTotal;
-            var netAfterPayroll = grossTotal - expenseTotal - payrollEarnedTotal;
-            var netCashFlow = grossTotal - expenseTotal - payrollPaidTotal;
+            var netBeforePayroll = CalculateNetBeforePayroll(cashCollected, expenseTotal);
+            var netAfterPayroll = CalculateNetAfterPayroll(cashCollected, expenseTotal, payrollEarnedTotal);
+            var netCashFlow = CalculateNetCashFlow(cashCollected, expenseTotal, payrollPaidTotal);
 
             var summaryTotals = new MonthlySummaryTotals(
-                grossTotal,
+                cashCollected,
                 debtTotal,
                 expenseTotal,
                 payrollEarnedTotal,
@@ -487,6 +489,14 @@ namespace RefillingStation.Application.Services
 
         }
 
+        private decimal CalculateNetBeforePayroll(decimal cashCollected, decimal expense)
+            => cashCollected - expense;
+
+        private decimal CalculateNetAfterPayroll(decimal cashCollected, decimal expense, decimal payrollEarned)
+            => cashCollected - expense - payrollEarned;
+
+        private decimal CalculateNetCashFlow(decimal cashCollected, decimal expense, decimal payrollPaid)
+            => cashCollected - expense - payrollPaid;
         private (DateOnly FirstDay, DateOnly LastDay) ParseMonthYear(string monthYear)
         {
             if (!DateOnly.TryParse($"{monthYear}-01", out var firstDay))
