@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '8.x'   # align with Azure App Service LTS runtime
 
       - name: Restore dependencies
-        run: dotnet restore RefillingStation.sln
+        run: dotnet restore RefillingStation.slnx
 
       - name: Build solution
         run: dotnet build RefillingStation.sln --configuration Release --no-restore
