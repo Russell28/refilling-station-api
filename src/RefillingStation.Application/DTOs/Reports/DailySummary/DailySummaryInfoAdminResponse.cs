@@ -1,29 +1,29 @@
 ﻿namespace RefillingStation.Application.DTOs.Reports.DailySummary
 {
     public sealed record DailySummaryInfoAdminResponse(
-        DateOnly Date,
+        DateOnly date,
 
-        decimal BacklogStartQty,
-        decimal BacklogEndQty,
+        decimal backlogStartQty,
+        decimal backlogEndQty,
 
-        int TripCount,
-        decimal TotalCollectedQty,
-        decimal TotalLoadedQty,
-        decimal TotalDeliveredQty,
-        decimal TotalFreeQty,
-        decimal TotalReturnedQty,
-        decimal TotalReplacementQty,
+        int tripCount,
+        decimal collectedQtyTotal,
+        decimal loadedQtyTotal,
+        decimal deliveredQtyTotal,
+        decimal freeQtyTotal,
+        decimal returnedQtyTotal,
+        decimal replacementQtyTotal,
 
-        decimal TotalCashCollected,
-        decimal TotalExpenses,
-        decimal TotalPayrollEarned,
-        decimal TotalPayrollPaid,
+        decimal cashCollectedTotal,
+        decimal expensesTotal,
+        decimal payrollEarnedTotal,
+        decimal payrollPaidTotal,
 
-        decimal TotalDebtCreatedToday,
-        decimal TotalDebtPaymentsToday,
-        decimal OutstandingDebt,
+        decimal debtCreatedTodayTotal,
+        decimal debtPaymentsTodayTotal,
+        decimal outstandingDebt,
 
-        decimal CashAfterExpense,
-        decimal CashAfterPayroll
+        decimal netBeforePayroll,
+        decimal netAfterPayroll
     );
 }

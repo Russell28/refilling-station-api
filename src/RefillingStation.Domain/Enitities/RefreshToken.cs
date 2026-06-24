@@ -1,6 +1,7 @@
-﻿using RefillingStation.Domain.Entities;
+﻿using RefillingStation.Domain.ErrorCodes;
+using RefillingStation.Domain.Exceptions;
 
-namespace RefillingStation.Domain.Enitities
+namespace RefillingStation.Domain.Entities
 {
     public class RefreshToken
     {
@@ -16,10 +17,25 @@ namespace RefillingStation.Domain.Enitities
         // Constructor enforces invariants
         public RefreshToken(int userId, string token, DateTime expiresAt)
         {
+            if (userId <= 0)
+                throw new DomainException(
+                    DomainErrorCodes.CommonCode.RequiredField,
+                    "UserId is required.");
+
             if (string.IsNullOrWhiteSpace(token))
-                throw new ArgumentException("Token cannot be empty.", nameof(token));
+                throw new DomainException(
+                    DomainErrorCodes.CommonCode.RequiredField, 
+                    "Token is required.");
+
+            if (token.Length < 40)
+                throw new DomainException(
+                    DomainErrorCodes.RefreshTokenCode.InvalidToken,
+                    "Refresh token format is invalid.");
+
             if (expiresAt <= DateTime.UtcNow)
-                throw new ArgumentException("Expiry must be in the future.", nameof(expiresAt));
+                throw new DomainException(
+                    DomainErrorCodes.RefreshTokenCode.InvalidTimestamp,
+                    "Expiry must be in the future.");
 
             UserId = userId;
             Token = token;
@@ -30,13 +46,19 @@ namespace RefillingStation.Domain.Enitities
 
         public void Revoke()
         {
-            if (IsRevoked) return;
+            if (IsRevoked)
+                throw new DomainException(
+                    DomainErrorCodes.RefreshTokenCode.AlreadyRevoked,
+                    "Token is already revoked.");
+
             IsRevoked = true;
             RevokedAt = DateTime.UtcNow;
         }
 
+        public bool IsActive() => !IsExpired() && !IsRevoked;
+
         public bool IsExpired() => DateTime.UtcNow >= ExpiresAt;
 
-        public bool IsTokenRevoked() => IsRevoked;
+        //public bool IsTokenRevoked() => IsRevoked;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace RefillingStation.Domain.Enums
 {
-    public enum Role
+    public enum EmployeeRole
     {
         Manager = 1,
         Supervisor = 2,

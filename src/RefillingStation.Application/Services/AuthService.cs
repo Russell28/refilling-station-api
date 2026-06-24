@@ -3,8 +3,7 @@ using RefillingStation.Application.DTOs.Auth;
 using RefillingStation.Application.Interfaces;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
-using RefillingStation.Domain.Enitities;
-using RefillingStation.Domain.Exceptions;
+using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Application.Services
 {
@@ -80,7 +79,7 @@ namespace RefillingStation.Application.Services
             var refreshTokenEntity = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
 
             // 1. Validate RefreshToken
-            if (refreshTokenEntity == null || refreshTokenEntity.IsRevoked || refreshTokenEntity.IsExpired())
+            if (refreshTokenEntity == null || !refreshTokenEntity.IsActive())
                 throw new UnauthorizedAccessException("Login is required.");
 
             // 2. Validate User

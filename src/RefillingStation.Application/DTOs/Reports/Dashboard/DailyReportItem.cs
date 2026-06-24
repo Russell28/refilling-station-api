@@ -1,28 +1,29 @@
 ﻿namespace RefillingStation.Application.DTOs.Reports.Dashboard
 {
     public sealed record DailyReportItem(
-        DateOnly Date,
+        DateOnly date,
 
-        decimal BacklogStartQty,
-        decimal BacklogEndQty,
+        decimal backlogStartOfDay,
+        decimal runningBacklogQty,
 
-        int TripCount,
+        int tripCountPerDay,
 
-        decimal TotalCollectedQty,
-        decimal TotalDeliveredQty,
-        decimal TotalFreeQty,
-        decimal TotalReturnedQty,
-        decimal TotalReplacementQty,
+        decimal collectedQtyPerDay,
+        decimal deliveredQtyPerDay,
+        decimal freeQtyPerDay,
+        decimal returnedQtyPerDay,
+        decimal replacementQtyPerDay,
 
-        decimal TotalExpenses,
-        decimal TotalPayrollEarned,
-        decimal TotalPayrollPaid,
+        decimal expensesTotalPerDay,
+        decimal payrollEarnedTotalPerDay,
+        decimal payrollPaidTotalPerDay,
 
-        decimal TotalDebtCreated,
-        decimal TotalDebtPayment,
+        decimal debtCreatedPerDay,
+        decimal debtPaymentsPerDay,
 
-        decimal TotalCashCollected,
-        decimal CashAfterExpense,
-        decimal CashAfterPayroll
+        decimal cashCollectedTotalPerDay,
+        decimal netBeforePayrollPerDay,
+        decimal netAfterPayrollPerDay
     );
+
 }

@@ -11,6 +11,5 @@ namespace RefillingStation.Application.Interfaces.Services
         Task UpdateAsync(int id, ExpenseCreateRequest request);
         Task DeleteAsync(int id);
         Task<List<ExpenseDetailResponse>> SearchByDateRangeAsync(DateRangeRequest request);
-
     }
 }

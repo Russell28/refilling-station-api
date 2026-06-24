@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RefillingStation.Application.Interfaces.Repositories;
-using RefillingStation.Domain.Enitities;
+using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Infrastructure.Persistence.Repositories
 {

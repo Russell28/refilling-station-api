@@ -1,4 +1,4 @@
-﻿using RefillingStation.Domain.Enitities;
+﻿using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Application.Interfaces.Repositories
 {

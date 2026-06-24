@@ -2,12 +2,12 @@
 {
     public sealed record MonthlySummaryTotals
     (
-        decimal GrossTotal,
-        decimal DebtTotal,
-        decimal ExpenseTotal,
-        decimal PayrollEarnedTotal,
-        decimal PayrollPaidTotal,
-        decimal PayrollOwedTotal,
+        decimal cashCollected,
+        decimal debtTotal,
+        decimal expenseTotal,
+        decimal payrollEarnedTotal,
+        decimal payrollPaidTotal,
+        decimal payrollOwedTotal,
 
         decimal netBeforePayroll,
         decimal netAfterPayroll,

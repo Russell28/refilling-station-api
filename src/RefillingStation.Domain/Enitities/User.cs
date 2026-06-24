@@ -1,5 +1,4 @@
-﻿using RefillingStation.Domain.Enitities;
-using RefillingStation.Domain.Enums;
+﻿using RefillingStation.Domain.Enums;
 using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
 
@@ -23,19 +22,9 @@ namespace RefillingStation.Domain.Entities
             string passwordHash,
             UserRole role)
         {
-            if (string.IsNullOrWhiteSpace(username))
-                throw new DomainException(DomainErrorCodes.CommonCode.RequiredField, "Username is required.");
-            if (username.Length < 5 || username.Length > 20)
-                throw new DomainException(DomainErrorCodes.UserCode.InvalidUsernameLength, "Username must be between 5 and 20 characters.");
-
-            if (string.IsNullOrWhiteSpace(passwordHash))
-                throw new DomainException(DomainErrorCodes.CommonCode.RequiredField, "Password is required.");
-            if (passwordHash.Length < 50) // bcrypt hashes are ~60 chars
-                throw new DomainException(DomainErrorCodes.UserCode.InvalidPassword, "Password hash is invalid.");
-
-            if (role == default(UserRole) || !Enum.IsDefined(typeof(UserRole), role))
-                throw new DomainException(DomainErrorCodes.CommonCode.RequiredField, "Role is required.");
-
+            GuardAgainstInvalidUsername(username);
+            GuardAgainstInvalidPassword(passwordHash);
+            GuardAgainstInvalidRole(role);
 
             Username = username;
             PasswordHash = passwordHash;
@@ -45,15 +34,10 @@ namespace RefillingStation.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-
         // Domain Rules
         public void ChangePassword(string newHash)
         {
-            if (string.IsNullOrWhiteSpace(newHash))
-                throw new DomainException(DomainErrorCodes.CommonCode.RequiredField, "Password is required.");
-
-            if (newHash.Length < 50) // bcrypt hashes are ~60 chars
-                throw new DomainException(DomainErrorCodes.UserCode.InvalidPassword, "Password hash is invalid.");
+            GuardAgainstInvalidPassword(newHash);
 
             if (newHash == PasswordHash)
                 throw new DomainException(DomainErrorCodes.UserCode.InvalidPassword, "New password cannot be the same as the old password.");
@@ -65,8 +49,7 @@ namespace RefillingStation.Domain.Entities
 
         public void ChangeRole(UserRole newRole)
         {
-            if (newRole == default(UserRole) || !Enum.IsDefined(typeof(UserRole), newRole))
-                throw new DomainException(DomainErrorCodes.CommonCode.RequiredField, "Role is required.");
+            GuardAgainstInvalidRole(newRole);
 
             if (newRole == Role)
                 throw new DomainException(DomainErrorCodes.UserCode.InvalidUserRole, $"The user is already set to {newRole}");
@@ -89,14 +72,38 @@ namespace RefillingStation.Domain.Entities
         public void Deactivate()
         {
             if (!IsActive)
-                throw new DomainException(DomainErrorCodes.UserCode.AlreadyActive, "User is already inactive.");
+                throw new DomainException(DomainErrorCodes.UserCode.AlreadyInactive, "User is already inactive.");
 
             IsActive = false;
+
+            MarkAsUpdated();
         }
 
         private void MarkAsUpdated()
         {
             UpdatedAt = DateTime.UtcNow;
+        }
+
+        private void GuardAgainstInvalidUsername(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new DomainException(DomainErrorCodes.CommonCode.RequiredField, "Username is required.");
+            if (username.Length < 5 || username.Length > 20)
+                throw new DomainException(DomainErrorCodes.UserCode.InvalidUsernameLength, "Username must be between 5 and 20 characters.");
+        }
+
+        private void GuardAgainstInvalidPassword(string passwordHash)
+        {
+            if (string.IsNullOrWhiteSpace(passwordHash))
+                throw new DomainException(DomainErrorCodes.CommonCode.RequiredField, "Password is required.");
+            if (passwordHash.Length < 50) // bcrypt hashes are ~60 chars
+                throw new DomainException(DomainErrorCodes.UserCode.InvalidPassword, "Password hash is invalid.");
+        }
+
+        private void GuardAgainstInvalidRole(UserRole role)
+        {
+            if (role == default(UserRole) || !Enum.IsDefined(typeof(UserRole), role))
+                throw new DomainException(DomainErrorCodes.UserCode.InvalidUserRole, "Role is invalid.");
         }
     }
 }

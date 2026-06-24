@@ -1,30 +1,31 @@
 ﻿namespace RefillingStation.Application.DTOs.Reports.Dashboard
 {
     public sealed record DashboardSummaryResponse(
-        decimal BacklogStartQty,
-        decimal BacklogEndQty,
+        decimal backlogStartQty,
+        decimal backlogEndQty,
 
-        decimal TotalTrips,
-        decimal TotalCollectedQty,
-        decimal TotalDeliveredQty,
+        decimal tripCount,
+        decimal collectedQtyTotal,
+        decimal deliveredQtyTotal,
 
-        decimal TotalExpense,
+        decimal expensesTotal,
 
-        decimal TotalPayrollEarned,
-        decimal TotalPayrollPaid,
-        decimal OutstandingPayroll,
+        decimal payrollEarnedTotal,
+        decimal payrollPaidTotal,
+        decimal outstandingPayroll,
 
-        decimal TotalDebtCreated,
-        decimal TotalDebtPayments,
-        decimal OutstandingDebt,
+        decimal debtCreatedTotal,
+        decimal debtPaymentsTotal,
+        decimal outstandingDebt,
 
-        decimal TotalCashCollected,
-        decimal NetAfterExpense,
-        decimal NetAfterPayroll,
+        decimal cashCollectedTotal,
+        decimal netBeforePayroll,
+        decimal netAfterPayroll,
+        decimal netCashFlow,
 
-        decimal CostPerGallon,
-        decimal RetailPerGallon,
-        decimal ProfitPerGallon,
-        decimal SalaryPaidPerGallon
+        decimal costPerGal,
+        decimal retailPerGal,
+        decimal profitPerGal,
+        decimal salaryPaidPerGal
     );
 }
