@@ -3,6 +3,7 @@
     public sealed record ExpenseBreakdownItemResponse(
         int ExpenseCategoryId,
         string CategoryName,
-        decimal Amount
+        decimal Amount,
+        decimal DailyAverage
     );
 }
