@@ -120,15 +120,15 @@ namespace RefillingStation.Tests.Services
             var result = await _reportsService.GetDashboardAsync(startDate, endDate);
 
             // Assert
-            result.Summary.backlogStartQty.Should().Be(1000);
-            result.Summary.backlogEndQty.Should().Be(1020);
-            result.Summary.tripCount.Should().Be(1);
-            result.Summary.collectedQtyTotal.Should().Be(100);
-            result.Summary.deliveredQtyTotal.Should().Be(80);
-            result.Summary.expensesTotal.Should().Be(200);
-            result.Summary.payrollEarnedTotal.Should().Be(500);
-            result.Summary.payrollPaidTotal.Should().Be(500);
-            result.Summary.cashCollectedTotal.Should().Be(1000);
+            result.Summary.BacklogStartQty.Should().Be(1000);
+            result.Summary.BacklogEndQty.Should().Be(1020);
+            result.Summary.TripCount.Should().Be(1);
+            result.Summary.CollectedQtyTotal.Should().Be(100);
+            result.Summary.DeliveredQtyTotal.Should().Be(80);
+            result.Summary.ExpensesTotal.Should().Be(200);
+            result.Summary.PayrollEarnedTotal.Should().Be(500);
+            result.Summary.PayrollPaidTotal.Should().Be(500);
+            result.Summary.CashCollectedTotal.Should().Be(1000);
         }
 
         [Fact]
@@ -190,8 +190,8 @@ namespace RefillingStation.Tests.Services
             var result = await _reportsService.GetDashboardAsync(startDate, endDate);
 
             // Assert
-            result.Summary.backlogStartQty.Should().Be(1100);
-            result.Summary.backlogEndQty.Should().Be(1120);
+            result.Summary.BacklogStartQty.Should().Be(1100);
+            result.Summary.BacklogEndQty.Should().Be(1120);
         }
 
         [Fact]
@@ -660,9 +660,9 @@ namespace RefillingStation.Tests.Services
             var result = await _reportsService.GetDashboardAsync(startDate, endDate);
 
             // Assert
-            result.Summary.costPerGal.Should().Be(0);
-            result.Summary.retailPerGal.Should().Be(0);
-            result.Summary.profitPerGal.Should().Be(0);
+            result.Summary.CostPerGal.Should().Be(0);
+            result.Summary.RetailPerGal.Should().Be(0);
+            result.Summary.ProfitPerGal.Should().Be(0);
         }
 
         [Fact]
@@ -694,8 +694,8 @@ namespace RefillingStation.Tests.Services
             var result = await _reportsService.GetDashboardAsync(startDate, endDate);
 
             // Assert
-            result.Summary.debtCreatedTotal.Should().Be(1000);
-            result.Summary.debtPaymentsTotal.Should().Be(300);
+            result.Summary.DebtCreatedTotal.Should().Be(1000);
+            result.Summary.DebtPaymentsTotal.Should().Be(300);
         }
 
         [Fact]

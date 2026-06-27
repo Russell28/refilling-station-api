@@ -39,6 +39,11 @@ namespace RefillingStation.Application.Services
             var debtsRunning = rawData.DebtsRunning;
             var payrollsRunning = rawData.PayrollsRunning;
 
+            var workedDaysCount = payrolls
+                .Select(p => p.EarnedDate)
+                .Distinct()
+                .Count();
+
             // ---------------------------------------------------------
             // SUMMARY CORE
             // ---------------------------------------------------------
@@ -73,6 +78,7 @@ namespace RefillingStation.Application.Services
 
             // Expenses
             var expensesTotal = expenses.Sum(x => x.Amount);
+            var expensesDailyAverage = DivideOrZero(expensesTotal, workedDaysCount);
 
             // Cashflow
             var cashCollectedTotal = trips.Sum(x => x.ActualCashCollected);
@@ -124,7 +130,16 @@ namespace RefillingStation.Application.Services
                 // Backlog
                 runningBacklogQty += collectedQtyPerDay - deliveredQtyPerDay;
 
-                if (cashCollectedTotalPerDay == 0 && deliveredQtyPerDay == 0 && collectedQtyPerDay == 0) // skip day off
+                bool isWorkedDay =
+                    collectedQtyPerDay > 0 ||
+                    deliveredQtyPerDay > 0 ||
+                    cashCollectedTotalPerDay > 0 ||
+                    expensesTotalPerDay > 0 ||
+                    payrollEarnedTotalPerDay > 0 ||
+                    debtCreatedPerDay > 0 ||
+                    debtPaymentsPerDay > 0;
+
+                if (!isWorkedDay) // skip - day off
                     continue;
 
                 dailyReports.Add(new DailyReportItem(
@@ -164,7 +179,8 @@ namespace RefillingStation.Application.Services
                 .Select(g => new ExpenseBreakdownItemResponse(
                     g.Key,
                     g.First().ExpenseCategory,
-                    g.Sum(x => x.Amount)
+                    g.Sum(x => x.Amount),
+                    DivideOrZero(g.Sum(x => x.Amount), workedDaysCount)
                 ))
                 .ToList();
 
@@ -213,10 +229,10 @@ namespace RefillingStation.Application.Services
             // ---------------------------------------------------------
             // Cost, Price, Profit per gallon sold
             // ---------------------------------------------------------
-            var costPerGal = SafePerGal(expensesTotal + payrollEarnedTotal, deliveredQtyTotal);
-            var retailPerGal = SafePerGal(cashCollectedTotal, deliveredQtyTotal);
-            var profitPerGal = SafePerGal(netAfterPayroll, deliveredQtyTotal);
-            var salaryPaidPerGal = SafePerGal(payrollEarnedTotal, deliveredQtyTotal);
+            var costPerGal = DivideOrZero(expensesTotal + payrollEarnedTotal, deliveredQtyTotal);
+            var retailPerGal = DivideOrZero(cashCollectedTotal, deliveredQtyTotal);
+            var profitPerGal = DivideOrZero(netAfterPayroll, deliveredQtyTotal);
+            var salaryPaidPerGal = DivideOrZero(payrollEarnedTotal, deliveredQtyTotal);
 
             // ---------------------------------------------------------
             // FINAL RESPONSE
@@ -226,11 +242,13 @@ namespace RefillingStation.Application.Services
                 backlogStartQty,
                 backlogEndQty,
 
+                workedDaysCount,
                 tripCount,
                 collectedQtyTotal,
                 deliveredQtyTotal,
 
                 expensesTotal,
+                expensesDailyAverage,
 
                 payrollEarnedTotal,
                 payrollPaidTotal,
@@ -260,7 +278,7 @@ namespace RefillingStation.Application.Services
             );
         }
 
-        private decimal SafePerGal(decimal numerator, decimal denominator)
+        private decimal DivideOrZero(decimal numerator, decimal denominator)
         {
             return denominator == 0 ? 0 : numerator / denominator;
         }
@@ -322,7 +340,8 @@ namespace RefillingStation.Application.Services
                 .Select(g => new ExpenseBreakdownItemResponse(
                     g.Key,
                     g.First().ExpenseCategory,
-                    g.Sum(x => x.Amount)
+                    g.Sum(x => x.Amount),
+                    DailyAverage: g.Sum(x => x.Amount) / 1
                 ))
                 .ToList();
 
