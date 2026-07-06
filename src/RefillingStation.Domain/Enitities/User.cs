@@ -16,6 +16,7 @@ namespace RefillingStation.Domain.Entities
 
         // Relationships
         public ICollection<RefreshToken> RefreshTokens { get; private set; } = new List<RefreshToken>();
+        protected User() { }
 
         public User(
             string username,

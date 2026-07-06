@@ -7,12 +7,14 @@ namespace RefillingStation.Domain.Entities
     {
         public int Id { get; private set; }
         public int UserId { get; private set; }
-        public string Token { get; private set; }
+        public string Token { get; private set; } = string.Empty;
         public DateTime ExpiresAt { get; private set; }
         public DateTime CreatedAt { get; private init; }
         public DateTime? RevokedAt { get; private set; }
         public bool IsRevoked { get; private set; }
         public User User { get; private set; } = null!;
+
+        protected RefreshToken() { } // EF Core
 
         // Constructor enforces invariants
         public RefreshToken(int userId, string token, DateTime expiresAt)
