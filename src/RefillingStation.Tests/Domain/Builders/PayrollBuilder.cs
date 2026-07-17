@@ -68,10 +68,8 @@ namespace RefillingStation.Tests.Domain.Builders
             {
                 Id = _id,
                 EarnedDate = _earnedDate,
-                PaidDate = _paidDate,
                 EmployeeId = _employeeId,
                 SalaryAmount = _salaryAmount,
-                CashPaid = _cashPaid,
                 Notes = _notes,
                 Employee = _employee
             };

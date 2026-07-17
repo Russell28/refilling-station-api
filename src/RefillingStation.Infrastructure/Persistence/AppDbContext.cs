@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using RefillingStation.Domain.Enitities;
 using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Infrastructure.Persistence
@@ -13,6 +14,7 @@ namespace RefillingStation.Infrastructure.Persistence
         public DbSet<CustomerDebtEntry> CustomerDebtEntries => Set<CustomerDebtEntry>();
         public DbSet<Expense> Expenses => Set<Expense>();
         public DbSet<PayrollEntry> PayrollEntries => Set<PayrollEntry>();
+        public DbSet<PayrollPayment> PayrollPayments => Set<PayrollPayment>();
         public DbSet<MonthlyClosing> MonthlyClosings => Set<MonthlyClosing>();
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<ExpenseCategory> ExpenseCategories => Set<ExpenseCategory>();

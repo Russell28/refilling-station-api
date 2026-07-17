@@ -1,13 +1,11 @@
-﻿namespace RefillingStation.Application.DTOs.Payrolls
+﻿namespace RefillingStation.Application.DTOs.PayrollEntries
 {
-    public sealed record PayrollDetailResponse(
+    public sealed record PayrollEntryDetailResponse(
         int Id,
         DateOnly EarnedDate,
-        DateOnly? PaidDate,
         int EmployeeId,
         string EmployeeName,
         decimal SalaryAmount,
-        decimal CashPaid,
         string? Notes
     );
 }

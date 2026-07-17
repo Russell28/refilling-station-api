@@ -1,11 +1,10 @@
 ﻿namespace RefillingStation.Application.DTOs.Reports
 {
-    public sealed record PayrollReportItem(
+    public sealed record PayrollEntryReportItem(
         int Id,
         DateOnly EarnedDate,
         int EmployeeId,
         string EmployeeName,
-        decimal SalaryAmount,
-        decimal CashPaid
+        decimal SalaryAmount
     );
 }

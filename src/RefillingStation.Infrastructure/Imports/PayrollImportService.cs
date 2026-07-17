@@ -93,10 +93,8 @@ namespace RefillingStation.Infrastructure.Imports
             var payrolls = normalizedRows.Select(x => new PayrollEntry
             {
                 EarnedDate = x.Row.EarnedDate,
-                PaidDate = x.Row.PaidDate,
                 EmployeeId = x.Row.EmployeeId,
                 SalaryAmount = x.Row.SalaryAmount,
-                CashPaid = x.Row.CashPaid,
                 Notes = x.Row.Notes
             });
 

@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using RefillingStation.Application.DTOs.Payrolls;
+using RefillingStation.Application.DTOs.PayrollEntries;
 
 namespace RefillingStation.Application.Validators
 {
-    public class PayrollCreateRequestValidator : AbstractValidator<PayrollCreateRequest>
+    public class PayrollEntryCreateRequestValidator : AbstractValidator<PayrollEntryCreateRequest>
     {
-        public PayrollCreateRequestValidator()
+        public PayrollEntryCreateRequestValidator()
         {
             RuleFor(x => x.EarnedDate)
                 .NotEmpty();

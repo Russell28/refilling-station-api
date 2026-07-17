@@ -3,7 +3,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Moq;
 using RefillingStation.Application.DTOs.Common;
-using RefillingStation.Application.DTOs.Payrolls;
+using RefillingStation.Application.DTOs.PayrollEntries;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Services;
 using RefillingStation.Domain.Entities;
@@ -16,19 +16,19 @@ namespace RefillingStation.Tests.Services
 {
     public class PayrollServiceTests
     {
-        private readonly Mock<IPayrollRepository> _payrollRepository;
+        private readonly Mock<IPayrollEntryRepository> _payrollRepository;
         private readonly Mock<IEmployeeRepository> _employeeRepository;
-        private readonly Mock<IValidator<PayrollCreateRequest>> _validator;
+        private readonly Mock<IValidator<PayrollEntryCreateRequest>> _validator;
 
-        private readonly PayrollService _payrollService;
+        private readonly PayrollEntryService _payrollService;
 
         public PayrollServiceTests()
         {
-            _payrollRepository = new Mock<IPayrollRepository>();
+            _payrollRepository = new Mock<IPayrollEntryRepository>();
             _employeeRepository = new Mock<IEmployeeRepository>();
-            _validator = new Mock<IValidator<PayrollCreateRequest>>();
+            _validator = new Mock<IValidator<PayrollEntryCreateRequest>>();
 
-            _payrollService = new PayrollService(
+            _payrollService = new PayrollEntryService(
                 _payrollRepository.Object,
                 _employeeRepository.Object,
                 _validator.Object
@@ -73,10 +73,8 @@ namespace RefillingStation.Tests.Services
             result.Should().HaveCount(2);
             result[0].Id.Should().Be(1);
             result[0].SalaryAmount.Should().Be(5000m);
-            result[0].CashPaid.Should().Be(5000m);
             result[0].EmployeeName.Should().Be("John Doe");
             result[1].Id.Should().Be(2);
-            result[1].CashPaid.Should().Be(4500m);
         }
 
         [Fact]
@@ -117,14 +115,12 @@ namespace RefillingStation.Tests.Services
                 .Setup(r => r.GetByIdAsync(5))
                 .ReturnsAsync(payroll);
 
-            var expected = new PayrollDetailResponse(
+            var expected = new PayrollEntryDetailResponse(
                 payroll.Id,
                 payroll.EarnedDate,
-                payroll.PaidDate,
                 payroll.EmployeeId,
                 payroll.Employee.FullName,
                 payroll.SalaryAmount,
-                payroll.CashPaid,
                 payroll.Notes
             );
 
@@ -280,10 +276,8 @@ namespace RefillingStation.Tests.Services
             // Assert
             capturedPayroll.Should().NotBeNull();
             capturedPayroll!.EarnedDate.Should().Be(earnedDate);
-            capturedPayroll.PaidDate.Should().Be(paidDate);
             capturedPayroll.EmployeeId.Should().Be(2);
             capturedPayroll.SalaryAmount.Should().Be(7500m);
-            capturedPayroll.CashPaid.Should().Be(7500m);
             capturedPayroll.Notes.Should().Be("January salary");
         }
         #endregion
@@ -329,7 +323,6 @@ namespace RefillingStation.Tests.Services
 
             // Assert
             existingPayroll.SalaryAmount.Should().Be(5500m);
-            existingPayroll.CashPaid.Should().Be(5250m);
             existingPayroll.Notes.Should().Be("Updated payroll");
             _payrollRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
         }

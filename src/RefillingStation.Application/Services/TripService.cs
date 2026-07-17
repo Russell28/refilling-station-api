@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using RefillingStation.Application.DTOs.Common;
-using RefillingStation.Application.DTOs.Payrolls;
+using RefillingStation.Application.DTOs.PayrollEntries;
 using RefillingStation.Application.DTOs.Trips;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;

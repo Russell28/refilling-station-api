@@ -43,18 +43,31 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
                 ))
                 .ToListAsync();
 
-            var payrolls = await _context.PayrollEntries
+            var payrollEntries = await _context.PayrollEntries
                 .AsNoTracking()
                 .Where(x =>
                     x.EarnedDate >= startDate
                     && x.EarnedDate <= endDate)
-                .Select(x => new PayrollReportItem(
+                .Select(x => new PayrollEntryReportItem(
                         x.Id,
                         x.EarnedDate,
                         x.EmployeeId,
                         x.Employee.FullName,
-                        x.SalaryAmount,
-                        x.CashPaid
+                        x.SalaryAmount
+                    ))
+                .ToListAsync();
+
+            var payrollPayments = await _context.PayrollPayments
+                .AsNoTracking()
+                .Where(x =>
+                    x.PaidDate >= startDate
+                    && x.PaidDate <= endDate)
+                .Select(x => new PayrollPaymentReportItem(
+                        x.Id,
+                        x.EmployeeId,
+                        x.Employee.FullName,
+                        x.PaidDate,
+                        x.AmountPaid
                     ))
                 .ToListAsync();
 
@@ -107,16 +120,27 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
                 ))
                 .ToListAsync();
 
-            var payrollsRunning = await _context.PayrollEntries
+            var payrollEntriesRunning = await _context.PayrollEntries
                 .AsNoTracking()
                 .Where(x => x.EarnedDate <= endDate)
-                .Select(x => new PayrollReportItem(
+                .Select(x => new PayrollEntryReportItem(
                         x.Id,
                         x.EarnedDate,
                         x.EmployeeId,
                         x.Employee.FullName,
-                        x.SalaryAmount,
-                        x.CashPaid
+                        x.SalaryAmount
+                    ))
+                .ToListAsync();
+
+            var payrollPaymentsRunning = await _context.PayrollPayments
+                .AsNoTracking()
+                .Where(x => x.PaidDate <= endDate)
+                .Select(x => new PayrollPaymentReportItem(
+                        x.Id,
+                        x.EmployeeId,
+                        x.Employee.FullName,
+                        x.PaidDate,
+                        x.AmountPaid
                     ))
                 .ToListAsync();
 
@@ -124,11 +148,13 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
             {
                 Debts = debts,
                 Expenses = expenses,
-                Payrolls = payrolls,
+                PayrollEntries = payrollEntries,
+                PayrollEntriesRunning = payrollEntriesRunning,
+                PayrollPayments = payrollPayments,
+                PayrollPaymentsRunning = payrollPaymentsRunning,
                 Trips = trips,
                 TripsBefore = tripsBefore,
-                DebtsRunning = debtsRunning,
-                PayrollsRunning = payrollsRunning
+                DebtsRunning = debtsRunning
             };
         }
     }
