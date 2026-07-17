@@ -6,6 +6,7 @@ using RefillingStation.Application.DTOs.Reports.MonthlySummary;
 using RefillingStation.Application.Interfaces.Repositories.Reports;
 using RefillingStation.Application.Interfaces.Services;
 using RefillingStation.Application.Settings;
+using RefillingStation.Domain.Entities;
 
 namespace RefillingStation.Application.Services
 {
@@ -34,12 +35,14 @@ namespace RefillingStation.Application.Services
             var trips = rawData.Trips;
             var debts = rawData.Debts;
             var expenses = rawData.Expenses;
-            var payrolls = rawData.Payrolls;
+            var payrollEntries = rawData.PayrollEntries;
+            var payrollEntriesRunning = rawData.PayrollEntriesRunning;
+            var payrollPayments = rawData.PayrollPayments;
+            var payrollPaymentsRunning = rawData.PayrollPaymentsRunning;
             var tripsBefore = rawData.TripsBefore;
             var debtsRunning = rawData.DebtsRunning;
-            var payrollsRunning = rawData.PayrollsRunning;
 
-            var workedDaysCount = payrolls
+            var workedDaysCount = payrollEntries
                 .Select(p => p.EarnedDate)
                 .Distinct()
                 .Count();
@@ -70,11 +73,11 @@ namespace RefillingStation.Application.Services
             var outstandingDebt = debtsRunning.Sum(x => x.Amount);
 
             // Payroll
-            var payrollEarnedTotal = payrolls.Sum(x => x.SalaryAmount);
-            var payrollPaidTotal = payrolls.Sum(x => x.CashPaid);
+            var payrollEarnedTotal = payrollEntries.Sum(x => x.SalaryAmount);
+            var payrollPaidTotal = payrollPayments.Sum(x => x.AmountPaid);
             var outstandingPayroll =
-                payrollsRunning.Sum(x => x.SalaryAmount) -
-                payrollsRunning.Sum(x => x.CashPaid);
+                payrollEntriesRunning.Sum(x => x.SalaryAmount)
+                - payrollPaymentsRunning.Sum(x => x.AmountPaid);
 
             // Expenses
             var expensesTotal = expenses.Sum(x => x.Amount);
@@ -101,7 +104,8 @@ namespace RefillingStation.Application.Services
 
                 var tripsPerDay = trips.Where(x => x.Date == date).ToList();
                 var expensesPerDay = expenses.Where(x => x.Date == date).ToList();
-                var payrollsPerDay = payrolls.Where(x => x.EarnedDate == date).ToList();
+                var payrollEntriesPerDay = payrollEntries.Where(x => x.EarnedDate == date).ToList();
+                var payrollPaymentsPerDay = payrollPaymentsRunning.Where(x => x.PaidDate == date).ToList();
                 var debtsPerDay = debts.Where(x => x.Date == date).ToList();
 
                 // Quantities
@@ -118,8 +122,8 @@ namespace RefillingStation.Application.Services
 
                 // Expenses & Payroll
                 var expensesTotalPerDay = expensesPerDay.Sum(x => x.Amount);
-                var payrollEarnedTotalPerDay = payrollsPerDay.Sum(x => x.SalaryAmount);
-                var payrollPaidTotalPerDay = payrollsPerDay.Sum(x => x.CashPaid);
+                var payrollEarnedTotalPerDay = payrollEntriesPerDay.Sum(x => x.SalaryAmount);
+                var payrollPaidTotalPerDay = payrollPaymentsPerDay.Sum(x => x.AmountPaid);
 
                 // Trips
                 var tripCountPerDay = tripsPerDay.Count;
@@ -207,15 +211,41 @@ namespace RefillingStation.Application.Services
                 Items: debtBreakdown
             );
 
-            var payrollBreakdown = payrolls
+            var earnings = payrollEntries
+                .GroupBy(x => new { x.EmployeeId, x.EmployeeName })
+                .Select(g => new
+                {
+                    g.Key.EmployeeId,
+                    EmployeeName = g.Key.EmployeeName,
+                    Earned = g.Sum(x => x.SalaryAmount)
+                })
+                .ToList();
+
+            var payments = payrollPayments
                 .GroupBy(x => x.EmployeeId)
-                .Select(g => new PayrollBreakdownItemResponse(
-                    g.Key,
-                    g.First().EmployeeName,
-                    g.Sum(x => x.SalaryAmount),
-                    g.Sum(x => x.CashPaid),
-                    g.Sum(x => x.SalaryAmount) - g.Sum(x => x.CashPaid)
-                ))
+                .Select(g => new
+                {
+                    EmployeeId = g.Key,
+                    Paid = g.Sum(x => x.AmountPaid)
+                })
+                .ToDictionary(x => x.EmployeeId);
+
+            // Combine earnings and payments into a single report
+            var payrollBreakdown = earnings
+                .Select(e =>
+                {
+                    var paid = payments.TryGetValue(e.EmployeeId, out var payment)
+                        ? payment.Paid
+                        : 0m;
+
+                    return new PayrollBreakdownItemResponse(
+                            EmployeeId: e.EmployeeId,
+                            EmployeeName: e.EmployeeName,
+                            Earned: e.Earned,
+                            Paid: paid,
+                            Owed: e.Earned - paid
+                        );
+                })
                 .ToList();
 
             var payrollBreakdownResponse = new PayrollBreakdownResponse(
@@ -290,10 +320,12 @@ namespace RefillingStation.Application.Services
             var trips = rawData.Trips;
             var debts = rawData.Debts;
             var expenses = rawData.Expenses;
-            var payrolls = rawData.Payrolls;
+            var payrollEntries = rawData.PayrollEntries;
+            var payrollPayments = rawData.PayrollPayments;
             var tripsBefore = rawData.TripsBefore;
             var debtsRunning = rawData.DebtsRunning;
-            var payrollsRunning = rawData.PayrollsRunning;
+            var payrollEntriesRunning = rawData.PayrollEntriesRunning;
+            var payrollPaymentsRunning = rawData.PayrollPaymentsRunning;
 
             // ---------------------------------------------------------
             // SUMMARY CORE
@@ -373,25 +405,51 @@ namespace RefillingStation.Application.Services
             // Payroll - Admin Only
             if (isAdmin)
             {
-                var payrollEarnedTotal = payrolls.Sum(x => x.SalaryAmount);
-                var payrollPaidTotal = payrolls.Sum(x => x.CashPaid);
+                var payrollEarnedTotal = payrollEntries.Sum(x => x.SalaryAmount);
+                var payrollPaidTotal = payrollPayments.Sum(x => x.AmountPaid);
                 var payrollOwedTotal = payrollEarnedTotal - payrollPaidTotal;
 
                 var outstandingPayroll =
-                    payrollsRunning.Sum(x => x.SalaryAmount) -
-                    payrollsRunning.Sum(x => x.CashPaid);
+                    payrollEntriesRunning.Sum(x => x.SalaryAmount) -
+                    payrollPaymentsRunning.Sum(x => x.AmountPaid);
 
                 var netAfterPayroll = CalculateNetAfterPayroll(cashCollectedTotal, expensesTotal, payrollEarnedTotal);
 
-                var payrollBreakdown = payrollsRunning
+                var earnings = payrollEntriesRunning
+                .GroupBy(x => new { x.EmployeeId, x.EmployeeName })
+                .Select(g => new
+                {
+                    g.Key.EmployeeId,
+                    EmployeeName = g.Key.EmployeeName,
+                    Earned = g.Sum(x => x.SalaryAmount)
+                })
+                .ToList();
+
+                var payments = payrollPaymentsRunning
                     .GroupBy(x => x.EmployeeId)
-                    .Select(g => new PayrollBreakdownItemResponse(
-                        g.Key,
-                        g.First().EmployeeName,
-                        g.Sum(x => x.SalaryAmount),
-                        g.Sum(x => x.CashPaid),
-                        g.Sum(x => x.SalaryAmount) - g.Sum(x => x.CashPaid)
-                    ))
+                    .Select(g => new
+                    {
+                        EmployeeId = g.Key,
+                        Paid = g.Sum(x => x.AmountPaid)
+                    })
+                    .ToDictionary(x => x.EmployeeId);
+
+                // Combine earnings and payments into a single report
+                var payrollBreakdown = earnings
+                    .Select(e =>
+                    {
+                        var paid = payments.TryGetValue(e.EmployeeId, out var payment)
+                            ? payment.Paid
+                            : 0m;
+
+                        return new PayrollBreakdownItemResponse(
+                                EmployeeId: e.EmployeeId,
+                                EmployeeName: e.EmployeeName,
+                                Earned: e.Earned,
+                                Paid: paid,
+                                Owed: e.Earned - paid
+                            );
+                    })
                     .Where(x => x.Owed != 0)
                     .ToList();
 

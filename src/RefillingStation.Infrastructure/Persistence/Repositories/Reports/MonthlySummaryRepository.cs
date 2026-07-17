@@ -36,11 +36,11 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
                     && x.EarnedDate <= end)
                 .SumAsync(x => x.SalaryAmount);
 
-            var payrollPaidTotal = await _context.PayrollEntries
+            var payrollPaidTotal = await _context.PayrollPayments
                 .Where(x =>
-                    x.EarnedDate >= start
-                    && x.EarnedDate <= end)
-                .SumAsync(x => x.CashPaid);
+                    x.PaidDate >= start
+                    && x.PaidDate <= end)
+                .SumAsync(x => x.AmountPaid);
 
             var grossTotal = await _context.Trips
                 .Where(x => x.Date >= start && x.Date <= end)
