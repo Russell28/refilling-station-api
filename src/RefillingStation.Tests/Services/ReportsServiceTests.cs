@@ -60,13 +60,13 @@ namespace RefillingStation.Tests.Services
                 {
                     new(1, new DateOnly(2024, 1, 1), 1, "Fuel", 200)
                 },
-                Payrolls = new List<PayrollReportItem>
+                Payrolls = new List<PayrollEntryReportItem>
                 {
                     new(1, new DateOnly(2024, 1, 1), 1, "Employee A", 500, 500)
                 },
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dashboardRepository.Setup(r => r.GetDashboardAsync(startDate, endDate))
@@ -104,13 +104,13 @@ namespace RefillingStation.Tests.Services
                 {
                     new(1, new DateOnly(2024, 1, 1), 1, "Fuel", 200)
                 },
-                Payrolls = new List<PayrollReportItem>
+                Payrolls = new List<PayrollEntryReportItem>
                 {
                     new(1, new DateOnly(2024, 1, 1), 1, "Employee A", 500, 500)
                 },
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dashboardRepository.Setup(r => r.GetDashboardAsync(startDate, endDate))
@@ -143,10 +143,10 @@ namespace RefillingStation.Tests.Services
                 Trips = new List<TripReportItem>(),
                 Debts = new List<CustomerDebtReportItem>(),
                 Expenses = new List<ExpenseReportItem>(),
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dashboardRepository.Setup(r => r.GetDashboardAsync(startDate, endDate))
@@ -174,13 +174,13 @@ namespace RefillingStation.Tests.Services
                 },
                 Debts = new List<CustomerDebtReportItem>(),
                 Expenses = new List<ExpenseReportItem>(),
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>
                 {
                     new(2, new DateOnly(2023, 12, 31), 1, 200, 0, 100, 0, 0, 0, 0)
                 },
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dashboardRepository.Setup(r => r.GetDashboardAsync(startDate, endDate))
@@ -210,10 +210,10 @@ namespace RefillingStation.Tests.Services
                     new(1, new DateOnly(2024, 1, 1), 1, "Fuel", 300),
                     new(2, new DateOnly(2024, 1, 2), 2, "Maintenance", 200)
                 },
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dashboardRepository.Setup(r => r.GetDashboardAsync(startDate, endDate))
@@ -244,13 +244,13 @@ namespace RefillingStation.Tests.Services
                     new(2, new DateOnly(2024, 1, 2), 1, "Customer A", -200)
                 },
                 Expenses = new List<ExpenseReportItem>(),
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>
                 {
                     new(3, new DateOnly(2024, 1, 2), 1, "Customer A", 300)
                 },
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dashboardRepository.Setup(r => r.GetDashboardAsync(startDate, endDate))
@@ -276,14 +276,14 @@ namespace RefillingStation.Tests.Services
                 Trips = new List<TripReportItem>(),
                 Debts = new List<CustomerDebtReportItem>(),
                 Expenses = new List<ExpenseReportItem>(),
-                Payrolls = new List<PayrollReportItem>
+                Payrolls = new List<PayrollEntryReportItem>
                 {
                     new(1, new DateOnly(2024, 1, 1), 1, "Employee A", 500, 300),
                     new(2, new DateOnly(2024, 1, 15), 2, "Employee B", 600, 600)
                 },
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dashboardRepository.Setup(r => r.GetDashboardAsync(startDate, endDate))
@@ -319,10 +319,10 @@ namespace RefillingStation.Tests.Services
                 {
                     new(1, date, 1, "Fuel", 200)
                 },
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dailySummaryRepository.Setup(r => r.GetDailySummaryAsync(date))
@@ -356,13 +356,13 @@ namespace RefillingStation.Tests.Services
                 {
                     new(1, date, 1, "Fuel", 200)
                 },
-                Payrolls = new List<PayrollReportItem>
+                Payrolls = new List<PayrollEntryReportItem>
                 {
                     new(1, date, 1, "Employee A", 500, 300)
                 },
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dailySummaryRepository.Setup(r => r.GetDailySummaryAsync(date))
@@ -393,10 +393,10 @@ namespace RefillingStation.Tests.Services
                     new(1, date, 1, "Fuel", 300),
                     new(2, date, 2, "Maintenance", 100)
                 },
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dailySummaryRepository.Setup(r => r.GetDailySummaryAsync(date))
@@ -423,13 +423,13 @@ namespace RefillingStation.Tests.Services
                 Trips = new List<TripReportItem>(),
                 Debts = new List<CustomerDebtReportItem>(),
                 Expenses = new List<ExpenseReportItem>(),
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>
                 {
                     new(1, date, 1, "Customer A", 500)
                 },
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dailySummaryRepository.Setup(r => r.GetDailySummaryAsync(date))
@@ -454,10 +454,10 @@ namespace RefillingStation.Tests.Services
                 Trips = new List<TripReportItem>(),
                 Debts = new List<CustomerDebtReportItem>(),
                 Expenses = new List<ExpenseReportItem>(),
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>
+                PayrollsRunning = new List<PayrollEntryReportItem>
                 {
                     new(1, date, 1, "Employee A", 500, 300)
                 }
@@ -647,10 +647,10 @@ namespace RefillingStation.Tests.Services
                 Trips = new List<TripReportItem>(),
                 Debts = new List<CustomerDebtReportItem>(),
                 Expenses = new List<ExpenseReportItem>(),
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dashboardRepository.Setup(r => r.GetDashboardAsync(startDate, endDate))
@@ -681,10 +681,10 @@ namespace RefillingStation.Tests.Services
                     new(2, new DateOnly(2024, 1, 1), 1, "A", -300)
                 },
                 Expenses = new List<ExpenseReportItem>(),
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>(),
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dashboardRepository.Setup(r => r.GetDashboardAsync(startDate, endDate))
@@ -712,13 +712,13 @@ namespace RefillingStation.Tests.Services
                 },
                 Debts = new List<CustomerDebtReportItem>(),
                 Expenses = new List<ExpenseReportItem>(),
-                Payrolls = new List<PayrollReportItem>(),
+                Payrolls = new List<PayrollEntryReportItem>(),
                 TripsBefore = new List<TripReportItem>
                 {
                     new(2, new DateOnly(2023, 12, 31), 1, 100, 0, 80, 0, 0, 0, 0)
                 },
                 DebtsRunning = new List<CustomerDebtReportItem>(),
-                PayrollsRunning = new List<PayrollReportItem>()
+                PayrollsRunning = new List<PayrollEntryReportItem>()
             };
 
             _dailySummaryRepository.Setup(r => r.GetDailySummaryAsync(date))

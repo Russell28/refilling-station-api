@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RefillingStation.Application.DTOs.Common;
-using RefillingStation.Application.DTOs.Payrolls;
+using RefillingStation.Application.DTOs.PayrollEntries;
 using RefillingStation.Application.Interfaces.Services;
 
 namespace RefillingStation.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/payroll-entries")]
     [ApiController]
     [Authorize(Policy = "AdminOnly")]
-    public class PayrollsController : ControllerBase
+    public class PayrollEntriesController : ControllerBase
     {
-        private readonly IPayrollService _service;
+        private readonly IPayrollEntryService _service;
 
-        public PayrollsController(IPayrollService service)
+        public PayrollEntriesController(IPayrollEntryService service)
         {
             _service = service;
         }
@@ -35,7 +35,7 @@ namespace RefillingStation.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(PayrollCreateRequest request)
+        public async Task<IActionResult> Create(PayrollEntryCreateRequest request)
         {
             var id = await _service.CreateAsync(request);
 
@@ -43,7 +43,7 @@ namespace RefillingStation.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, PayrollCreateRequest request)
+        public async Task<IActionResult> Update(int id, PayrollEntryCreateRequest request)
         {
             await _service.UpdateAsync(id, request);
 

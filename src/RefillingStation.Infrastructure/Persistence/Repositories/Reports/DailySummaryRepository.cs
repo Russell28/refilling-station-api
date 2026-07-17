@@ -43,7 +43,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
             var payrolls = await _context.PayrollEntries
                 .AsNoTracking()
                 .Where(x => x.EarnedDate == date)
-                .Select(x => new PayrollReportItem(
+                .Select(x => new PayrollEntryReportItem(
                         x.Id,
                         x.EarnedDate,
                         x.EmployeeId,
@@ -103,7 +103,7 @@ namespace RefillingStation.Infrastructure.Persistence.Repositories.Reports
             var payrollsRunning = await _context.PayrollEntries
                 .AsNoTracking()
                 .Where(x => x.EarnedDate <= date)
-                .Select(x => new PayrollReportItem(
+                .Select(x => new PayrollEntryReportItem(
                         x.Id,
                         x.EarnedDate,
                         x.EmployeeId,

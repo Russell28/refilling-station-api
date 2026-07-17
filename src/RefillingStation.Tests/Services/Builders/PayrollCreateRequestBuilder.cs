@@ -1,4 +1,4 @@
-using RefillingStation.Application.DTOs.Payrolls;
+using RefillingStation.Application.DTOs.PayrollEntries;
 
 namespace RefillingStation.Tests.Services.Builders
 {
@@ -47,9 +47,9 @@ namespace RefillingStation.Tests.Services.Builders
             return this;
         }
 
-        public PayrollCreateRequest Build()
+        public PayrollEntryCreateRequest Build()
         {
-            return new PayrollCreateRequest
+            return new PayrollEntryCreateRequest
             {
                 EarnedDate = _earnedDate,
                 PaidDate = _paidDate,

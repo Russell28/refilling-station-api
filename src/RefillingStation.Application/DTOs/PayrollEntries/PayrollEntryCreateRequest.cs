@@ -1,6 +1,6 @@
-﻿namespace RefillingStation.Application.DTOs.Payrolls
+﻿namespace RefillingStation.Application.DTOs.PayrollEntries
 {
-    public sealed class PayrollCreateRequest
+    public sealed class PayrollEntryCreateRequest
     {
         public DateOnly EarnedDate { get; set; }
         public DateOnly? PaidDate { get; set; } 

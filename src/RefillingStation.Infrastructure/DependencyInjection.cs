@@ -27,7 +27,7 @@ namespace RefillingStation.Infrastructure
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
             services.AddScoped<IExpenseRepository, ExpenseRepository>();
-            services.AddScoped<IPayrollRepository, PayrollRepository>();
+            services.AddScoped<IPayrollEntryRepository, PayrollEntryRepository>();
             services.AddScoped<IPayrollPaymentRepository, PayrollPaymentRepository>();
             services.AddScoped<ITripRepository, TripRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
