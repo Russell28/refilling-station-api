@@ -19,6 +19,7 @@ namespace RefillingStation.Application
             services.AddScoped<IExpenseCategoryService, ExpenseCategoryService>();
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<IPayrollService, PayrollService>();
+            services.AddScoped<IPayrollPaymentService, PayrollPaymentService>();
             services.AddScoped<ITripService, TripService>();
             services.AddScoped<IReportsService, ReportsService>();
             services.AddScoped<IMonthlyClosingService, MonthlyClosingService>();
