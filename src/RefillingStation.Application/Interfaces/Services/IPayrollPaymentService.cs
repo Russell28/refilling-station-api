@@ -1,4 +1,6 @@
-﻿using RefillingStation.Application.DTOs.PayrollPayments;
+﻿using RefillingStation.Application.DTOs.Common;
+using RefillingStation.Application.DTOs.PayrollEntries;
+using RefillingStation.Application.DTOs.PayrollPayments;
 
 namespace RefillingStation.Application.Interfaces.Services
 {
@@ -9,5 +11,7 @@ namespace RefillingStation.Application.Interfaces.Services
         Task<int> CreateAsync(PayrollPaymentCreateRequest request);
         Task UpdateAsync(int id, PayrollPaymentCreateRequest request);
         Task DeleteAsync(int id);
+        Task<List<PayrollPaymentDetailResponse>> SearchByDateRangeAsync(DateRangeRequest request);
+
     }
 }

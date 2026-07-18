@@ -1,5 +1,4 @@
-﻿using RefillingStation.Domain.Enitities;
-using RefillingStation.Domain.Enums;
+﻿using RefillingStation.Domain.Enums;
 using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
 

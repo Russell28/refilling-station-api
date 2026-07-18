@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using RefillingStation.Application.DTOs.Common;
 using RefillingStation.Application.DTOs.PayrollPayments;
 using RefillingStation.Application.Interfaces.Services;
 
 namespace RefillingStation.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/payroll-payments")]
     [ApiController]
+    [Authorize(Policy = "AdminOnly")]
     public class PayrollPaymentsController : ControllerBase
     {
         private readonly IPayrollPaymentService _service;
@@ -53,6 +56,14 @@ namespace RefillingStation.Api.Controllers
             await _service.DeleteAsync(id);
 
             return NoContent();
+        }
+
+        [HttpPost("search")]
+        public async Task<IActionResult> Search(DateRangeRequest request)
+        {
+            var result = await _service.SearchByDateRangeAsync(request);
+
+            return Ok(result);
         }
     }
 }

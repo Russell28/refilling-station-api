@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
+using RefillingStation.Application.DTOs.Common;
 using RefillingStation.Application.DTOs.PayrollPayments;
 using RefillingStation.Application.Interfaces.Repositories;
 using RefillingStation.Application.Interfaces.Services;
-using RefillingStation.Domain.Enitities;
+using RefillingStation.Domain.Entities;
 using RefillingStation.Domain.Exceptions;
 
 namespace RefillingStation.Application.Services
@@ -117,6 +118,30 @@ namespace RefillingStation.Application.Services
             _payrollPaymentRepository.Remove(payment);
 
             await _payrollPaymentRepository.SaveChangesAsync();
+        }
+
+        public async Task<List<PayrollPaymentDetailResponse>> SearchByDateRangeAsync(DateRangeRequest request)
+        {
+            var options = new DateRangeOptions
+            {
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                Page = request.Page
+            };
+
+            var payrolls = await _payrollPaymentRepository.SearchByDateRangeAsync(options);
+
+            return payrolls
+                .Select(x => new PayrollPaymentDetailResponse
+                (
+                    x.Id,
+                    x.EmployeeId,
+                    x.Employee.FullName,
+                    x.PaidDate,
+                    x.AmountPaid,
+                    x.Notes
+                ))
+                .ToList();
         }
     }
 }
