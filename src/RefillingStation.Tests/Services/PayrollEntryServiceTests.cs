@@ -14,7 +14,7 @@ using System.Linq.Expressions;
 
 namespace RefillingStation.Tests.Services
 {
-    public class PayrollServiceTests
+    public class PayrollEntryServiceTests
     {
         private readonly Mock<IPayrollEntryRepository> _payrollRepository;
         private readonly Mock<IEmployeeRepository> _employeeRepository;
@@ -22,7 +22,7 @@ namespace RefillingStation.Tests.Services
 
         private readonly PayrollEntryService _payrollService;
 
-        public PayrollServiceTests()
+        public PayrollEntryServiceTests()
         {
             _payrollRepository = new Mock<IPayrollEntryRepository>();
             _employeeRepository = new Mock<IEmployeeRepository>();
