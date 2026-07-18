@@ -52,10 +52,8 @@ namespace RefillingStation.Tests.Services.Builders
             return new PayrollEntryCreateRequest
             {
                 EarnedDate = _earnedDate,
-                PaidDate = _paidDate,
                 EmployeeId = _employeeId,
                 SalaryAmount = _salaryAmount,
-                CashPaid = _cashPaid,
                 Notes = _notes
             };
         }
