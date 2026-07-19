@@ -1,4 +1,5 @@
-﻿using RefillingStation.Domain.Enums;
+﻿using RefillingStation.Domain.Enitities;
+using RefillingStation.Domain.Enums;
 using RefillingStation.Domain.ErrorCodes;
 using RefillingStation.Domain.Exceptions;
 
@@ -18,6 +19,7 @@ namespace RefillingStation.Domain.Entities
         public ICollection<Trip> Trips { get; set; } = new List<Trip>();
         public ICollection<PayrollEntry> PayrollEntries { get; set; } = new List<PayrollEntry>();
         public ICollection<PayrollPayment> PayrollPayments { get; set; } = new List<PayrollPayment>();
+        public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 
         public void Activate()
         {
